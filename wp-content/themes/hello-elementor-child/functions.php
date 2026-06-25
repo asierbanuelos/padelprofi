@@ -875,9 +875,10 @@ add_shortcode('pods_carousel', 'render_pods_carousel');
 function enqueue_slick_scripts() {
     // Cargar Slick solo en la home y páginas de categoría donde se usa el carrusel
     if (!is_front_page() && !is_product_category()) return;
-    wp_enqueue_style('slick-css', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css');
-    wp_enqueue_style('slick-theme-css', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css');
-    wp_enqueue_script('slick-js', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js', array('jquery'), null, true);
+    $slick_ver = '1.8.1';
+    wp_enqueue_style('slick-css', get_stylesheet_directory_uri() . '/assets/plugins/slick/slick.css', array(), $slick_ver);
+    wp_enqueue_style('slick-theme-css', get_stylesheet_directory_uri() . '/assets/plugins/slick/slick-theme.css', array(), $slick_ver);
+    wp_enqueue_script('slick-js', get_stylesheet_directory_uri() . '/assets/plugins/slick/slick.min.js', array('jquery'), $slick_ver, true);
 }
 add_action('wp_enqueue_scripts', 'enqueue_slick_scripts');
 
@@ -1176,10 +1177,10 @@ add_action( 'wp_enqueue_scripts', 'enqueue_custom_carousel_styles', 100 );
  * Enqueue Swiper.js scripts and styles for the subcategories slider
  */
 function enqueue_subcategories_slider_assets() {
-    $timestamp = time();
+    $ver = wp_get_theme()->get('Version');
     // Swiper CSS/JS ya cargado globalmente (v11 via swiper-css/swiper-js)
     // Encolar el script de inicialización con dependencia al swiper global
-    wp_enqueue_script( 'subcat-slider-init', get_stylesheet_directory_uri() . '/assets/js/subcat-slider-init.js', array( 'swiper-js' ), $timestamp, true );
+    wp_enqueue_script( 'subcat-slider-init', get_stylesheet_directory_uri() . '/assets/js/subcat-slider-init.js', array( 'swiper-js' ), $ver, true );
 }
 add_action( 'wp_enqueue_scripts', 'enqueue_subcategories_slider_assets' );
 
