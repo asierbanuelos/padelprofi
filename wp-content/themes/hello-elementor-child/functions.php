@@ -882,12 +882,6 @@ function enqueue_slick_scripts() {
 }
 add_action('wp_enqueue_scripts', 'enqueue_slick_scripts');
 
-function ppd_preconnect_hints() {
-    // cdnjs for Font Awesome (still served from CDN in header.php)
-    echo '<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>';
-}
-add_action('wp_head', 'ppd_preconnect_hints', 1);
-
 
 
 

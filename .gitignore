@@ -27,5 +27,6 @@ wp-content/plugins/*
 wp-content/themes/hello-elementor-child/assets/plugins/
 !wp-content/themes/hello-elementor-child/assets/plugins/slick/
 !wp-content/themes/hello-elementor-child/assets/plugins/swiper/
+!wp-content/themes/hello-elementor-child/assets/plugins/font-awesome-6/
 wp-content/themes/hello-elementor-child/carousel-slider/
 wp-content/themes/hello-elementor-child/js/carousel-slider/
