@@ -882,6 +882,12 @@ function enqueue_slick_scripts() {
 }
 add_action('wp_enqueue_scripts', 'enqueue_slick_scripts');
 
+function ppd_preconnect_hints() {
+    // cdnjs for Font Awesome (still served from CDN in header.php)
+    echo '<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>';
+}
+add_action('wp_head', 'ppd_preconnect_hints', 1);
+
 
 
 
@@ -2901,8 +2907,9 @@ add_shortcode('categoria_segunda_palabra', 'obtener_segunda_palabra_categoria');
 
 function cargar_scripts_personalizados() {
     // Encolar Swiper.js y su CSS
-    wp_enqueue_style('swiper-css', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css');
-    wp_enqueue_script('swiper-js', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', array(), null, true);
+    $swiper_ver = '11.0.0';
+    wp_enqueue_style('swiper-css', get_stylesheet_directory_uri() . '/assets/plugins/swiper/swiper-bundle.min.css', array(), $swiper_ver);
+    wp_enqueue_script('swiper-js', get_stylesheet_directory_uri() . '/assets/plugins/swiper/swiper-bundle.min.js', array(), $swiper_ver, true);
 
     // Encolar main.js y asegurarse de que Swiper.js se carga antes
 }
