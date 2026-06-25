@@ -37,9 +37,25 @@ class SitemapPro {
         $urls = get_option('sitemap_urls', array());
         $excluded = get_option('sitemap_excluded', array());
         
-        $productos = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 'posts_per_page' => -1));
+        $productos = get_posts(array(
+            'post_type'              => 'product',
+            'post_status'            => 'publish',
+            'posts_per_page'         => -1,
+            'fields'                 => 'ids',
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+        ));
         $categorias = get_terms(array('taxonomy' => 'product_cat', 'hide_empty' => true));
-        $ubicaciones = get_posts(array('post_type' => 'standort', 'post_status' => 'publish', 'posts_per_page' => -1));
+        $ubicaciones = get_posts(array(
+            'post_type'              => 'standort',
+            'post_status'            => 'publish',
+            'posts_per_page'         => -1,
+            'fields'                 => 'ids',
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+        ));
         
         $todas = array();
         foreach ($urls as $i => $u) {
@@ -334,7 +350,15 @@ class SitemapPro {
         }
         
         // Productos
-        $productos = get_posts(array('post_type' => 'product', 'post_status' => 'publish', 'posts_per_page' => -1));
+        $productos = get_posts(array(
+            'post_type'              => 'product',
+            'post_status'            => 'publish',
+            'posts_per_page'         => -1,
+            'fields'                 => 'ids',
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+        ));
         foreach ($productos as $p) {
             $id = 'product_'.$p->ID;
             if (!in_array($id, $excluded)) {
@@ -358,7 +382,15 @@ class SitemapPro {
         }
         
         // Ubicaciones
-        $ubicaciones = get_posts(array('post_type' => 'standort', 'post_status' => 'publish', 'posts_per_page' => -1));
+        $ubicaciones = get_posts(array(
+            'post_type'              => 'standort',
+            'post_status'            => 'publish',
+            'posts_per_page'         => -1,
+            'fields'                 => 'ids',
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+        ));
         foreach ($ubicaciones as $u) {
             $id = 'ubicacion_'.$u->ID;
             if (!in_array($id, $excluded)) {

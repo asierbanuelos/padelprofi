@@ -34,11 +34,15 @@ function wfpp_edit_category_fields($term) {
     // Obtener productos de la categoría "padelschlaeger" o todos los productos
     // Puedes cambiar 'padelschlaeger' por el slug de tu categoría
     $args = array(
-        'post_type' => 'product',
-        'posts_per_page' => -1,
-        'orderby' => 'title',
-        'order' => 'ASC',
-        'post_status' => 'publish'
+        'post_type'              => 'product',
+        'posts_per_page'         => -1,
+        'orderby'                => 'title',
+        'order'                  => 'ASC',
+        'post_status'            => 'publish',
+        'fields'                 => 'ids',
+        'no_found_rows'          => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
     );
     
     // Si quieres filtrar solo por la categoría "padelschlaeger", descomenta esto:
@@ -74,13 +78,13 @@ function wfpp_edit_category_fields($term) {
                             class="wfpp-product-select"
                         >
                             <option value=""><?php _e('-- Seleccionar Producto --', 'wfpp'); ?></option>
-                            <?php foreach ($products as $product): 
-                                $product_obj = wc_get_product($product->ID);
+                            <?php foreach ($products as $pid): 
+                                $product_obj = wc_get_product($pid);
                                 $price = $product_obj->get_price_html();
                             ?>
-                                <option value="<?php echo $product->ID; ?>" 
-                                    <?php selected(isset($featured_products[$i]) ? $featured_products[$i] : '', $product->ID); ?>>
-                                    <?php echo esc_html($product->post_title); ?> 
+                                <option value="<?php echo $pid; ?>" 
+                                    <?php selected(isset($featured_products[$i]) ? $featured_products[$i] : '', $pid); ?>>
+                                    <?php echo esc_html(get_the_title($pid)); ?> 
                                     <?php if ($product_obj->get_regular_price()): ?>
                                         - <?php echo strip_tags($price); ?>
                                     <?php endif; ?>

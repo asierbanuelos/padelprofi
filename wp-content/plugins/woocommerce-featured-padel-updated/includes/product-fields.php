@@ -45,13 +45,16 @@ function wfpp_product_featured_meta_box_callback($post) {
 
     // Lista de todos los productos para los selectores
     $all_products = get_posts(array(
-        'post_type'      => 'product',
-        'posts_per_page' => -1,
-        'orderby'        => 'title',
-        'order'          => 'ASC',
-        'post_status'    => 'publish',
-        'post__not_in'   => array($post->ID),
-        'fields'         => 'ids',
+        'post_type'              => 'product',
+        'posts_per_page'         => -1,
+        'orderby'                => 'title',
+        'order'                  => 'ASC',
+        'post_status'            => 'publish',
+        'post__not_in'           => array($post->ID),
+        'fields'                 => 'ids',
+        'no_found_rows'          => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
     ));
 
     ?>

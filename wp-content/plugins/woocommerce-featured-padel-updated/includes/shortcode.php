@@ -153,6 +153,10 @@ $auto_ids = apply_filters('wfpp_auto_similar_ids', $auto_ids, $current_product_i
  */
 function wfpp_auto_similar_palas($product_id) {
 
+    $cache_key = 'wfpp_similar_' . $product_id;
+    $cached    = get_transient($cache_key);
+    if ($cached !== false) return $cached;
+
     $current = wc_get_product($product_id);
     if (!$current) return array();
 
@@ -169,12 +173,15 @@ function wfpp_auto_similar_palas($product_id) {
 
     // Todos los candidatos de padelschlaeger (excluido el actual)
     $candidates = get_posts(array(
-        'post_type'      => 'product',
-        'post_status'    => 'publish',
-        'posts_per_page' => -1,
-        'post__not_in'   => array($product_id),
-        'fields'         => 'ids',
-        'tax_query'      => array(
+        'post_type'              => 'product',
+        'post_status'            => 'publish',
+        'posts_per_page'         => -1,
+        'post__not_in'           => array($product_id),
+        'fields'                 => 'ids',
+        'no_found_rows'          => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
+        'tax_query'              => array(
             array(
                 'taxonomy' => 'product_cat',
                 'field'    => 'slug',
@@ -226,8 +233,14 @@ function wfpp_auto_similar_palas($product_id) {
         if (count($resultado) === 3) return $resultado;
     }
 
-    return array_slice($resultado, 0, 3);
+    $result = array_slice($resultado, 0, 3);
+    set_transient($cache_key, $result, HOUR_IN_SECONDS);
+    return $result;
 }
+
+add_action('save_post_product', function($post_id) {
+    delete_transient('wfpp_similar_' . $post_id);
+});
 
 
 // ── Función de render reutilizable ────────────────────────────────────────────
