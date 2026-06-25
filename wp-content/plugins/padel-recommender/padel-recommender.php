@@ -23,9 +23,9 @@ register_activation_hook( __FILE__, function () {
             [ 'id' => 'bullpadel', 'name' => 'Bullpadel' ],
             [ 'id' => 'head',      'name' => 'HEAD' ],
             [ 'id' => 'wilson',    'name' => 'Wilson' ],
-        ]);
+        ], false);
     }
-    if ( ! get_option('pr_mappings') ) update_option( 'pr_mappings', [] );
+    if ( ! get_option('pr_mappings') ) update_option( 'pr_mappings', [], false );
 });
 
 /* ─── Helpers ───────────────────────────────────────── */
@@ -342,7 +342,7 @@ add_action( 'wp_ajax_pr_save_combo', function () {
         if ($pid) $maps[$combo][$bid] = $pid;
     }
     if (empty($maps[$combo])) unset($maps[$combo]);
-    update_option('pr_mappings', $maps);
+    update_option('pr_mappings', $maps, false);
 
     // recalc stats
     $brands  = get_option('pr_brands',[]);
@@ -365,7 +365,7 @@ add_action('wp_ajax_pr_add_brand', function(){
     $brands=get_option('pr_brands',[]);
     foreach($brands as $b) if($b['id']===$id) wp_send_json_error('ID existiert bereits');
     $brands[]=['id'=>$id,'name'=>$name];
-    update_option('pr_brands',$brands);
+    update_option('pr_brands',$brands, false);
     wp_send_json_success();
 });
 add_action('wp_ajax_pr_delete_brand', function(){
@@ -373,7 +373,7 @@ add_action('wp_ajax_pr_delete_brand', function(){
     if(!current_user_can('manage_options')) wp_die();
     $id=sanitize_key($_POST['brand_id']??'');
     $brands=get_option('pr_brands',[]);
-    update_option('pr_brands',array_values(array_filter($brands,fn($b)=>$b['id']!==$id)));
+    update_option('pr_brands',array_values(array_filter($brands,fn($b)=>$b['id']!==$id)), false);
     wp_send_json_success();
 });
 

@@ -308,7 +308,7 @@ function pp_save_popup_settings() {
 		$new_options[ $cat_slug ] = $ids;
 	}
 
-	update_option( 'pp_popup_related_products', $new_options );
+	update_option( 'pp_popup_related_products', $new_options, false );
 
 	$crosssell_rules = [];
 	foreach ( $categories as $cat_slug => $cat_label ) {
@@ -319,7 +319,7 @@ function pp_save_popup_settings() {
 			) );
 		}
 	}
-	update_option( 'pp_popup_crosssell_rules', $crosssell_rules );
+	update_option( 'pp_popup_crosssell_rules', $crosssell_rules, false );
 
 	add_action( 'admin_notices', function () {
 		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Ajustes del popup guardados.', 'hello-elementor-child' ) . '</p></div>';

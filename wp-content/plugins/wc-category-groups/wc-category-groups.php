@@ -47,7 +47,7 @@ class WC_Category_Groups {
      * Guardar grupos
      */
     public function save_groups($groups) {
-        update_option($this->option_name, $groups);
+        update_option($this->option_name, $groups, false);
     }
     
     /**

@@ -20,10 +20,10 @@ class SitemapPro {
     
     public function activar() {
         if (!get_option('sitemap_urls')) {
-            update_option('sitemap_urls', array(array('loc' => home_url('/'))));
+            update_option('sitemap_urls', array(array('loc' => home_url('/'))), false);
         }
         if (!get_option('sitemap_excluded')) update_option('sitemap_excluded', array());
-        if (!get_option('sitemap_history')) update_option('sitemap_history', array());
+        if (!get_option('sitemap_history')) update_option('sitemap_history', array(), false);
         $this->generar();
     }
     
@@ -271,7 +271,7 @@ class SitemapPro {
         if ($action == 'add_url') {
             $urls = get_option('sitemap_urls', array());
             $urls[] = array('loc' => esc_url_raw($_POST['url']));
-            update_option('sitemap_urls', $urls);
+            update_option('sitemap_urls', $urls, false);
             $this->log('URL añadida', array('url' => $_POST['url']));
             $this->generar();
             wp_send_json_success();
@@ -283,7 +283,7 @@ class SitemapPro {
             if (isset($urls[$idx])) {
                 $this->log('URL eliminada', array('url' => $urls[$idx]['loc']));
                 unset($urls[$idx]);
-                update_option('sitemap_urls', array_values($urls));
+                update_option('sitemap_urls', array_values($urls), false);
                 $this->generar();
                 wp_send_json_success();
             }
@@ -311,7 +311,7 @@ class SitemapPro {
         }
         
         if ($action == 'clear_history') {
-            update_option('sitemap_history', array());
+            update_option('sitemap_history', array(), false);
             wp_send_json_success();
         }
     }
@@ -414,7 +414,7 @@ class SitemapPro {
             'usuario' => wp_get_current_user()->display_name
         ));
         if (count($h) > 200) $h = array_slice($h, 0, 200);
-        update_option('sitemap_history', $h);
+        update_option('sitemap_history', $h, false);
     }
 }
 
