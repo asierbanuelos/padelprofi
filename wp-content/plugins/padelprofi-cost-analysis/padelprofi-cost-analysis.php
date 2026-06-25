@@ -754,7 +754,7 @@ class PadelProfi_Cost_Analysis {
                             $processed++;
                         }
                     } catch (Exception $e) {
-                        error_log('Error en pedido ' . $order_id . ': ' . $e->getMessage());
+                        defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log('Error en pedido ' . $order_id . ': ' . $e->getMessage());
                         continue;
                     }
                     
@@ -773,7 +773,7 @@ class PadelProfi_Cost_Analysis {
             exit;
             
         } catch (Exception $e) {
-            error_log('PadelProfi Export Error: ' . $e->getMessage());
+            defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log('PadelProfi Export Error: ' . $e->getMessage());
             wp_die('Error en exportación: ' . $e->getMessage());
         }
     }

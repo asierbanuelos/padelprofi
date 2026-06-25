@@ -2660,7 +2660,7 @@ if ( ! function_exists( 'ppd_meta_pixel_id' ) ) {
 
 		if ( is_wp_error( $response ) ) {
 
-			error_log( 'PPD Meta CAPI error: ' . $response->get_error_message() );
+			defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log('PPD Meta CAPI error: '. $response->get_error_message() );
 
 			return false;
 
@@ -2672,7 +2672,7 @@ if ( ! function_exists( 'ppd_meta_pixel_id' ) ) {
 
 		if ( $status_code < 200 || $status_code >= 300 ) {
 
-			error_log( 'PPD Meta CAPI HTTP ' . $status_code . ': ' . wp_remote_retrieve_body( $response ) );
+			defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log('PPD Meta CAPI HTTP '. $status_code . ': ' . wp_remote_retrieve_body( $response ) );
 
 			return false;
 

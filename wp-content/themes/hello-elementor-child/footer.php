@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function() {
             const productId = addToCartButton.getAttribute("data-product-id");
 
             if (!productId) {
-                console.log("No se pudo obtener el ID del producto.");
                 return;
             }
 
@@ -50,11 +49,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         // Producto añadido correctamente al carrito, redirigir al carrito
                         window.location.href = "/warenkorb"; // Cambia "/cart" si tienes una URL diferente para el carrito
                     } else {
-                        console.log("Hubo un problema al añadir el producto.");
                     }
                 },
                 error: function() {
-                    console.log("Error en la solicitud. Inténtalo de nuevo.");
                 }
             });
         });

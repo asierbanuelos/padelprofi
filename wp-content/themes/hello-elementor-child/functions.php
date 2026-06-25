@@ -3149,7 +3149,7 @@ add_action('woocommerce_admin_order_data_after_order_details', 'agregar_boton_re
 
 function procesar_reembolso_deposito() {
     if (!isset($_GET['order_id']) || !isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'reembolsar_deposito')) {
-        error_log("🔴 Error de seguridad al intentar reembolsar el depósito.");
+        defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("🔴 Error de seguridad al intentar reembolsar el depósito.");
         wp_die(__('Error de seguridad.', 'woocommerce'));
     }
 
@@ -3379,21 +3379,21 @@ add_action('wp_footer', function() {
                                 var label = inputWrapper.querySelector(".fc-checkbox-label-text");
                                 if (label) {
                                     label.innerText = "Melde dich an, um Updates und Neuigkeiten per E-Mail zu erhalten";
-                                    console.log("Texto modificado con éxito.");
+
                                 } else {
-                                    console.log("No se encontró el elemento fc-checkbox-label-text.");
+
                                 }
                             } else {
-                                console.log("No se encontró woocommerce-input-wrapper.");
+
                             }
                         } else {
-                            console.log("No se encontró el form-row.");
+
                         }
                     } else {
-                        console.log("No se encontró fc-contact-fields__wrapper.");
+
                     }
                 } else {
-                    console.log("No se encontró fc-contact-fields.fc-clearfix.");
+
                 }
             });
         </script>';
