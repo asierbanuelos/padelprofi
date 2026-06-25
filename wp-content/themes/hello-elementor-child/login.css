@@ -1,0 +1,387 @@
+/*
+ * ========================================
+ * CUSTOM LOGIN CSS - PADEL PROFI DEUTSCHLAND
+ * Versión mejorada con logo creativo
+ * ========================================
+ */
+
+/* FONDO NEGRO CON GRADIENTE */
+body.login {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh !important;
+}
+
+/* Textura sutil en el fondo */
+body.login::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 107, 0, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 107, 0, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ========================================
+   LOGO SIMPLE Y PEQUEÑO (SIN EFECTOS)
+   ======================================== */
+#login h1 {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 25px;
+}
+
+#login h1 a {
+    background-image: url('https://padelprofideutschland.de/wp-content/uploads/2024/12/logo-horizontal.png') !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    width: 200px !important;
+    height: 70px !important;
+    margin: 0 auto !important;
+    display: block !important;
+    background-color: transparent !important;
+    transition: opacity 0.3s ease;
+}
+
+/* Efecto hover simple - solo un poco de transparencia */
+#login h1 a:hover {
+    opacity: 0.8;
+}
+
+/* ========================================
+   FORMULARIO CON BORDES NARANJAS
+   ======================================== */
+#login form {
+    background: rgba(15, 15, 15, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    
+    /* BORDES NARANJAS CON EFECTO NEÓN */
+    border: 2px solid #ff6b00 !important;
+    border-radius: 16px !important;
+    
+    padding: 26px 24px 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    
+    /* Sombra naranja brillante */
+    box-shadow: 
+        0 0 20px rgba(255, 107, 0, 0.3),
+        0 0 40px rgba(255, 107, 0, 0.15),
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+    
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Resplandor adicional alrededor del formulario */
+#login form::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ff6b00, #ff8c00, #ff6b00, #ff4500);
+    background-size: 300% 300%;
+    border-radius: 17px;
+    z-index: -1;
+    filter: blur(8px);
+    opacity: 0.4;
+    animation: borderGlow 4s ease infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* ========================================
+   LABELS & TEXT
+   ======================================== */
+#login form label {
+    color: #f0f0f0 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* ========================================
+   INPUT FIELDS
+   ======================================== */
+#login form input[type="text"],
+#login form input[type="password"],
+#login form input[type="email"] {
+    background: rgba(0, 0, 0, 0.7) !important;
+    border: 2px solid rgba(255, 107, 0, 0.4) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 0 0 rgba(255, 107, 0, 0) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Estado FOCUS de los inputs */
+#login form input[type="text"]:focus,
+#login form input[type="password"]:focus,
+#login form input[type="email"]:focus {
+    background: rgba(0, 0, 0, 0.85) !important;
+    border-color: #ff6b00 !important;
+    outline: none !important;
+    box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 0 4px rgba(255, 107, 0, 0.2),
+        0 0 25px rgba(255, 107, 0, 0.4) !important;
+}
+
+#login form input[type="text"]::placeholder,
+#login form input[type="password"]::placeholder {
+    color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ========================================
+   BOTÓN SUBMIT
+   ======================================== */
+#login form .button-primary {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    padding: 14px 24px !important;
+    width: 100% !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    box-shadow: 
+        0 4px 20px rgba(255, 107, 0, 0.5),
+        0 0 25px rgba(255, 107, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    margin-top: 15px !important;
+}
+
+#login form .button-primary:hover {
+    background: linear-gradient(135deg, #ff7b10 0%, #ff5510 100%) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 
+        0 6px 25px rgba(255, 107, 0, 0.6),
+        0 0 35px rgba(255, 107, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+#login form .button-primary:active {
+    transform: translateY(-1px) !important;
+    box-shadow: 
+        0 2px 15px rgba(255, 107, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ========================================
+   CHECKBOX & REMEMBER ME
+   ======================================== */
+.login .forgetmenot {
+    margin-top: 18px !important;
+}
+
+.login .forgetmenot label {
+    color: #c0c0c0 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.login input[type="checkbox"] {
+    border: 2px solid rgba(255, 107, 0, 0.5) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.login input[type="checkbox"]:checked {
+    background: #ff6b00 !important;
+    border-color: #ff6b00 !important;
+}
+
+/* ========================================
+   ENLACES
+   ======================================== */
+#login a {
+    color: #ff6b00 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+#login a:hover {
+    color: #ff8c00 !important;
+    text-shadow: 0 0 10px rgba(255, 107, 0, 0.6) !important;
+}
+
+#login a:focus {
+    outline: none !important;
+    color: #ff8c00 !important;
+}
+
+/* Links "Volver al sitio" y "Olvidaste tu contraseña" */
+#backtoblog,
+#nav {
+    width: 320px !important;
+    margin: 15px auto !important;
+    text-align: center !important;
+}
+
+#backtoblog a,
+#nav a {
+    color: #999999 !important;
+    font-size: 13px !important;
+}
+
+#backtoblog a:hover,
+#nav a:hover {
+    color: #ff6b00 !important;
+}
+
+/* ========================================
+   MENSAJES DE ERROR Y ÉXITO
+   ======================================== */
+#login .message,
+#login #login_error {
+    border-left: 4px solid #ff6b00 !important;
+    background: rgba(255, 107, 0, 0.12) !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+    border-top: 1px solid rgba(255, 107, 0, 0.3) !important;
+    border-bottom: 1px solid rgba(255, 107, 0, 0.3) !important;
+    border-right: 1px solid rgba(255, 107, 0, 0.3) !important;
+}
+
+#login #login_error {
+    border-left-color: #ff4444 !important;
+    background: rgba(255, 68, 68, 0.12) !important;
+    border-top: 1px solid rgba(255, 68, 68, 0.3) !important;
+    border-bottom: 1px solid rgba(255, 68, 68, 0.3) !important;
+    border-right: 1px solid rgba(255, 68, 68, 0.3) !important;
+}
+
+.message,
+#login_error {
+    padding: 15px 20px !important;
+}
+
+/* ========================================
+   BOTÓN "MOSTRAR CONTRASEÑA"
+   ======================================== */
+.wp-pwd button.button {
+    background: transparent !important;
+    border: none !important;
+    color: #ff6b00 !important;
+    transition: all 0.2s ease !important;
+}
+
+.wp-pwd button.button:hover {
+    color: #ff8c00 !important;
+    text-shadow: 0 0 8px rgba(255, 107, 0, 0.5) !important;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media screen and (max-width: 768px) {
+    #login h1 a {
+        width: 180px !important;
+        height: 60px !important;
+    }
+    
+    #login form {
+        padding: 30px 20px !important;
+    }
+    
+    #login form label {
+        font-size: 13px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #login h1 a {
+        width: 160px !important;
+        height: 55px !important;
+    }
+    
+    #login form {
+        padding: 25px 18px !important;
+    }
+}
+
+/* ========================================
+   LANGUAGE SWITCHER (OCULTO)
+   ======================================== */
+.language-switcher,
+.login-language-switcher,
+#language-switcher {
+    display: none !important;
+}
+
+/* ========================================
+   PRIVACY POLICY LINK
+   ======================================== */
+.privacy-policy-page-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.privacy-policy-page-link a {
+    color: #999999 !important;
+    font-size: 12px !important;
+}
+
+.privacy-policy-page-link a:hover {
+    color: #ff6b00 !important;
+}
+
+/* ========================================
+   AJUSTES FINALES Y POSICIONAMIENTO
+   ======================================== */
+#login {
+    width: 320px !important;
+    padding: 0 20px !important;
+    margin: 0 auto !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* Mejora del espaciado general */
+#loginform p {
+    margin-bottom: 20px !important;
+}
+
+#loginform p.submit {
+    margin-bottom: 10px !important;
+}
+
+/* Ajuste del mensaje de éxito */
+#login .message {
+    margin-bottom: 20px !important;
+}

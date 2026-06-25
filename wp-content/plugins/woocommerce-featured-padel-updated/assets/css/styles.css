@@ -1,0 +1,263 @@
+/* --- CONTENEDOR GENERAL --- */
+.wfpp-featured-container {
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    max-width: 1200px;
+}
+
+/* --- HEADER --- */
+.wfpp-featured-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.wfpp-featured-header h2 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.wfpp-campo-entre-titulo-resena {
+    font-size: 16px;
+    color: black;
+    margin: 3px 0 0 0;
+}
+
+.wfpp-checkmark {
+    color: #4CAF50;
+    font-size: 24px;
+}
+
+/* --- GRID CON 3 BLOQUES IGUALES --- */
+.wfpp-products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    align-items: stretch;
+}
+
+/* --- CARD (SIN BORDE NI BOX-SHADOW) --- */
+.wfpp-product-card {
+    background: #ffffff;
+    align-items: center;
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    transition: transform .2s ease;
+}
+
+.wfpp-product-card:hover {
+    transform: translateY(-4px);
+}
+
+/* --- DESCUENTO --- */
+.wfpp-discount-badge {
+    position: absolute;
+    background: #FF4D4D;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    top: 10px;
+    left: 10px;
+}
+
+/* --- IMAGEN (MÁS PEQUEÑA) --- */
+.wfpp-product-image {
+    position: relative;
+    width: 60%;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.wfpp-product-image img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+}
+
+/* --- TÍTULO (ALTURA FIJA) --- */
+.wfpp-product-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wfpp-product-title a {
+    color: #222;
+    text-decoration: none;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* --- RATING (ALTURA FIJA SIEMPRE) --- */
+.wfpp-rating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    min-height: 24px;
+    height: 24px;
+}
+
+.wfpp-rating-number {
+    font-weight: 400;
+}
+
+.wfpp-reviews-link {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+    color: #0071e3;
+}
+
+.wfpp-reviews-link:hover {
+    color: #005bbd;
+}
+
+.wfpp-reviews-count {
+    font-size: 14px;
+    color: #0071e3;
+    margin:7px;
+}
+
+.wfpp-reviews-arrow {
+    width: 12px;
+    height: 12px;
+    color: black;
+    margin-top:-10px;
+}
+
+.star {
+    font-size: 16px;
+    color: #fe6100;
+}
+
+.star-empty {
+    color: #ccc;
+}
+
+/* --- PRECIO (ALTURA FIJA) --- */
+.wfpp-price-container {
+    margin-bottom: 6px;
+    text-align: center;
+    min-height: 28px;
+}
+
+.wfpp-price {
+    font-size: 22px;
+    font-weight: bold;
+    color: #111;
+}
+
+.wfpp-old-price {
+    font-size: 14px;
+    color: #999;
+    margin-left: 8px;
+    text-decoration: line-through;
+}
+
+/* --- ENVÍO GRATIS (ALTURA FIJA) --- */
+.wfpp-shipping {
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.wfpp-shipping-text {
+    color: #2E8B57;
+    font-weight: 600;
+}
+
+.wfpp-delivery-time {
+    display: block;
+    color: #777;
+    font-size: 14px;
+}
+
+/* --- SPECIFICACIONES (ALTURA FIJA Y ANCHO FIJO) --- */
+.wfpp-product-specs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start; /* Alinear arriba */
+    gap: 15px;
+    margin-bottom: 8px;
+    padding: 5px 0;
+    min-height: 70px; /* Altura fija */
+    height: 70px; /* Forzar altura exacta */
+    width: 100%; /* Ancho completo */
+}
+
+.wfpp-spec {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 60px; /* Ancho mínimo para cada icono */
+}
+
+.wfpp-spec-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wfpp-spec-label {
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 70px; /* Evitar que el texto rompa alineación */
+}
+
+/* --- BOTÓN CTA (COLOR NARANJA) --- */
+.wfpp-cta-button {
+    margin-top: auto;
+    display: block;
+    text-align: center;
+    padding: 15px;
+    background: #fe6100;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background .2s ease;
+}
+
+.wfpp-cta-button:hover {
+    background: #e55700;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .wfpp-products-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .wfpp-products-grid {
+        grid-template-columns: 1fr;
+    }
+}

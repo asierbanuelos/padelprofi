@@ -1,0 +1,25 @@
+/* Contenedor de la valoración y número de opiniones */
+.rating-container {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem; /* Tamaño del texto de la puntuación */
+    color: #333; /* Color de la puntuación */
+    padding-left: 6px;
+}
+
+.rating-container .star-icon {
+    color: #ffa500; /* Color de la estrella */
+    margin-left: 5px; /* Espaciado entre la puntuación y la estrella */
+    font-size: 0.875rem; /* Tamaño de la estrella */
+}
+
+.rating-container .review-count {
+    font-size: 0.875;
+    color: #666;
+    margin-left: 5px; /* Espaciado entre la estrella y el número de opiniones */
+}
+
+.rating-container .review-count::before {
+    content: ''; /* Separador entre la estrella y el número de opiniones */
+    margin-right: 8px;
+}

@@ -1,0 +1,178 @@
+/* ==========================================================================
+   THANK YOU PAGE — PadelProfi
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.pp-ty-hero-section {
+	background: #FE6100;
+	padding: 52px 24px 44px;
+	text-align: center;
+}
+.pp-ty-hero-section .pp-ty-check {
+	width: 64px; height: 64px; border-radius: 50%;
+	background: rgba(255,255,255,.15);
+	display: inline-flex; align-items: center; justify-content: center;
+	margin-bottom: 18px;
+}
+.pp-ty-hero-section h1 {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 28px; font-weight: 800; letter-spacing: -.3px;
+	margin: 0 0 6px; color: #fff;
+}
+.pp-ty-hero-section .pp-ty-subtitle {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 15px; color: rgba(255,255,255,.85); margin: 0 0 20px;
+}
+.pp-ty-order-badge {
+	display: inline-flex; align-items: center; gap: 7px;
+	background: rgba(0,0,0,.15); border-radius: 6px;
+	padding: 7px 16px; font-family: 'Open Sans', sans-serif;
+	font-size: 13px; color: #fff; letter-spacing: .01em;
+}
+.pp-ty-order-badge strong { font-size: 14px; font-weight: 800; }
+
+/* ── Email notice ──────────────────────────────────────────────────────── */
+.pp-ty-email-notice {
+	background: #fafafa; border-bottom: 1px solid #eee;
+	padding: 12px 20px; text-align: center;
+	font-family: 'Open Sans', sans-serif; font-size: 13px; color: #777;
+}
+.pp-ty-email-notice strong { color: #333; font-weight: 700; }
+
+/* ── Layout ────────────────────────────────────────────────────────────── */
+.pp-ty-body {
+	max-width: 1080px; margin: 0 auto;
+	padding: 40px 20px 72px;
+	font-family: 'Open Sans', sans-serif;
+}
+.pp-ty-grid {
+	display: grid;
+	grid-template-columns: 1fr 340px;
+	gap: 28px;
+	align-items: start;
+}
+@media (max-width: 760px) {
+	.pp-ty-grid { grid-template-columns: 1fr; gap: 20px; }
+	.pp-ty-hero-section { padding: 40px 16px 36px; }
+	.pp-ty-hero-section h1 { font-size: 22px; }
+	.pp-ty-body { padding: 28px 16px 56px; }
+}
+
+/* ── Cards ─────────────────────────────────────────────────────────────── */
+.pp-ty-card {
+	background: #fff;
+	border: 1px solid #e8e8e8;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 16px;
+}
+.pp-ty-card:last-child { margin-bottom: 0; }
+
+.pp-ty-card__head {
+	padding: 13px 18px;
+	border-bottom: 1px solid #f0f0f0;
+	display: flex; align-items: center; gap: 9px;
+	background: #fff;
+}
+.pp-ty-card__head h2 {
+	font-size: 11px; font-weight: 700;
+	text-transform: uppercase; letter-spacing: .07em;
+	color: #999; margin: 0;
+}
+.pp-ty-card__head svg { color: #FE6100; flex-shrink: 0; }
+.pp-ty-card__body { padding: 18px; }
+
+/* ── Products ──────────────────────────────────────────────────────────── */
+.pp-ty-item {
+	display: flex; align-items: center; gap: 14px;
+	padding: 14px 18px;
+	border-bottom: 1px solid #f5f5f5;
+}
+.pp-ty-item:last-child { border-bottom: none; }
+.pp-ty-item__img-wrap { position: relative; flex-shrink: 0; }
+.pp-ty-item__img {
+	width: 56px; height: 56px; object-fit: contain;
+	border: 1px solid #eee; border-radius: 6px;
+	background: #fafafa; padding: 4px; display: block;
+}
+.pp-ty-item__qty {
+	position: absolute; top: -5px; right: -5px;
+	width: 18px; height: 18px; border-radius: 50%;
+	background: #333; color: #fff;
+	font-size: 10px; font-weight: 700;
+	display: flex; align-items: center; justify-content: center;
+	line-height: 1;
+}
+.pp-ty-item__name {
+	flex: 1; font-size: 13px; font-weight: 600; color: #222;
+	line-height: 1.45;
+}
+.pp-ty-item__price {
+	font-size: 14px; font-weight: 700; color: #111;
+	white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+
+/* ── Totals ────────────────────────────────────────────────────────────── */
+.pp-ty-totals { padding: 4px 18px 18px; }
+.pp-ty-total-row {
+	display: flex; justify-content: space-between; align-items: baseline;
+	padding: 9px 0; font-size: 13px; color: #666;
+	border-top: 1px solid #f5f5f5;
+}
+.pp-ty-total-row:first-child { border-top: none; }
+.pp-ty-total-row--grand {
+	font-size: 16px; font-weight: 800; color: #111;
+	padding-top: 13px; margin-top: 6px;
+	border-top: 2px solid #e8e8e8 !important;
+}
+.pp-ty-total-row--grand .pp-ty-grand { color: #FE6100; }
+.pp-ty-via { font-size: 11px; color: #aaa; display: block; margin-top: 2px; }
+.pp-ty-free { color: #16a34a; font-weight: 700; font-size: 13px; }
+.pp-ty-tax { font-size: 11px; color: #aaa; display: block; font-weight: 400; margin-top: 3px; }
+
+/* ── Info rows ─────────────────────────────────────────────────────────── */
+.pp-ty-info-row {
+	display: flex; align-items: flex-start; gap: 11px;
+	padding: 11px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px;
+}
+.pp-ty-info-row:first-child { padding-top: 0; }
+.pp-ty-info-row:last-child { border-bottom: none; padding-bottom: 0; }
+.pp-ty-info-row__icon { color: #FE6100; flex-shrink: 0; margin-top: 1px; }
+.pp-ty-info-row__label { font-weight: 700; color: #333; min-width: 88px; }
+.pp-ty-info-row__val { color: #555; line-height: 1.5; word-break: break-word; }
+
+/* ── Address ───────────────────────────────────────────────────────────── */
+address.pp-ty-address {
+	font-style: normal; color: #555;
+	font-size: 13px; line-height: 1.65;
+}
+
+/* ── Section label ─────────────────────────────────────────────────────── */
+.pp-ty-section-label {
+	font-size: 10px; font-weight: 700;
+	text-transform: uppercase; letter-spacing: .07em;
+	color: #bbb; margin-bottom: 10px;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+.pp-ty-actions {
+	display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;
+}
+.pp-ty-btn {
+	display: inline-flex; align-items: center; gap: 7px;
+	padding: 11px 20px; border-radius: 7px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 13px; font-weight: 700;
+	text-decoration: none; border: none; cursor: pointer;
+	transition: background .15s, border-color .15s, color .15s;
+	white-space: nowrap;
+}
+.pp-ty-btn--primary { background: #FE6100; color: #fff !important; }
+.pp-ty-btn--primary:hover { background: #d95300; }
+.pp-ty-btn--secondary {
+	background: #fff; color: #444 !important;
+	border: 1px solid #ddd;
+}
+.pp-ty-btn--secondary:hover { border-color: #FE6100; color: #FE6100 !important; }

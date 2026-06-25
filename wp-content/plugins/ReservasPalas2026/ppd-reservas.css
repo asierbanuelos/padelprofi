@@ -1,0 +1,236 @@
+/* ======= Estilo PadelProfi - Botón Rojo Puro ======= */
+:root {
+    /* Rojo corporativo */
+    --ppd-red: #BF0019;
+    --ppd-red-dark: #9c0015;
+    --ppd-red-light: #d82035;
+    --ppd-info-bg: #fdf2f3;
+    --ppd-info-bd: #f9d2d7;
+    --ppd-info-tx: #7a1f1f;
+}
+
+/* Botón principal completamente rojo */
+.single-product .ppd-reserve-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: .8rem;
+    width: 100%;
+    margin-top: 6px;
+    padding: 16px 20px;
+    border: none !important;
+    border-radius: 12px;
+    background: var(--ppd-red) !important;
+    color: #fff !important;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: .2px;
+    box-shadow: 0 4px 12px rgba(191,0,25,.25);
+    transition: all .2s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.single-product .ppd-reserve-btn:hover {
+    background: var(--ppd-red-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(156,0,21,.3);
+}
+
+.single-product .ppd-reserve-btn:active { 
+    transform: translateY(0); 
+}
+
+.single-product .ppd-reserve-btn:focus { 
+    outline: 2px solid rgba(191,0,25,.5); 
+    outline-offset: 2px; 
+}
+
+/* Contenido izquierdo del botón */
+.single-product .ppd-left-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.single-product .ppd-left-content i {
+    font-size: 18px;
+    color: #fff;
+}
+
+.single-product .ppd-left-content span {
+    font-size: 16px;
+    color: #fff;
+}
+
+/* Precio en blanco SOLO dentro del botón de reserva */
+.single-product .ppd-reserve-btn .ppd-price,
+.single-product .ppd-reserve-btn .ppd-price .woocommerce-Price-amount,
+.single-product .ppd-reserve-btn .ppd-price .amount,
+.single-product .ppd-reserve-btn .ppd-price bdi {
+    font-weight: 900 !important;
+    font-size: 1.2em !important;
+    line-height: 1 !important;
+    color: #fff !important;
+}
+
+/* Nota informativa */
+.single-product .ppd-reserve-note {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    background: var(--ppd-info-bg);
+    border: 1px solid var(--ppd-info-bd);
+    color: var(--ppd-info-tx);
+    padding: 12px 16px;
+    border-radius: 10px;
+    display: flex; 
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.single-product .ppd-reserve-note::before {
+    content: "";
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", Arial, sans-serif;
+    font-weight: 900;
+    color: var(--ppd-red);
+    opacity: .8;
+}
+
+/* Estados adicionales */
+.single-product .ppd-reserve-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+    background: #999 !important;
+}
+
+.single-product .ppd-reserve-btn.loading .ppd-left-content i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.single-product .ppd-reserve-btn.success {
+    background: #28a745 !important;
+}
+
+.single-product .ppd-reserve-btn.success:hover {
+    background: #1e7e34 !important;
+}
+
+.single-product .ppd-reserve-btn.disabled {
+    background: #ccc !important;
+    color: #666 !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.single-product .ppd-reserve-btn.disabled:hover {
+    background: #ccc !important;
+    transform: none !important;
+}
+
+/* Ocultar "Comparar" solo cuando hay reserva activa */
+.ppd-reservable .elementor-add-to-cart.elementor-product-simple a.wcboost-products-compare-button.wcboost-products-compare-button--ajax {
+    display: none !important;
+}
+
+/* Ocultar botones nativos cuando hay reserva */
+.ppd-reservable form.cart .single_add_to_cart_button:not(.ppd-reserve-btn),
+.ppd-reservable form.cart button[name="add-to-cart"]:not(.ppd-reserve-btn),
+.ppd-reservable form.cart input.qty { 
+    display: none !important; 
+}
+
+/* === STICKY FOOTER BUTTON === */
+.sticky-buy-button .ppd-reserve-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: .8rem;
+    width: 100%;
+    padding: 14px 18px;
+    border: none !important;
+    border-radius: 12px;
+    background: var(--ppd-red) !important;
+    color: #fff !important;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: .2px;
+    box-shadow: 0 4px 12px rgba(191,0,25,.25);
+    transition: all .2s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.sticky-buy-button .ppd-reserve-btn:hover {
+    background: var(--ppd-red-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(156,0,21,.3);
+}
+
+.sticky-buy-button .ppd-left-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sticky-buy-button .ppd-left-content i {
+    font-size: 16px;
+    color: #fff;
+}
+
+.sticky-buy-button .ppd-left-content span {
+    color: #fff;
+}
+
+.sticky-buy-button .ppd-reserve-btn .ppd-price,
+.sticky-buy-button .ppd-reserve-btn .ppd-price .woocommerce-Price-amount,
+.sticky-buy-button .ppd-reserve-btn .ppd-price .amount,
+.sticky-buy-button .ppd-reserve-btn .ppd-price bdi {
+    font-weight: 900 !important;
+    font-size: 1.1em !important;
+    line-height: 1 !important;
+    color: #fff !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .single-product .ppd-reserve-btn { 
+        padding: 14px 18px; 
+        font-size: 1rem; 
+    }
+    
+    .single-product .ppd-reserve-btn .ppd-price,
+    .single-product .ppd-reserve-btn .ppd-price .woocommerce-Price-amount,
+    .single-product .ppd-reserve-btn .ppd-price .amount,
+    .single-product .ppd-reserve-btn .ppd-price bdi { 
+        font-size: 1.1em !important;
+    }
+
+    .single-product .ppd-left-content {
+        gap: 8px;
+    }
+
+    .single-product .ppd-left-content i {
+        font-size: 16px;
+    }
+
+    .sticky-buy-button .ppd-reserve-btn {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
+    .sticky-buy-button .ppd-reserve-btn .ppd-price,
+    .sticky-buy-button .ppd-reserve-btn .ppd-price .woocommerce-Price-amount,
+    .sticky-buy-button .ppd-reserve-btn .ppd-price .amount,
+    .sticky-buy-button .ppd-reserve-btn .ppd-price bdi {
+        font-size: 1em !important;
+    }
+}

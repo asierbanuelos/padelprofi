@@ -1,0 +1,129 @@
+/* Estilo global */
+html {
+    line-height: 1.15; /* Ajusta la altura de línea */
+    -webkit-text-size-adjust: 100%; /* Evita el ajuste automático del tamaño de texto en dispositivos */
+    font-size: 16px; /* Tamaño base estándar */
+}
+
+*, :after, :before {
+    box-sizing: border-box; /* Modelo de caja universal */
+}
+
+body {
+    margin: 0; /* Elimina márgenes predeterminados */
+    font-family: 'Open Sans', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-size: 1rem; /* Tamaño relativo a la base */
+    font-weight: 400; /* Peso normal por defecto */
+    line-height: 1.5; /* Altura de línea adecuada */
+    color: #333; /* Color base del texto */
+    background-color: #fff; /* Fondo blanco */
+    -webkit-font-smoothing: antialiased; /* Mejora el renderizado en navegadores WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Mejora el renderizado en macOS */
+}
+
+/* Encabezados */
+h1, h2, h3, h4, h5, h6 {
+    margin-block-start: 0.5rem;
+    margin-block-end: 1rem;
+    font-family: 'Open Sans', sans-serif; /* Usa la misma fuente que el cuerpo */
+    font-weight: 500; /* Peso ligeramente más alto */
+    line-height: 1.2; /* Ajuste específico para encabezados */
+    color: inherit; /* Hereda el color global */
+}
+
+h1 {
+    font-size: 2.5rem; /* Tamaño más grande */
+}
+h2 {
+    font-size: 1.25rem;
+}
+h3 {
+    font-size: 0.875rem; /* Ajuste más pequeño */
+}
+h4 {
+    font-size: 0.75rem;
+}
+h5 {
+    font-size: 0.625rem;
+}
+h6 {
+    font-size: 0.5rem;
+}
+
+/* Texto en párrafos */
+p {
+    margin-block-start: 0; /* Elimina márgenes superiores */
+    margin-block-end: 0.9rem; /* Ajusta el margen inferior */
+}
+
+/* Enlaces */
+a {
+    background-color: transparent; /* Sin fondo */
+    text-decoration: none; /* Sin subrayado */
+    color: #c36; /* Color base */
+}
+
+a:active, a:hover {
+    color: #336; /* Cambio de color en hover o activo */
+}
+
+/* Preformateado y código */
+pre, code, kbd, samp {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1em; /* Tamaño relativo */
+    white-space: pre-wrap; /* Ajusta el texto para evitar desbordes */
+}
+
+/* Imágenes */
+img {
+    border-style: none; /* Elimina bordes predeterminados */
+    height: auto; /* Ajuste automático de altura */
+    max-width: 100%; /* Restringe el ancho máximo al contenedor */
+}
+
+/* Tablas */
+table {
+    background-color: transparent;
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    margin-block-end: 15px; /* Espaciado inferior */
+    font-size: 0.9em; /* Tamaño relativo */
+    border-spacing: 0; /* Sin espacio entre celdas */
+    border-collapse: collapse; /* Colapsa bordes */
+}
+
+table td, table th {
+    padding: 15px; /* Espaciado interno */
+    line-height: 1.5; /* Ajusta la altura de línea */
+    vertical-align: top; /* Alineación superior */
+    border: 1px solid hsla(0, 0%, 50.2%, 0.5); /* Bordes suaves */
+}
+
+table thead th {
+    font-weight: 700; /* Encabezados más destacados */
+}
+
+/* Inputs y botones */
+button, input, optgroup, select, textarea {
+    font-family: 'Open Sans', sans-serif; /* Consistencia en las fuentes */
+    font-size: 1rem; /* Tamaño relativo */
+    line-height: 1.5;
+    margin: 0; /* Elimina márgenes predeterminados */
+}
+
+button {
+    display: inline-block; /* Botones en línea */
+    font-weight: 400; /* Peso normal */
+    color: #c36; /* Color base */
+    text-align: center; /* Texto centrado */
+    background-color: transparent; /* Sin fondo */
+    border: 1px solid #c36; /* Bordes del color principal */
+    padding: 0.5rem 1rem; /* Espaciado interno */
+    font-size: 1rem;
+    border-radius: 3px; /* Bordes redondeados */
+    transition: all 0.3s; /* Animación suave */
+}
+
+button:hover {
+    color: #fff; /* Texto blanco en hover */
+    background-color: #c36; /* Fondo del color principal */
+}

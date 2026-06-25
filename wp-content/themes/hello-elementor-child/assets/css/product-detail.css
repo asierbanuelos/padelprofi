@@ -1,0 +1,108 @@
+.contx-banner p {
+    margin: 0px;
+}
+
+.contx-banner {
+    margin-top: 15px !important;
+}
+
+.imgx-100 {
+    width: 100%;
+}
+
+.txt_orange {
+    color: #ff671d;
+}
+
+/* Estilos para el contenedor principal */
+.custom-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 40px 0;
+    background-color: #000000;
+}
+
+/* Estilos base para las columnas */
+.custom-col {
+    box-sizing: border-box;
+    text-align: center;
+    padding: 0 15px;
+}
+
+/* Ancho completo en pantallas extra pequeñas */
+.custom-col-xs-12 {
+    width: 100%;
+}
+
+/* Ancho para pantallas medianas (tablet) en adelante */
+@media (min-width: 768px) {
+    .custom-col-md-3 {
+        width: 25%;
+    }
+}
+
+@media (max-width: 768px) {
+    .custom-col-xs-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Estilos para la imagen */
+.custom-img {
+    max-width: 80px;
+    margin-bottom: 10px;
+}
+
+/* Estilos para el texto */
+.custom-text {
+    font-size: 14px;
+    color: #666666;
+}
+
+.custom-content {
+    background-color: #000000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.custom-text {
+    font-size: 14px;
+    color: #666666;
+}
+
+.custom-text-white {
+    color: #fff;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.title_big {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.title_big2 {
+    font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 10px;
+}
+
+.custom-coll .custom-img-full {
+    height: 100% !important;
+}
+
+.mt--10 {
+    margin-top: -10px;
+}
+
+
+.clast{
+    margin-bottom: 15px !important;
+}
