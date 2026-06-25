@@ -505,7 +505,7 @@ function render_blackfriday_cats_slider() {
         
         if ($term && !is_wp_error($term)) {
             $thumb_id = get_term_meta($term->term_id, 'thumbnail_id', true);
-            $image_url = $thumb_id ? wp_get_attachment_url($thumb_id) : wc_placeholder_img_src();
+            $image_url = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'thumbnail') : wc_placeholder_img_src();
             $cat_link = get_term_link($term);
             
             $categories[] = array(
@@ -1408,7 +1408,7 @@ function render_product_subcategories_slider() {
         $subcategories = array();
         foreach ( $terms as $term ) {
             $thumbnail_id     = get_term_meta( $term->term_id, 'thumbnail_id', true );
-            $image_url        = $thumbnail_id ? wp_get_attachment_url( $thumbnail_id ) : wc_placeholder_img_src();
+            $image_url        = $thumbnail_id ? wp_get_attachment_image_url( $thumbnail_id, 'thumbnail' ) : wc_placeholder_img_src();
             $subcategory_link = get_term_link( $term->term_id );
             
             $subcategories[] = array(

@@ -306,7 +306,7 @@ add_action( 'wp_ajax_pr_get_products', function () {
         if (!$p) continue;
 
         $img_id = $p->get_image_id();
-        $thumb  = $img_id ? wp_get_attachment_image_url($img_id, [60,60]) : '';
+        $thumb  = $img_id ? wp_get_attachment_image_url($img_id, 'thumbnail') : '';
 
         $reg  = $p->get_regular_price();
         $sale = $p->get_sale_price();
