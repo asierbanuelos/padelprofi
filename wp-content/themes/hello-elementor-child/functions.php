@@ -3156,18 +3156,18 @@ function procesar_reembolso_deposito() {
     $order_id = intval($_GET['order_id']);
     $order = wc_get_order($order_id);
     if (!$order) {
-        error_log("❌ No se pudo obtener la orden.");
+        defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("❌ No se pudo obtener la orden.");
         wp_die(__('No se pudo obtener la orden.', 'woocommerce'));
     }
 
     $deposito = get_post_meta($order_id, '_deposito_retenido', true);
-    error_log("🔍 Depósito retenido: " . print_r($deposito, true));
+    defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("🔍 Depósito retenido: " . print_r($deposito, true));
 
     if (!empty($deposito) && $deposito > 0) {
         // Obtener el ID de la transacción de Stripe
         $payment_id = $order->get_transaction_id();
         if (!$payment_id) {
-            error_log("❌ No se encontró el ID de la transacción de Stripe.");
+            defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("❌ No se encontró el ID de la transacción de Stripe.");
             wp_die(__('No se encontró un pago asociado a este pedido.', 'woocommerce'));
         }
 
@@ -3180,10 +3180,10 @@ function procesar_reembolso_deposito() {
         ));
 
         if (is_wp_error($refund)) {
-            error_log("❌ Error al crear el reembolso: " . $refund->get_error_message());
+            defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("❌ Error al crear el reembolso: " . $refund->get_error_message());
             wp_die(__('Error al procesar el reembolso: ', 'woocommerce') . $refund->get_error_message());
         } else {
-            error_log("✅ Reembolso exitoso para el pedido $order_id con monto de $deposito.");
+            defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("✅ Reembolso exitoso para el pedido $order_id con monto de $deposito.");
 
             // Eliminar el metadato del depósito
             update_post_meta($order_id, '_deposito_retenido', 0);
@@ -3191,7 +3191,7 @@ function procesar_reembolso_deposito() {
             $order->update_status('completed'); // Cambia el estado del pedido a "Completado"
         }
     } else {
-        error_log("❌ No hay depósito retenido en el pedido.");
+        defined('WP_DEBUG_LOG') && WP_DEBUG_LOG && error_log("❌ No hay depósito retenido en el pedido.");
         wp_die(__('No hay depósito retenido en este pedido.', 'woocommerce'));
     }
 
