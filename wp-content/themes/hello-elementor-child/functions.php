@@ -72,6 +72,19 @@ add_filter('wpml_home_url', function($url) {
     return $url;
 });
 
+// Fix: el script de sticky header de Elementor hace getElementById('main-header')
+// que devuelve null en algunas páginas (checkout, etc.) → crash JS.
+// Parcheamos el HTML generado añadiendo un guard antes del offsetTop.
+add_action( 'template_redirect', function () {
+    ob_start( function ( $html ) {
+        return str_replace(
+            "const stickyPoint = header.offsetTop;",
+            "if ( ! header ) { return; }\n\t\tconst stickyPoint = header.offsetTop;",
+            $html
+        );
+    } );
+} );
+
 add_filter('option_home', function($url) {
     if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'padelprofishop.com') !== false) {
         return 'https://padelprofishop.com';
