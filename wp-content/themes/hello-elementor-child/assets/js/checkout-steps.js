@@ -82,9 +82,25 @@
 		renderStep( step ) {
 			this.panels.forEach( ( panel ) => {
 				const panelStep = parseInt( panel.dataset.stepContent );
-				panel.style.display = panelStep === step ? 'block' : 'none';
-				panel.setAttribute( 'aria-hidden', panelStep !== step ? 'true' : 'false' );
-				panel.classList.toggle( 'mm-step-panel--active', panelStep === step );
+				const isActive  = panelStep === step;
+
+				if ( isActive ) {
+					// Limpiar cualquier override del hack de Stripe y mostrar normal
+					panel.style.cssText = '';
+					panel.style.display = 'block';
+				} else if ( panelStep === 3 && step === 4 ) {
+					// Paso 4 activo: mantener el panel de pago (paso 3) en el DOM
+					// con dimensiones reales para que Stripe/PayPal no desmonte su iframe.
+					// position:fixed + left:0 + width:100vw garantizan un width correcto
+					// aunque el panel esté fuera de la pantalla.
+					panel.style.cssText = 'display:block!important;position:fixed!important;top:-9999px!important;left:0!important;width:100vw!important;opacity:0!important;pointer-events:none!important;z-index:-1!important;';
+				} else {
+					panel.style.cssText = '';
+					panel.style.display = 'none';
+				}
+
+				panel.setAttribute( 'aria-hidden', isActive ? 'false' : 'true' );
+				panel.classList.toggle( 'mm-step-panel--active', isActive );
 			} );
 
 			// Toggle full-width layout for step 4 (hides sidebar)
@@ -461,17 +477,8 @@
 			if ( wcTerms ) wcTerms.checked = true;
 			if ( this.termsCheck ) this.termsCheck.checked = true;
 
-			// Si el payment_box fue movido al paso 4, ya está visible: no hacer nada extra.
-			// Si no, hacer el panel de pago accesible off-screen para Stripe.
-			if ( ! this.borrowedPaymentBox ) {
-				const paymentPanel = document.querySelector( '[data-step-content="3"]' );
-				if ( paymentPanel ) {
-					paymentPanel.style.cssText = 'display:block!important;position:fixed!important;top:-9999px!important;left:-9999px!important;opacity:0!important;pointer-events:none!important;';
-					setTimeout( () => {
-						if ( this.currentStep === 4 ) paymentPanel.style.cssText = 'display:none!important;position:static!important;opacity:1!important;';
-					}, 3000 );
-				}
-			}
+			// El panel de pago (paso 3) ya está accesible off-screen con dimensiones
+			// reales gracias a renderStep — no se necesita ningún hack adicional.
 
 			const mid      = ( this._step4PaymentMethod || '' ).toLowerCase();
 			const isPayPal = /ppcp|paypal/i.test( mid );
