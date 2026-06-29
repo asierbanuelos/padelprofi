@@ -77,11 +77,19 @@ add_filter('wpml_home_url', function($url) {
 // Parcheamos el HTML generado añadiendo un guard antes del offsetTop.
 add_action( 'template_redirect', function () {
     ob_start( function ( $html ) {
-        return str_replace(
+        // Fix 1: sticky header crash cuando #main-header no existe en la página
+        $html = str_replace(
             "const stickyPoint = header.offsetTop;",
             "if ( ! header ) { return; }\n\t\tconst stickyPoint = header.offsetTop;",
             $html
         );
+        // Fix 2: script triggerButton crash cuando el elemento no existe
+        $html = str_replace(
+            "document.getElementById('triggerButton').addEventListener",
+            "var _tb=document.getElementById('triggerButton'); if(_tb) _tb.addEventListener",
+            $html
+        );
+        return $html;
     } );
 } );
 
