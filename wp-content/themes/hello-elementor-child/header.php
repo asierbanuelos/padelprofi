@@ -287,6 +287,14 @@ if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+	// Fix: el script de sticky header de Elementor busca getElementById('main-header').
+	// En checkout/páginas sin la plantilla principal el elemento no existe → crash.
+	// Asignamos el ID al primer elemento header encontrado si no está ya definido.
+	if ( ! document.getElementById( 'main-header' ) ) {
+		var _h = document.querySelector( '.elementor-location-header, .site-header, header' );
+		if ( _h ) _h.id = 'main-header';
+	}
+
 	var sideNavbar = document.getElementById('side-navbar');
 	var sideNavbarExtended = document.getElementById('side-navbar-extended');
 	var background = document.getElementById('side-navbar__background');
