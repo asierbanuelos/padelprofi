@@ -62,8 +62,12 @@
 
 			if ( ! streetInput || ! houseInput ) return;
 
+			let _syncTimer;
 			const sync = () => {
-				$( document.body ).trigger( 'update_checkout' );
+				clearTimeout( _syncTimer );
+				_syncTimer = setTimeout( () => {
+					$( document.body ).trigger( 'update_checkout' );
+				}, 800 );
 			};
 
 			streetInput.addEventListener( 'input', sync );
@@ -918,11 +922,27 @@
 
 			$( document.body ).on( 'checkout_error', () => {
 				const wcErrors = document.querySelector( '.woocommerce-error' );
-				if ( wcErrors ) {
+				if ( ! wcErrors ) return;
+
+				// Solo volver al paso 1 si el error es de validación de dirección
+				// (steps 1-2). Los errores de pago (Stripe decline, PayPal fail)
+				// deben quedarse en el paso 3 para que el usuario pueda reintentar.
+				if ( this.currentStep <= 2 ) {
 					this.currentStep = 1;
 					this.renderStep( 1 );
-					wcErrors.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+				} else {
+					// Error de pago: volver al paso 3 para reintentar
+					if ( this.currentStep === 4 ) {
+						this.currentStep = 3;
+						this.renderStep( 3 );
+					}
+					// Mover el banner de error al panel activo si no está visible
+					const activePanel = document.querySelector( `[data-step-content="${ this.currentStep }"]` );
+					if ( activePanel && ! activePanel.contains( wcErrors ) ) {
+						activePanel.prepend( wcErrors );
+					}
 				}
+				wcErrors.scrollIntoView( { behavior: 'smooth', block: 'start' } );
 			} );
 		}
 

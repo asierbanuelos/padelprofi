@@ -225,9 +225,11 @@
     $(this).parent('.video').replaceWith(video);
   });
 
-  // niceSelect
-
-  $('select:not(.ignore)').niceSelect();
+  // niceSelect — excluir checkout y carrito donde WC necesita los selects nativos
+  if ( ! document.body.classList.contains( 'woocommerce-checkout' ) &&
+       ! document.body.classList.contains( 'woocommerce-cart' ) ) {
+    $('select:not(.ignore)').niceSelect();
+  }
 
   // blog post-slider
   $('.post-slider').slick({
