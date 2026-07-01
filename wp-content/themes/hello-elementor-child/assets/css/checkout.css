@@ -646,10 +646,13 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 .mm-step-panel[data-step-content="3"] [id^="ppc-button"],
 [id^="ppc-button"]:not(.mm-step4-paypal-wrap *) { display: none !important; }
 
-/* Apple Pay / Google Pay inyectado como opción en la lista */
+/* Apple Pay / Google Pay / Klarna — opciones inyectadas en la lista de pago */
 .mm-applepay-label  { display: flex !important; align-items: center !important; }
 .mm-applepay-logo   { height: 28px; width: auto; margin-left: auto; flex-shrink: 0; }
 .mm-applepay-option.mm-payment--selected { border-color: var(--pp-black) !important; border-width: 2px !important; }
+
+.mm-klarna-logo     { height: 24px !important; width: auto !important; border-radius: 4px; }
+.mm-klarna-option.mm-payment--selected { border-color: #FFB3C7 !important; border-width: 2px !important; }
 
 /* Notas del pedido */
 .mm-order-notes {

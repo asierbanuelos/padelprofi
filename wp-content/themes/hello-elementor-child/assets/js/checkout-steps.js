@@ -46,7 +46,8 @@
 			this.createMobileFooter();
 			this.bindWooCommerceUpdates();
 			this.bindPaymentPopup();
-			// Inyectar Apple Pay como opción si el dispositivo lo soporta
+			// Inyectar métodos express y Klarna como opciones visibles
+			this.injectKlarnaOption();
 			this.injectApplePayOption();
 		}
 
@@ -482,6 +483,7 @@
 
 			const mid      = ( this._step4PaymentMethod || '' ).toLowerCase();
 			const isPayPal = /ppcp|paypal/i.test( mid );
+			const isKlarna = /mm_klarna/i.test( mid );
 
 			// Inyectar campos shipping en el formulario antes de enviar.
 			// billing_address_1 ya contiene "Straße Hausnummer" combinados por bindStreetSync.
@@ -535,6 +537,12 @@
 					$( document.body ).off( 'updated_checkout', onUpdated );
 					if ( ! submitted ) { submitted = true; doSubmit(); }
 				}, 4000 );
+			} else if ( isKlarna ) {
+				// Klarna: asegurar que Stripe esté seleccionado, activar pestaña y enviar
+				const stripeRadio = document.querySelector( 'input[name="payment_method"][value="stripe"]' );
+				if ( stripeRadio ) { stripeRadio.checked = true; $( stripeRadio ).trigger( 'change' ); }
+				this._activateKlarnaTab();
+				setTimeout( doSubmit, 600 );
 			} else {
 				doSubmit();
 			}
@@ -975,56 +983,100 @@
 		}
 
 		/* ------------------------------------------------------------------
-		   Detectar Apple Pay / Google Pay e inyectarlos como opción
+		   Inyectar Klarna como opción separada (se procesa via Stripe UPE)
 		   ------------------------------------------------------------------ */
-		injectApplePayOption() {
+		injectKlarnaOption() {
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
-			if ( ! ul ) return;
+			if ( ! ul || ul.querySelector( '.mm-klarna-option' ) ) return;
 
-			// Evitar inyección doble
-			if ( ul.querySelector( '.mm-applepay-option' ) ) return;
-
-			// Detección: soporte del navegador/OS
-			const hasApplePay  = typeof ApplePaySession !== 'undefined';
-			const hasGooglePay = ! hasApplePay && typeof PaymentRequest !== 'undefined';
-
-			// Si no hay soporte nativo, verificar si Stripe PRB ya renderizó un botón
-			const stripePrb = document.getElementById( 'wc-stripe-payment-request-button' )
-				|| document.getElementById( 'wc-stripe-express-checkout-element' );
-			const stripeHasBtn = stripePrb && stripePrb.children.length > 0;
-
-			if ( ! hasApplePay && ! hasGooglePay && ! stripeHasBtn ) {
-				// Reintentar más tarde — Stripe renderiza de forma asíncrona
-				setTimeout( () => {
-					if ( ! document.querySelector( '.mm-payment-wrapper .mm-applepay-option' ) ) {
-						this.injectApplePayOption();
-					}
-				}, 2000 );
-				return;
-			}
-
-			const label     = hasApplePay ? 'Apple Pay' : 'Google Pay';
-			const methodVal = hasApplePay ? 'mm_apple_pay' : 'mm_google_pay';
+			// Solo si Stripe está disponible como gateway subyacente
+			const stripeRadio = ul.querySelector( 'input[name="payment_method"][value="stripe"]' );
+			if ( ! stripeRadio ) return;
 
 			const li = document.createElement( 'li' );
-			li.className = 'wc_payment_method mm-applepay-option';
+			li.className = 'wc_payment_method mm-klarna-option';
 			li.innerHTML = `
-				<input type="radio" id="payment_method_${ methodVal }" name="payment_method" value="${ methodVal }">
-				<label for="payment_method_${ methodVal }" class="mm-applepay-label">
-					${ label }
-					${ hasApplePay
-						? `<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="640" height="400" rx="40" fill="#000"/><path d="M227 130c-7 8-18 15-29 14-1-11 4-23 11-30 7-8 19-15 29-14 1 11-4 22-11 30zm11 17c-16-1-30 9-38 9-8 0-20-8-33-8-17 0-33 10-41 25-18 30-5 75 13 100 8 12 19 25 32 25 13 0 18-8 33-8 16 0 20 8 33 8 14 0 25-14 33-26 5-8 8-12 13-21-35-13-40-62-6-81-10-14-27-22-39-23z" fill="#fff"/><path d="M374 116h-10v109h10V116zm-24 88a25 25 0 01-25-25 25 25 0 0125-25 25 25 0 0125 25 25 25 0 01-25 25zm0-60a35 35 0 00-35 35 35 35 0 0035 35 35 35 0 0035-35 35 35 0 00-35-35zM420 139l-2 7h-10l-2-7h-11l13 37h10l13-37h-11zm50 27l-8-27h-11l13 37h10l14-37h-11l-7 27zm60-27l-13 37h11l2-7h13l2 7h11l-13-37h-13zm7 10l4 12h-8l4-12zm50-10v27l-13-27h-11v37h10V149l14 27h10v-37h-10zm53 0v10h-10v27h-10v-27h-10v-10h30z" fill="#fff"/></svg>`
-						: `<svg viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true" style="width:64px"><text y="18" font-size="16" fill="#1A73E8" font-family="sans-serif" font-weight="700">G Pay</text></svg>`
-					}
+				<input type="radio" id="payment_method_mm_klarna" name="payment_method" value="mm_klarna">
+				<label for="payment_method_mm_klarna" class="mm-applepay-label">
+					Klarna
+					<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true" style="width:72px;height:auto"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>
 				</label>
 			`;
 
-			ul.appendChild( li );
+			// Insertar después de la opción Stripe
+			const stripeOption = stripeRadio.closest( '.wc_payment_method' );
+			if ( stripeOption?.nextSibling ) {
+				ul.insertBefore( li, stripeOption.nextSibling );
+			} else {
+				ul.appendChild( li );
+			}
 
-			// Cuando se selecciona, marcarlo y disparar change en checkout-payment.js
 			li.querySelector( 'input' ).addEventListener( 'change', () => {
+				// Marcar también el radio de Stripe (WC lo necesita para procesar)
+				stripeRadio.checked = true;
 				$( document.body ).trigger( 'payment_method_selected' );
 			} );
+		}
+
+		/* ------------------------------------------------------------------
+		   Intentar activar la pestaña Klarna en el Stripe UPE
+		   ------------------------------------------------------------------ */
+		_activateKlarnaTab() {
+			const selectors = [ '[class*="Tab"]', '[role="tab"]', 'button' ];
+			for ( const sel of selectors ) {
+				for ( const el of document.querySelectorAll( sel ) ) {
+					const txt = ( el.textContent || '' ).toLowerCase();
+					const lbl = ( el.getAttribute( 'aria-label' ) || '' ).toLowerCase();
+					if ( txt.includes( 'klarna' ) || lbl.includes( 'klarna' ) ) {
+						el.click();
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/* ------------------------------------------------------------------
+		   Apple Pay y Google Pay — siempre visibles como opciones
+		   ------------------------------------------------------------------ */
+		injectApplePayOption() {
+			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
+			if ( ! ul || ul.querySelector( '.mm-applepay-option' ) ) return;
+
+			const hasApplePay = typeof ApplePaySession !== 'undefined';
+
+			const appleLogoSvg = `<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="640" height="400" rx="40" fill="#000"/><path d="M227 130c-7 8-18 15-29 14-1-11 4-23 11-30 7-8 19-15 29-14 1 11-4 22-11 30zm11 17c-16-1-30 9-38 9-8 0-20-8-33-8-17 0-33 10-41 25-18 30-5 75 13 100 8 12 19 25 32 25 13 0 18-8 33-8 16 0 20 8 33 8 14 0 25-14 33-26 5-8 8-12 13-21-35-13-40-62-6-81-10-14-27-22-39-23z" fill="#fff"/><path d="M374 116h-10v109h10V116zm-24 88a25 25 0 01-25-25 25 25 0 0125-25 25 25 0 0125 25 25 25 0 01-25 25zm0-60a35 35 0 00-35 35 35 35 0 0035 35 35 35 0 0035-35 35 35 0 00-35-35zM420 139l-2 7h-10l-2-7h-11l13 37h10l13-37h-11zm50 27l-8-27h-11l13 37h10l14-37h-11l-7 27zm60-27l-13 37h11l2-7h13l2 7h11l-13-37h-13zm7 10l4 12h-8l4-12zm50-10v27l-13-27h-11v37h10V149l14 27h10v-37h-10zm53 0v10h-10v27h-10v-27h-10v-10h30z" fill="#fff"/></svg>`;
+			const googleLogoSvg = `<svg viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true" style="width:64px"><text y="18" font-size="16" fill="#1A73E8" font-family="sans-serif" font-weight="700">G Pay</text></svg>`;
+
+			// Siempre inyectar Apple Pay
+			const appleLi = document.createElement( 'li' );
+			appleLi.className = 'wc_payment_method mm-applepay-option';
+			appleLi.innerHTML = `
+				<input type="radio" id="payment_method_mm_apple_pay" name="payment_method" value="mm_apple_pay">
+				<label for="payment_method_mm_apple_pay" class="mm-applepay-label">
+					Apple Pay ${ appleLogoSvg }
+				</label>
+			`;
+			ul.appendChild( appleLi );
+			appleLi.querySelector( 'input' ).addEventListener( 'change', () => {
+				$( document.body ).trigger( 'payment_method_selected' );
+			} );
+
+			// Siempre inyectar Google Pay (en dispositivos no-Apple)
+			if ( ! hasApplePay ) {
+				const googleLi = document.createElement( 'li' );
+				googleLi.className = 'wc_payment_method mm-applepay-option mm-googlepay-option';
+				googleLi.innerHTML = `
+					<input type="radio" id="payment_method_mm_google_pay" name="payment_method" value="mm_google_pay">
+					<label for="payment_method_mm_google_pay" class="mm-applepay-label">
+						Google Pay ${ googleLogoSvg }
+					</label>
+				`;
+				ul.appendChild( googleLi );
+				googleLi.querySelector( 'input' ).addEventListener( 'change', () => {
+					$( document.body ).trigger( 'payment_method_selected' );
+				} );
+			}
 		}
 
 		/* ------------------------------------------------------------------
@@ -1053,6 +1105,7 @@
 			const isPayPal   = /ppcp|paypal/i.test( mid ) || /paypal/i.test( reviewPaymentText );
 			const isApplePay = /mm_apple_pay|apple.*pay/i.test( mid );
 			const isGooglePay = /mm_google_pay|google.*pay/i.test( mid );
+			const isKlarna   = /mm_klarna/i.test( mid );
 			const isExpress  = isApplePay || isGooglePay;
 
 			const arrowSvg = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
@@ -1112,8 +1165,10 @@
 
 			} else {
 				// ── Tarjeta (Stripe/WooPayments) / Klarna / BACS / COD ────────
-				const cardMethodLi = this._step4PaymentMethod
-					? document.querySelector( `input[name="payment_method"][value="${ this._step4PaymentMethod }"]` )?.closest( '.wc_payment_method' )
+				// Para Klarna usar el payment_box de Stripe (que contiene el UPE)
+				const cardPaymentMethodVal = isKlarna ? 'stripe' : this._step4PaymentMethod;
+				const cardMethodLi = cardPaymentMethodVal
+					? document.querySelector( `input[name="payment_method"][value="${ cardPaymentMethodVal }"]` )?.closest( '.wc_payment_method' )
 					: null;
 				const cardPaymentBox = cardMethodLi?.querySelector( '.payment_box' );
 
@@ -1127,12 +1182,16 @@
 					actionArea.closest( '.mm-step-nav' )?.classList.add( 'mm-step-nav--paypal' );
 					window.dispatchEvent( new Event( 'resize' ) );
 					$( document.body ).trigger( 'payment_method_selected' );
+					// Activar pestaña Klarna dentro del UPE
+					if ( isKlarna ) setTimeout( () => this._activateKlarnaTab(), 400 );
 				}
 
-				// Botón estándar "Jetzt bestellen"
+				// Botón: texto diferente según método
 				defaultBtn.style.display = '';
 				defaultBtn.className = 'mm-btn-primary mm-btn-checkout mm-btn-checkout--step4';
-				defaultBtn.innerHTML = `Jetzt bestellen <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
+				defaultBtn.innerHTML = isKlarna
+					? `Mit Klarna bezahlen ${ arrowSvg }`
+					: `Jetzt bestellen ${ arrowSvg }`;
 				defaultBtn.removeAttribute( 'aria-label' );
 				if ( paypalBtn ) {
 					paypalBtn.style.setProperty( 'display', 'none', 'important' );
