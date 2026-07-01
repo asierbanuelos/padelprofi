@@ -1247,39 +1247,44 @@ body.mm-pay-open { overflow: hidden; }
 		gap: 10px;
 	}
 	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
-	/* Label: flex columna con stretch para que los hijos ocupen el ancho completo */
+	/* Label: row+wrap para que cada hijo ocupe una fila completa via flex-basis:100% */
 	.mm-wc-shipping-wrapper ul#shipping_method li label {
-		flex: 1; min-width: 0;
-		flex-direction: column;
-		align-items: stretch;
-		gap: 4px;
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		align-items: flex-start !important;
+		flex: 1 !important;
+		min-width: 0 !important;
+		gap: 0 !important;
 	}
-	/* mm-shipping-label__main: bloque (no flex) para que <br> y el texto fluyan normal */
+	/* Fila 1: texto del método (block para que <br> funcione) */
 	.mm-shipping-label__main {
 		display: block !important;
-		width: 100%;
-		font-size: 13px;
-		line-height: 1.5;
-		word-break: break-word;
+		flex: 0 0 100% !important;
+		min-width: 0 !important;
+		box-sizing: border-box !important;
+		font-size: 13px !important;
+		line-height: 1.6 !important;
+		word-break: break-word !important;
+		overflow-wrap: break-word !important;
 	}
 	.mm-shipping-label__main .woocommerce-Price-amount,
-	.mm-shipping-label__main bdi {
-		font-weight: 700;
-		white-space: nowrap;
-	}
-	/* Fecha de entrega */
+	.mm-shipping-label__main bdi { font-weight: 700; }
+	/* Fila 2: fecha de entrega */
 	.mm-delivery-date-label {
+		flex: 0 0 100% !important;
+		margin-top: 5px !important;
 		font-size: 12px !important; font-weight: 500 !important;
 		color: var(--pp-green) !important;
-		display: flex !important; align-items: center; gap: 4px;
+		display: flex !important; align-items: center !important; gap: 4px !important;
 	}
-	/* Extra info del plugin de envío: inline para no romper el flujo de texto */
+	/* Links del plugin de envío: inline */
 	.mm-wc-shipping-wrapper ul#shipping_method li label a,
 	.mm-wc-shipping-wrapper ul#shipping_method li > a {
 		font-size: 12px !important; color: var(--pp-gray) !important;
-		display: inline !important; line-height: 1.5;
+		display: inline !important; line-height: 1.6;
 	}
-	/* Estado seleccionado — left border más visible en móvil */
+	/* Estado seleccionado */
 	.mm-shipping-option--selected { border-left-width: 4px !important; }
 
 	/* Sidebar móvil */
