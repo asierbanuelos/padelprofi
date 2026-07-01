@@ -704,68 +704,35 @@ add_filter( 'woocommerce_cart_shipping_method_full_label', 'mm_add_delivery_date
 
 function mm_add_delivery_date_label( $label, $method ) {
 
-
-
-	// Calcular 2 días laborables
-
-
-
-	$count = 0;
-
-
-
-	$ts    = time();
-
-
-
+	// Calcular inicio: 2 días laborables desde hoy
+	$count    = 0;
+	$ts_start = time();
 	while ( $count < 2 ) {
-
-
-
-		$ts  = strtotime( '+1 day', $ts );
-
-
-
-		$dow = (int) date( 'N', $ts );
-
-
-
-		if ( $dow < 6 ) {
-
-
-
-			$count++;
-
-
-
-		}
-
-
-
+		$ts_start = strtotime( '+1 day', $ts_start );
+		if ( (int) date( 'N', $ts_start ) < 6 ) $count++;
 	}
 
+	// Calcular fin: 3 días laborables adicionales
+	$count  = 0;
+	$ts_end = $ts_start;
+	while ( $count < 3 ) {
+		$ts_end = strtotime( '+1 day', $ts_end );
+		if ( (int) date( 'N', $ts_end ) < 6 ) $count++;
+	}
 
+	$date_start = date_i18n( 'j. F', $ts_start );
+	$date_end   = date_i18n( 'j. F', $ts_end );
 
-	$delivery_date = date_i18n( 'd/m/Y', $ts );
+	$truck = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;flex-shrink:0"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>';
 
-
-
-	$label        .= '<span class="mm-delivery-date-label">'
-
-
-
-		. sprintf( 'Voraussichtliche Lieferung: %s', $delivery_date )
-
-
-
-		. '</span>';
-
-
+	// Envolver la etiqueta original en un span para poder separar precio de fecha
+	$label = '<span class="mm-shipping-label__main">' . $label . '</span>'
+	       . '<span class="mm-delivery-date-label">'
+	       . $truck
+	       . ' Lieferung: ' . $date_start . ' – ' . $date_end
+	       . '</span>';
 
 	return $label;
-
-
-
 }
 
 
