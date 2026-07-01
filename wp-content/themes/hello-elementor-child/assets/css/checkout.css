@@ -559,23 +559,36 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 .mm-wc-shipping-wrapper ul#shipping_method li label {
 	display: flex; flex-direction: column; align-items: flex-start;
 	width: 100%; font-size: 14px; font-weight: 600; color: var(--pp-black);
-	cursor: pointer; gap: 5px; margin: 0;
+	cursor: pointer; gap: 5px; margin: 0; min-width: 0;
 }
 /* Fila superior: nombre del método + precio */
 .mm-shipping-label__main {
-	display: flex; align-items: center; justify-content: space-between;
-	width: 100%; gap: 10px;
+	display: flex; align-items: baseline; justify-content: space-between;
+	width: 100%; gap: 10px; flex-wrap: wrap;
 }
-.mm-shipping-label__main .woocommerce-Price-amount { color: var(--pp-black); }
+.mm-shipping-label__main .woocommerce-Price-amount {
+	color: var(--pp-black); white-space: nowrap; margin-left: auto; font-weight: 700;
+}
+/* Estado seleccionado */
+.mm-shipping-option--selected {
+	background: var(--pp-orange-light) !important;
+	border-left: 3px solid var(--pp-orange);
+}
+.mm-shipping-option--selected label { color: var(--pp-black); }
 /* Fila inferior: fecha estimada con icono camión */
 .mm-delivery-date-label {
 	display: flex; align-items: center; gap: 5px;
 	font-size: 13px; font-weight: 500; color: #16a34a;
 }
 .mm-delivery-date-label svg { stroke: #16a34a; }
-.mm-wc-shipping-wrapper ul#shipping_method .woocommerce-Price-amount {
-	color: var(--pp-black); margin-left: auto;
+/* Links/texto extra de plugins de envío (DHL, etc.) */
+.mm-wc-shipping-wrapper ul#shipping_method li label a,
+.mm-wc-shipping-wrapper ul#shipping_method li > a {
+	font-size: 12px; color: var(--pp-gray-dark) !important;
+	text-decoration: none; font-weight: 400;
 }
+.mm-wc-shipping-wrapper ul#shipping_method li label a:hover,
+.mm-wc-shipping-wrapper ul#shipping_method li > a:hover { text-decoration: underline; }
 .mm-wc-shipping-wrapper .woocommerce-shipping-destination,
 .mm-wc-shipping-wrapper > p:first-child { display: none; }
 .mm-wc-shipping-wrapper p { font-size: 14px; color: var(--pp-gray-dark); padding: 12px 0; }
@@ -1220,10 +1233,47 @@ body.mm-pay-open { overflow: hidden; }
 	.mm-payment-wrapper .wc_payment_method label img { max-width: 60px; height: 20px !important; object-fit: contain; flex-shrink: 0; }
 	.mm-payment-wrapper .payment_box { padding: 10px 14px !important; }
 
-	/* Envío */
-	.mm-wc-shipping-wrapper ul#shipping_method li { padding: 12px 14px; align-items: flex-start; flex-wrap: wrap; }
-	.mm-wc-shipping-wrapper ul#shipping_method li label { flex-direction: column; align-items: flex-start; gap: 3px; }
-	.mm-delivery-date-label { font-size: 12px !important; font-weight: 400 !important; color: var(--pp-gray) !important; display: block; }
+	/* Envío — rediseño mobile */
+	.mm-wc-shipping-wrapper ul#shipping_method { border-radius: var(--pp-radius-sm); }
+	.mm-wc-shipping-wrapper ul#shipping_method li {
+		padding: 14px 16px;
+		align-items: flex-start;
+		flex-wrap: nowrap;
+		gap: 10px;
+	}
+	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] { margin-top: 2px; flex-shrink: 0; }
+	.mm-wc-shipping-wrapper ul#shipping_method li label {
+		flex: 1; min-width: 0;
+		flex-direction: column; align-items: flex-start; gap: 4px;
+	}
+	/* Nombre + precio: wrappable, precio siempre a la derecha */
+	.mm-shipping-label__main {
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: flex-start;
+		gap: 2px;
+	}
+	.mm-shipping-label__main .woocommerce-Price-amount,
+	.mm-shipping-label__main bdi {
+		margin-left: auto;
+		white-space: nowrap;
+		font-weight: 700;
+		font-size: 15px;
+	}
+	/* Fecha de entrega */
+	.mm-delivery-date-label {
+		font-size: 12px !important; font-weight: 500 !important;
+		color: var(--pp-green) !important;
+		display: flex !important; align-items: center; gap: 4px;
+	}
+	/* Extra info del plugin de envío */
+	.mm-wc-shipping-wrapper ul#shipping_method li label a,
+	.mm-wc-shipping-wrapper ul#shipping_method li > a {
+		font-size: 12px !important; color: var(--pp-gray) !important;
+		display: block; margin-top: 2px; line-height: 1.4;
+	}
+	/* Estado seleccionado — left border más visible en móvil */
+	.mm-shipping-option--selected { border-left-width: 4px !important; }
 
 	/* Sidebar móvil */
 	.mm-checkout-sidebar .mm-order-summary { padding: 14px 16px; box-sizing: border-box; }

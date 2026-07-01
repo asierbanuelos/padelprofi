@@ -36,6 +36,7 @@
 			this.bindNavigationButtons();
 			this.bindProgressBarClicks();
 			this.bindShippingMethodChange();
+			this.rebindShippingOptions();
 			this.bindEmpresaToggle();
 			this.bindCoupon();
 			this.bindSidebarSubmit();
@@ -1026,10 +1027,11 @@
 		}
 
 		rebindShippingOptions() {
-			document.querySelectorAll( '.mm-shipping-option input.shipping_method' ).forEach( ( radio ) => {
-				const option = radio.closest( '.mm-shipping-option' );
-				if ( ! option ) return;
-				option.classList.toggle( 'mm-shipping-option--selected', radio.checked );
+			// Añadir clase mm-shipping-option a cada li y reflejar estado seleccionado
+			document.querySelectorAll( '.mm-wc-shipping-wrapper ul#shipping_method li' ).forEach( ( li ) => {
+				li.classList.add( 'mm-shipping-option' );
+				const radio = li.querySelector( 'input[name^="shipping_method"], input.shipping_method' );
+				if ( radio ) li.classList.toggle( 'mm-shipping-option--selected', radio.checked );
 			} );
 		}
 
