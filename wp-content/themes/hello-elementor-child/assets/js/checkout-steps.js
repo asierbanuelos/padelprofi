@@ -1065,6 +1065,10 @@
 		   Selección visual de método virtual sin disparar update_checkout de WC
 		   ------------------------------------------------------------------ */
 		_selectVirtualPayment( selectedLi ) {
+			// Desmarcar radios reales sin disparar eventos (para que initPaymentUI no los muestre como seleccionados)
+			document.querySelectorAll( '.mm-payment-wrapper input[name="payment_method"]' ).forEach( ( r ) => {
+				r.checked = false;
+			} );
 			document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( ( m ) => {
 				m.classList.remove( 'mm-payment--selected' );
 			} );
