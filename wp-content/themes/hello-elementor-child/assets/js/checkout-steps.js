@@ -126,8 +126,14 @@
 
 			// Al entrar en paso 4: guardar método y renderizar botón dinámico (síncrono).
 			if ( step === 4 ) {
-				const r = document.querySelector( 'input[name="payment_method"]:checked' );
-				if ( r ) this._step4PaymentMethod = r.value;
+				// Priorizar selección virtual (Klarna/ApplePay/GooglePay) sobre la real
+				const vRadio = document.querySelector( 'input[name="mm_virtual_payment"]:checked' );
+				if ( vRadio ) {
+					this._step4PaymentMethod = vRadio.value;
+				} else {
+					const r = document.querySelector( 'input[name="payment_method"]:checked' );
+					if ( r ) this._step4PaymentMethod = r.value;
+				}
 				this.renderStep4Action();
 				// Notificar a bindStep4Submit para que re-bindee el botón PayPal
 				setTimeout( () => document.dispatchEvent( new Event( 'mm_step4_rendered' ) ), 100 );

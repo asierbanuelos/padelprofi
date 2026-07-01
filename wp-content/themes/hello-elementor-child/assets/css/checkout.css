@@ -1174,7 +1174,11 @@ body.mm-pay-open { overflow: hidden; }
 	background: var(--pp-white);
 	border-top: 1px solid var(--pp-gray-border);
 }
-.mm-mobile-drawer.mm-mobile-drawer--open { max-height: 65vh; overflow-y: auto; }
+.mm-mobile-drawer.mm-mobile-drawer--open {
+	max-height: 70vh; overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: contain;
+}
 .mm-mobile-drawer__inner { padding: 14px 16px; }
 .mm-mobile-drawer__inner .mm-order-summary__items  { margin-bottom: 10px; padding-bottom: 10px; }
 .mm-mobile-drawer__inner .mm-order-item__img       { width: 52px !important; height: 52px !important; }
