@@ -80,6 +80,27 @@ add_filter( 'woocommerce_gateway_title', function( $title, $id ) {
 	return $title;
 }, 999, 2 );
 
+// Traducir strings WooCommerce al alemán (fallback cuando el .mo de WC no está cargado)
+add_filter( 'gettext', function( $translated, $original, $domain ) {
+	if ( $domain !== 'woocommerce' ) return $translated;
+	static $map = [
+		'Continue shopping'  => 'Weiter einkaufen',
+		'Continue Shopping'  => 'Weiter einkaufen',
+		'View cart'          => 'Warenkorb ansehen',
+	];
+	return $map[ $original ] ?? $translated;
+}, 20, 3 );
+
+add_filter( 'ngettext', function( $translated, $single, $plural, $number, $domain ) {
+	if ( $domain !== 'woocommerce' ) return $translated;
+	if ( strpos( $single, 'has been added to your cart' ) !== false ) {
+		return $number === 1
+			? '&ldquo;%s&rdquo; wurde in deinen Warenkorb gelegt.'
+			: '&ldquo;%s&rdquo; wurden in deinen Warenkorb gelegt.';
+	}
+	return $translated;
+}, 20, 5 );
+
 // Fix: el script de sticky header de Elementor hace getElementById('main-header')
 // que devuelve null en algunas páginas (checkout, etc.) → crash JS.
 // Parcheamos el HTML generado añadiendo un guard antes del offsetTop.
