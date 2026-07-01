@@ -942,6 +942,10 @@
 			document.addEventListener( 'change', ( e ) => {
 				if ( e.target.name === 'payment_method' && e.target.checked ) {
 					this._step4PaymentMethod = e.target.value;
+					// Desmarcar virtuales y sincronizar selección visual
+					document.querySelectorAll( '.mm-payment-wrapper input[name="mm_virtual_payment"]' ).forEach( r => { r.checked = false; } );
+					document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( m => m.classList.remove( 'mm-payment--selected' ) );
+					e.target.closest( '.wc_payment_method' )?.classList.add( 'mm-payment--selected' );
 				}
 			} );
 
@@ -984,6 +988,13 @@
 						this._step4PaymentMethod = savedKlarnaGw;
 						const klarnaGwRadio = document.querySelector( `input[name="payment_method"][value="${ savedKlarnaGw }"]` );
 						if ( klarnaGwRadio ) { klarnaGwRadio.checked = true; $( klarnaGwRadio ).trigger( 'change' ); }
+					} else {
+						// Método real de WC: restaurar selección visual tras el re-render
+						const checkedReal = document.querySelector( 'input[name="payment_method"]:checked' );
+						if ( checkedReal ) {
+							document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( m => m.classList.remove( 'mm-payment--selected' ) );
+							checkedReal.closest( '.wc_payment_method' )?.classList.add( 'mm-payment--selected' );
+						}
 					}
 				}
 
