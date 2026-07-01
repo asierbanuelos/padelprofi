@@ -1270,8 +1270,8 @@ body.mm-pay-open { overflow: hidden; }
 	.mm-progress-bar     { padding: 14px 12px 18px; margin-bottom: 16px; }
 	.mm-step             { min-width: 52px; }
 	.mm-step__circle     { width: 32px; height: 32px; font-size: 13px; }
-	.mm-step__label      { display: none; }
-	.mm-step__connector  { max-width: 30px; margin-bottom: 20px; }
+	.mm-step__label      { font-size: 9px; letter-spacing: .02em; white-space: normal; text-align: center; max-width: 52px; line-height: 1.2; }
+	.mm-step__connector  { max-width: 20px; margin-bottom: 24px; }
 	.mm-step-panel       { padding: 18px 14px; }
 	.mm-step-title       { font-size: 16px; }
 
