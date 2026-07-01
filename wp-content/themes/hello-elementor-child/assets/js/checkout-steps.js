@@ -1127,6 +1127,8 @@
 					klarnaGwLi.classList.add( 'mm-klarna-option' );
 					const lbl = klarnaGwLi.querySelector( 'label' );
 					if ( lbl && ! lbl.querySelector( '.mm-klarna-logo' ) ) {
+						// Eliminar img del plugin Klarna para evitar logo duplicado
+						lbl.querySelectorAll( 'img' ).forEach( img => img.remove() );
 						const logoSpan = document.createElement( 'span' );
 						logoSpan.innerHTML = `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>`;
 						lbl.appendChild( logoSpan );

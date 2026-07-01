@@ -626,6 +626,7 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 }
 .mm-payment-wrapper .wc_payment_method label {
 	display: flex !important; align-items: center !important; gap: 12px !important;
+	width: 100% !important;
 	padding: 14px 16px !important; cursor: pointer;
 	font-size: 14px !important; font-weight: 600 !important; color: var(--pp-black) !important;
 	margin: 0 !important;
