@@ -1120,19 +1120,38 @@
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
 			if ( ! ul || ul.querySelector( '.mm-klarna-option' ) ) return;
 
-			// Si stripe_klarna u oficial klarna_payments existe como gateway separado, aplicar estilo custom a todos y salir
+			// Si stripe_klarna u oficial klarna_payments existe como gateway separado,
+			// mostrar solo UNA entrada "Klarna" (preferir pay_now), ocultar las demás.
 			const klarnaGwLis = ul.querySelectorAll( '.payment_method_stripe_klarna, [class*="payment_method_klarna_payments"]' );
 			if ( klarnaGwLis.length ) {
-				klarnaGwLis.forEach( ( klarnaGwLi ) => {
-					klarnaGwLi.classList.add( 'mm-klarna-option' );
-					const lbl = klarnaGwLi.querySelector( 'label' );
-					if ( lbl && ! lbl.querySelector( '.mm-klarna-logo' ) ) {
-						// Eliminar img del plugin Klarna para evitar logo duplicado
-						lbl.querySelectorAll( 'img' ).forEach( img => img.remove() );
-						const logoSpan = document.createElement( 'span' );
-						logoSpan.innerHTML = `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>`;
-						lbl.appendChild( logoSpan );
+				// Elegir pay_now como entrada principal; si no, usar la primera
+				let mainLi = null;
+				klarnaGwLis.forEach( ( li ) => {
+					const radio = li.querySelector( 'input[name="payment_method"]' );
+					if ( ! mainLi && radio && /pay_now/i.test( radio.value ) ) mainLi = li;
+				} );
+				if ( ! mainLi ) mainLi = klarnaGwLis[ 0 ];
+
+				klarnaGwLis.forEach( ( li ) => {
+					if ( li !== mainLi ) {
+						li.style.setProperty( 'display', 'none', 'important' );
+						return;
 					}
+					li.classList.add( 'mm-klarna-option' );
+					const lbl = li.querySelector( 'label' );
+					if ( ! lbl || lbl.querySelector( '.mm-klarna-logo' ) ) return;
+
+					// Renombrar texto a "Klarna"
+					const walker = document.createTreeWalker( lbl, NodeFilter.SHOW_TEXT );
+					let tNode;
+					while ( ( tNode = walker.nextNode() ) ) {
+						if ( tNode.textContent.trim() ) { tNode.textContent = 'Klarna'; break; }
+					}
+					// Quitar img del plugin y añadir nuestro wordmark
+					lbl.querySelectorAll( 'img' ).forEach( img => img.remove() );
+					const logoSpan = document.createElement( 'span' );
+					logoSpan.innerHTML = `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>`;
+					lbl.appendChild( logoSpan );
 				} );
 				return;
 			}
