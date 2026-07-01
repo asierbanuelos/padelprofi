@@ -1240,29 +1240,28 @@ body.mm-pay-open { overflow: hidden; }
 
 	/* Envío — rediseño mobile */
 	.mm-wc-shipping-wrapper ul#shipping_method { border-radius: var(--pp-radius-sm); }
+	/* Quitar display:flex del li — usar grid: [radio 18px] [contenido 1fr] */
 	.mm-wc-shipping-wrapper ul#shipping_method li {
-		padding: 14px 16px;
-		align-items: flex-start;
-		flex-wrap: nowrap;
-		gap: 10px;
+		display: grid !important;
+		grid-template-columns: 18px 1fr !important;
+		align-items: start !important;
+		padding: 14px 16px !important;
+		gap: 10px !important;
 	}
-	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
-	/* Label: row+wrap para que cada hijo ocupe una fila completa via flex-basis:100% */
+	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] {
+		margin-top: 3px; width: 18px; height: 18px;
+	}
+	/* Label ocupa columna 2 del grid con ancho garantizado */
 	.mm-wc-shipping-wrapper ul#shipping_method li label {
-		display: flex !important;
-		flex-direction: row !important;
-		flex-wrap: wrap !important;
-		align-items: flex-start !important;
-		flex: 1 !important;
+		display: block !important;
+		width: 100% !important;
 		min-width: 0 !important;
-		gap: 0 !important;
+		flex: none !important;
 	}
-	/* Fila 1: texto del método (block para que <br> funcione) */
+	/* Texto del método: bloque normal para que <br> funcione */
 	.mm-shipping-label__main {
 		display: block !important;
-		flex: 0 0 100% !important;
-		min-width: 0 !important;
-		box-sizing: border-box !important;
+		width: 100% !important;
 		font-size: 13px !important;
 		line-height: 1.6 !important;
 		word-break: break-word !important;
@@ -1270,9 +1269,8 @@ body.mm-pay-open { overflow: hidden; }
 	}
 	.mm-shipping-label__main .woocommerce-Price-amount,
 	.mm-shipping-label__main bdi { font-weight: 700; }
-	/* Fila 2: fecha de entrega */
+	/* Fecha de entrega */
 	.mm-delivery-date-label {
-		flex: 0 0 100% !important;
 		margin-top: 5px !important;
 		font-size: 12px !important; font-weight: 500 !important;
 		color: var(--pp-green) !important;
