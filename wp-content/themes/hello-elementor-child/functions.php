@@ -89,6 +89,11 @@ add_filter( 'woocommerce_available_payment_gateways', function( $gateways ) {
 			$gateways[ $id ]->title = 'Kredit- / Debitkarte';
 		}
 	}
+
+	// Klarna: mostrar solo "Sofort bezahlen" (pago inmediato), ocultar plazos y pago diferido
+	unset( $gateways['klarna_payments_pay_later'] );
+	unset( $gateways['klarna_payments_pay_over_time'] );
+
 	return $gateways;
 }, 9999 );
 
