@@ -1323,9 +1323,9 @@
 
 			if ( isExpress ) {
 				// ── Apple Pay / Google Pay via Stripe Payment Request Button ──────
-				const prbId  = isApplePay ? 'wc-stripe-payment-request-button' : 'wc-stripe-express-checkout-element';
-				const prbAlt = isApplePay ? 'wc-stripe-express-checkout-element' : 'wc-stripe-payment-request-button';
-				const prb    = document.getElementById( prbId ) || document.getElementById( prbAlt );
+				// Ambos usan el mismo Stripe Express Checkout Element (el PRB legacy es fallback)
+				const prb = document.getElementById( 'wc-stripe-express-checkout-element' )
+				         || document.getElementById( 'wc-stripe-payment-request-button' );
 				const arrowSvgExpress = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 				if ( prb && prb.children.length ) {
