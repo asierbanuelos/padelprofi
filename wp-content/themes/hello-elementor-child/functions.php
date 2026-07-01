@@ -72,6 +72,14 @@ add_filter('wpml_home_url', function($url) {
     return $url;
 });
 
+// Cambiar título del gateway Stripe en el checkout
+add_filter( 'woocommerce_gateway_title', function( $title, $id ) {
+	if ( $id === 'stripe' ) {
+		return 'Kredit- / Debitkarte';
+	}
+	return $title;
+}, 10, 2 );
+
 // Fix: el script de sticky header de Elementor hace getElementById('main-header')
 // que devuelve null en algunas páginas (checkout, etc.) → crash JS.
 // Parcheamos el HTML generado añadiendo un guard antes del offsetTop.
