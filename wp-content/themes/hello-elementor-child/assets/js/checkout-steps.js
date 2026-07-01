@@ -46,9 +46,6 @@
 			this.createMobileFooter();
 			this.bindWooCommerceUpdates();
 			this.bindPaymentPopup();
-			// Inyectar métodos express y Klarna como opciones visibles
-			this.injectKlarnaOption();
-			this.injectApplePayOption();
 		}
 
 		/* ------------------------------------------------------------------
@@ -908,6 +905,10 @@
 				this.rebindShippingOptions();
 				this.updateSidebarBtnText();
 				this.updateMobileFooter();
+
+				// Re-inyectar opciones de pago extra (WC las borra al re-renderizar)
+				this.injectKlarnaOption();
+				this.injectApplePayOption();
 
 				// WooCommerce oculta cada .payment_box hasta que se hace click en
 				// su radio. En el paso 3, forzamos la selección para que Stripe
