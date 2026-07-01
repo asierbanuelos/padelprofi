@@ -1275,6 +1275,15 @@ body.mm-pay-open { overflow: hidden; }
 	.mm-step-panel       { padding: 18px 14px; }
 	.mm-step-title       { font-size: 16px; }
 
+	/* Prevenir zoom automático de iOS en inputs con font-size < 16px */
+	.mm-checkout-page input[type="text"],
+	.mm-checkout-page input[type="email"],
+	.mm-checkout-page input[type="tel"],
+	.mm-checkout-page input[type="password"],
+	.mm-checkout-page input[type="number"],
+	.mm-checkout-page select,
+	.mm-checkout-page textarea { font-size: 16px !important; }
+
 	.pp-customer-type    { flex-direction: column; gap: 8px; }
 	.pp-fields-row--postcode { flex-direction: row; }
 	.pp-salutation-options   { gap: 14px; }

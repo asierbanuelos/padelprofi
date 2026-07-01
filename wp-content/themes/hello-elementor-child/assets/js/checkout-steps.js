@@ -990,9 +990,25 @@
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
 			if ( ! ul || ul.querySelector( '.mm-klarna-option' ) ) return;
 
-			// Solo si Stripe está disponible como gateway subyacente
-			const stripeRadio = ul.querySelector( 'input[name="payment_method"][value="stripe"]' );
+			// Buscar radio de Stripe por varios selectores posibles
+			const stripeRadio = ul.querySelector( 'input[name="payment_method"][value="stripe"]' )
+				|| ul.querySelector( 'input[name="payment_method"][value="stripe_cc"]' )
+				|| ul.querySelector( '.payment_method_stripe input[name="payment_method"]' );
 			if ( ! stripeRadio ) return;
+
+			// Renombrar el label de Stripe si aún dice "Zahlungsoptionen"
+			const stripeLi = stripeRadio.closest( '.wc_payment_method' );
+			const stripeLbl = stripeLi?.querySelector( 'label' );
+			if ( stripeLbl ) {
+				for ( const node of stripeLbl.childNodes ) {
+					if ( node.nodeType === Node.TEXT_NODE && node.textContent.trim() ) {
+						if ( /zahlungsoptionen|stripe|kreditkarte/i.test( node.textContent ) ) {
+							node.textContent = 'Kredit- / Debitkarte ';
+						}
+						break;
+					}
+				}
+			}
 
 			const li = document.createElement( 'li' );
 			li.className = 'wc_payment_method mm-klarna-option';
@@ -1038,33 +1054,34 @@
 		}
 
 		/* ------------------------------------------------------------------
-		   Apple Pay y Google Pay — siempre visibles como opciones
+		   Apple Pay y Google Pay — solo en dispositivos que los soportan
 		   ------------------------------------------------------------------ */
 		injectApplePayOption() {
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
 			if ( ! ul || ul.querySelector( '.mm-applepay-option' ) ) return;
 
-			const hasApplePay = typeof ApplePaySession !== 'undefined';
+			const hasApplePay  = typeof ApplePaySession !== 'undefined';
+			const hasGooglePay = ! hasApplePay && typeof PaymentRequest !== 'undefined';
 
 			const appleLogoSvg = `<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="640" height="400" rx="40" fill="#000"/><path d="M227 130c-7 8-18 15-29 14-1-11 4-23 11-30 7-8 19-15 29-14 1 11-4 22-11 30zm11 17c-16-1-30 9-38 9-8 0-20-8-33-8-17 0-33 10-41 25-18 30-5 75 13 100 8 12 19 25 32 25 13 0 18-8 33-8 16 0 20 8 33 8 14 0 25-14 33-26 5-8 8-12 13-21-35-13-40-62-6-81-10-14-27-22-39-23z" fill="#fff"/><path d="M374 116h-10v109h10V116zm-24 88a25 25 0 01-25-25 25 25 0 0125-25 25 25 0 0125 25 25 25 0 01-25 25zm0-60a35 35 0 00-35 35 35 35 0 0035 35 35 35 0 0035-35 35 35 0 00-35-35zM420 139l-2 7h-10l-2-7h-11l13 37h10l13-37h-11zm50 27l-8-27h-11l13 37h10l14-37h-11l-7 27zm60-27l-13 37h11l2-7h13l2 7h11l-13-37h-13zm7 10l4 12h-8l4-12zm50-10v27l-13-27h-11v37h10V149l14 27h10v-37h-10zm53 0v10h-10v27h-10v-27h-10v-10h30z" fill="#fff"/></svg>`;
 			const googleLogoSvg = `<svg viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true" style="width:64px"><text y="18" font-size="16" fill="#1A73E8" font-family="sans-serif" font-weight="700">G Pay</text></svg>`;
 
-			// Siempre inyectar Apple Pay
-			const appleLi = document.createElement( 'li' );
-			appleLi.className = 'wc_payment_method mm-applepay-option';
-			appleLi.innerHTML = `
-				<input type="radio" id="payment_method_mm_apple_pay" name="payment_method" value="mm_apple_pay">
-				<label for="payment_method_mm_apple_pay" class="mm-applepay-label">
-					Apple Pay ${ appleLogoSvg }
-				</label>
-			`;
-			ul.appendChild( appleLi );
-			appleLi.querySelector( 'input' ).addEventListener( 'change', () => {
-				$( document.body ).trigger( 'payment_method_selected' );
-			} );
+			if ( hasApplePay ) {
+				const appleLi = document.createElement( 'li' );
+				appleLi.className = 'wc_payment_method mm-applepay-option';
+				appleLi.innerHTML = `
+					<input type="radio" id="payment_method_mm_apple_pay" name="payment_method" value="mm_apple_pay">
+					<label for="payment_method_mm_apple_pay" class="mm-applepay-label">
+						Apple Pay ${ appleLogoSvg }
+					</label>
+				`;
+				ul.appendChild( appleLi );
+				appleLi.querySelector( 'input' ).addEventListener( 'change', () => {
+					$( document.body ).trigger( 'payment_method_selected' );
+				} );
+			}
 
-			// Siempre inyectar Google Pay (en dispositivos no-Apple)
-			if ( ! hasApplePay ) {
+			if ( hasGooglePay ) {
 				const googleLi = document.createElement( 'li' );
 				googleLi.className = 'wc_payment_method mm-applepay-option mm-googlepay-option';
 				googleLi.innerHTML = `
