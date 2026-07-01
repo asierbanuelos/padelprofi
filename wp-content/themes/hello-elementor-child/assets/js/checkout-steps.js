@@ -47,6 +47,7 @@
 			this.createMobileFooter();
 			this.bindWooCommerceUpdates();
 			this.bindPaymentPopup();
+			this._watchStripeLabel();
 		}
 
 		/* ------------------------------------------------------------------
@@ -1046,6 +1047,63 @@
 			if ( ! el ) return;
 			el.textContent  = text;
 			el.className    = 'mm-coupon-message mm-coupon-message--' + type;
+		}
+
+		/* ------------------------------------------------------------------
+		   Renombrar label de Stripe: "Zahlungsoptionen" → "Kredit- / Debitkarte"
+		   Stripe puede actualizar el texto del label vía JS después del renderizado,
+		   así que usamos un MutationObserver para capturarlo siempre.
+		   ------------------------------------------------------------------ */
+		_watchStripeLabel() {
+			const LABEL_TARGET = 'Kredit- / Debitkarte';
+			const PATTERN      = /zahlungsoptionen/i;
+
+			const rename = () => {
+				const wrapper = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
+				if ( ! wrapper ) return;
+
+				const stripeLi = wrapper.querySelector(
+					'.payment_method_stripe, .payment_method_stripe_cc, .payment_method_woocommerce_payments'
+				);
+				if ( ! stripeLi ) return;
+
+				const lbl = stripeLi.querySelector( 'label' );
+				if ( ! lbl ) return;
+
+				// 1. Nodos de texto directos y en cualquier profundidad
+				const walker = document.createTreeWalker( lbl, NodeFilter.SHOW_TEXT );
+				let node;
+				while ( ( node = walker.nextNode() ) ) {
+					if ( PATTERN.test( node.textContent ) ) {
+						node.textContent = node.textContent.replace( PATTERN, LABEL_TARGET );
+					}
+				}
+
+				// 2. Elementos hoja con el texto completo (por si acaso)
+				lbl.querySelectorAll( '*' ).forEach( ( el ) => {
+					if ( ! el.children.length && PATTERN.test( el.textContent ) ) {
+						el.textContent = el.textContent.replace( PATTERN, LABEL_TARGET );
+					}
+				} );
+			};
+
+			// Ejecutar inmediatamente
+			rename();
+
+			// Observar cambios en el wrapper de pago (Stripe puede actualizar el DOM tras su init)
+			const paymentWrapper = document.querySelector( '.mm-payment-wrapper' );
+			if ( paymentWrapper ) {
+				let ticking = false;
+				const observer = new MutationObserver( () => {
+					if ( ticking ) return;
+					ticking = true;
+					requestAnimationFrame( () => { rename(); ticking = false; } );
+				} );
+				observer.observe( paymentWrapper, { childList: true, subtree: true, characterData: true } );
+			}
+
+			// También renombrar tras cada updated_checkout (WC re-renderiza la lista)
+			$( document.body ).on( 'updated_checkout', () => rename() );
 		}
 
 		/* ------------------------------------------------------------------

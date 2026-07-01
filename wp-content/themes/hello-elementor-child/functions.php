@@ -72,13 +72,25 @@ add_filter('wpml_home_url', function($url) {
     return $url;
 });
 
-// Cambiar título del gateway Stripe en el checkout (prioridad alta para sobreescribir el plugin)
+// Cambiar título del gateway Stripe — doble capa para cubrir cualquier versión del plugin
+// Capa 1: filtro de título (prioridad 9999)
 add_filter( 'woocommerce_gateway_title', function( $title, $id ) {
-	if ( in_array( $id, [ 'stripe', 'stripe_cc', 'woocommerce_payments' ], true ) ) {
+	if ( in_array( $id, [ 'stripe', 'stripe_cc', 'woocommerce_payments', 'stripe_upe' ], true ) ) {
 		return 'Kredit- / Debitkarte';
 	}
 	return $title;
-}, 999, 2 );
+}, 9999, 2 );
+
+// Capa 2: modificar directamente la propiedad ->title del objeto gateway
+add_filter( 'woocommerce_available_payment_gateways', function( $gateways ) {
+	$cc_ids = [ 'stripe', 'stripe_cc', 'woocommerce_payments', 'stripe_upe' ];
+	foreach ( $cc_ids as $id ) {
+		if ( isset( $gateways[ $id ] ) ) {
+			$gateways[ $id ]->title = 'Kredit- / Debitkarte';
+		}
+	}
+	return $gateways;
+}, 9999 );
 
 // Traducir strings WooCommerce al alemán (fallback cuando el .mo de WC no está cargado)
 add_filter( 'gettext', function( $translated, $original, $domain ) {
