@@ -1430,37 +1430,66 @@
 			const list = document.createElement( 'ul' );
 			list.className = 'mm-pay-popup__list';
 
-			const currentVal = ( document.querySelector( 'input[name="payment_method"]:checked' ) || {} ).value || '';
+			// Valor seleccionado actual: priorizar virtual sobre real
+			const virtualChecked = document.querySelector( 'input[name="mm_virtual_payment"]:checked' );
+			const realChecked    = document.querySelector( 'input[name="payment_method"]:checked' );
+			const currentVal     = virtualChecked?.value || this._step4PaymentMethod || realChecked?.value || '';
 
-			document.querySelectorAll( '.wc_payment_method input[name="payment_method"]' ).forEach( ( radio ) => {
-				const methodEl = radio.closest( '.wc_payment_method' );
-				if ( ! methodEl ) return;
+			// Iterar todos los .wc_payment_method en orden DOM (incluye virtuales inyectados)
+			document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( ( methodEl ) => {
+				// Aceptar radio real (WC) o virtual (mm_virtual_payment)
+				const radio = methodEl.querySelector( 'input[name="payment_method"]' )
+					|| methodEl.querySelector( 'input[name="mm_virtual_payment"]' );
+				if ( ! radio ) return;
 
+				const isVirtual = radio.name === 'mm_virtual_payment';
 				const labelEl   = methodEl.querySelector( 'label' );
-				const imgEl     = labelEl ? labelEl.querySelector( 'img' ) : null;
+				const imgEl     = labelEl?.querySelector( 'img' ) || null;
+				const svgEl     = labelEl?.querySelector( 'svg' ) || null;
 				const labelText = labelEl
-					? Array.from( labelEl.childNodes )
+					? ( Array.from( labelEl.childNodes )
 						.filter( ( n ) => n.nodeType === Node.TEXT_NODE )
 						.map( ( n ) => n.textContent.trim() )
 						.join( '' )
-						.trim() || radio.value
+						.trim() || radio.value )
 					: radio.value;
 
+				// Logo: imagen (PayPal, Stripe) o SVG clonado (Klarna, ApplePay, GooglePay)
+				let logoHtml = '';
+				if ( imgEl ) {
+					logoHtml = `<img src="${ imgEl.src }" alt="${ imgEl.alt }" class="mm-pay-popup__item-img">`;
+				} else if ( svgEl ) {
+					const svgClone = svgEl.cloneNode( true );
+					svgClone.setAttribute( 'class', 'mm-pay-popup__item-img' );
+					svgClone.style.cssText = 'height:28px;width:auto;flex-shrink:0;';
+					logoHtml = svgClone.outerHTML;
+				}
+
+				const isSelected = radio.value === currentVal;
 				const item = document.createElement( 'li' );
-				item.className = 'mm-pay-popup__item' + ( radio.value === currentVal ? ' mm-pay-popup__item--selected' : '' );
+				item.className = 'mm-pay-popup__item' + ( isSelected ? ' mm-pay-popup__item--selected' : '' );
 				item.dataset.methodValue = radio.value;
 				item.innerHTML = `
 					<div class="mm-pay-popup__item-radio"></div>
 					<span class="mm-pay-popup__item-name">${ labelText }</span>
-					${ imgEl ? `<img src="${ imgEl.src }" alt="${ imgEl.alt }" class="mm-pay-popup__item-img">` : '' }
+					${ logoHtml }
 				`;
 
 				item.addEventListener( 'click', () => {
 					list.querySelectorAll( '.mm-pay-popup__item' ).forEach( ( i ) => i.classList.remove( 'mm-pay-popup__item--selected' ) );
 					item.classList.add( 'mm-pay-popup__item--selected' );
-					radio.checked = true;
-					radio.dispatchEvent( new Event( 'change', { bubbles: true } ) );
-					$( document.body ).trigger( 'payment_method_selected' );
+
+					if ( isVirtual ) {
+						// Método virtual: actualizar _step4PaymentMethod y selección visual
+						radio.checked = true;
+						this._step4PaymentMethod = radio.value;
+						this._selectVirtualPayment( methodEl );
+					} else {
+						// Método real de WC: evento normal
+						radio.checked = true;
+						radio.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+						$( document.body ).trigger( 'payment_method_selected' );
+					}
 				} );
 
 				list.appendChild( item );
