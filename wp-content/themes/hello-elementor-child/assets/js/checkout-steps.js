@@ -1563,6 +1563,9 @@
 
 			// Iterar todos los .wc_payment_method en orden DOM (incluye virtuales inyectados)
 			document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( ( methodEl ) => {
+				// Saltar métodos ocultos (ej. sub-opciones de Klarna ocultadas por JS)
+				if ( getComputedStyle( methodEl ).display === 'none' ) return;
+
 				// Aceptar radio real (WC) o virtual (mm_virtual_payment)
 				const radio = methodEl.querySelector( 'input[name="payment_method"]' )
 					|| methodEl.querySelector( 'input[name="mm_virtual_payment"]' );
