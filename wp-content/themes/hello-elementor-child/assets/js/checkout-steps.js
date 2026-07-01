@@ -1072,17 +1072,28 @@
 				|| ul.querySelector( '.payment_method_stripe input[name="payment_method"]' );
 			if ( ! stripeRadio ) return;
 
-			// Renombrar el label de Stripe si aún dice "Zahlungsoptionen"
+			// Renombrar el label de Stripe → "Kredit- / Debitkarte"
 			const stripeLi = stripeRadio.closest( '.wc_payment_method' );
 			const stripeLbl = stripeLi?.querySelector( 'label' );
 			if ( stripeLbl ) {
-				for ( const node of stripeLbl.childNodes ) {
-					if ( node.nodeType === Node.TEXT_NODE && node.textContent.trim() ) {
-						if ( /zahlungsoptionen|stripe|kreditkarte/i.test( node.textContent ) ) {
-							node.textContent = 'Kredit- / Debitkarte ';
-						}
+				// TreeWalker recorre TODOS los nodos de texto (incluye span, strong, etc.)
+				const walker = document.createTreeWalker( stripeLbl, NodeFilter.SHOW_TEXT );
+				let textNode;
+				while ( ( textNode = walker.nextNode() ) ) {
+					if ( /zahlungsoptionen|zahlungs/i.test( textNode.textContent ) ) {
+						textNode.textContent = textNode.textContent.replace(
+							/zahlungsoptionen|zahlungs\s*optionen/gi, 'Kredit- / Debitkarte'
+						);
 						break;
 					}
+				}
+				// Fallback: si el label contiene un elemento hoja con el texto
+				if ( /zahlungsoptionen/i.test( stripeLbl.textContent ) ) {
+					stripeLbl.querySelectorAll( '*' ).forEach( ( el ) => {
+						if ( ! el.children.length && /zahlungsoptionen/i.test( el.textContent ) ) {
+							el.textContent = 'Kredit- / Debitkarte';
+						}
+					} );
 				}
 			}
 
@@ -1132,33 +1143,6 @@
 		/* ------------------------------------------------------------------
 		   Intentar activar la pestaña Klarna en el Stripe UPE
 		   ------------------------------------------------------------------ */
-		_hideKlarnaTabInUPE() {
-			const cardForm = document.querySelector( '.mm-step4-card-form' );
-			if ( ! cardForm ) return;
-			const tabSels = [ '[role="tab"]', '[role="radio"]', '[class*="Tab"]', 'button' ];
-			const tryHide = () => {
-				let found = false;
-				for ( const sel of tabSels ) {
-					for ( const el of cardForm.querySelectorAll( sel ) ) {
-						const txt = ( el.textContent || '' ).toLowerCase();
-						const lbl = ( el.getAttribute( 'aria-label' ) || '' ).toLowerCase();
-						if ( txt.includes( 'klarna' ) || lbl.includes( 'klarna' ) ) {
-							el.style.setProperty( 'display', 'none', 'important' );
-							found = true;
-						}
-					}
-				}
-				return found;
-			};
-			// Reintentar hasta 6 veces mientras Stripe renderiza
-			let attempts = 0;
-			const retry = () => {
-				if ( tryHide() || attempts++ > 5 ) return;
-				setTimeout( retry, 350 );
-			};
-			retry();
-		}
-
 		_activateKlarnaTab() {
 			const selectors = [ '[class*="Tab"]', '[role="tab"]', '[role="radio"]', 'label', 'button' ];
 			for ( const sel of selectors ) {
@@ -1345,8 +1329,6 @@
 					actionArea.closest( '.mm-step-nav' )?.classList.add( 'mm-step-nav--paypal' );
 					window.dispatchEvent( new Event( 'resize' ) );
 					$( document.body ).trigger( 'payment_method_selected' );
-					// Ocultar tab Klarna en el UPE cuando se paga con tarjeta
-					if ( ! isKlarna ) setTimeout( () => this._hideKlarnaTabInUPE(), 400 );
 				}
 
 				// Botón
