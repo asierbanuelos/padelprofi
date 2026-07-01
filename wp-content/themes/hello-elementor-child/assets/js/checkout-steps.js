@@ -1286,25 +1286,19 @@
 					actionArea.closest( '.mm-step-nav' )?.classList.add( 'mm-step-nav--paypal' );
 				}
 
-			} else if ( isKlarna && ! mid.includes( 'stripe_klarna' ) ) {
-				// ── Klarna nativo (oficial klarna_payments) o via Stripe UPE (mm_klarna) ──
+			} else if ( mid.includes( 'mm_klarna' ) ) {
+				// ── Klarna via Stripe UPE: solo botón, UPE off-screen con tab Klarna activa ──
 				const klarnaLogoSvg = `<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" style="height:22px;width:auto;vertical-align:middle;margin-right:6px;border-radius:3px" aria-hidden="true"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>`;
-
-				if ( mid.includes( 'mm_klarna' ) ) {
-					// Stripe UPE: activar la pestaña Klarna en el panel off-screen
-					const tryTab = ( n = 0 ) => {
-						if ( this._activateKlarnaTab() ) return;
-						if ( n < 8 ) setTimeout( () => tryTab( n + 1 ), 300 );
-					};
-					const stripeMethodLi = document.querySelector( 'input[name="payment_method"][value="stripe"]' )?.closest( '.wc_payment_method' );
-					if ( stripeMethodLi ) {
-						const pb = stripeMethodLi.querySelector( '.payment_box' );
-						if ( pb ) pb.style.display = 'block';
-					}
-					setTimeout( () => tryTab(), 300 );
+				const tryTab = ( n = 0 ) => {
+					if ( this._activateKlarnaTab() ) return;
+					if ( n < 8 ) setTimeout( () => tryTab( n + 1 ), 300 );
+				};
+				const stripeMethodLi = document.querySelector( 'input[name="payment_method"][value="stripe"]' )?.closest( '.wc_payment_method' );
+				if ( stripeMethodLi ) {
+					const pb = stripeMethodLi.querySelector( '.payment_box' );
+					if ( pb ) pb.style.display = 'block';
 				}
-				// Para klarna_payments: selección del radio ya se hizo al elegir — solo mostrar botón
-
+				setTimeout( () => tryTab(), 300 );
 				defaultBtn.style.display = '';
 				defaultBtn.className = 'mm-btn-primary mm-btn-checkout mm-btn-checkout--step4';
 				defaultBtn.innerHTML = `${ klarnaLogoSvg } Mit Klarna bezahlen ${ arrowSvg }`;
@@ -1312,14 +1306,22 @@
 				if ( paypalBtn ) paypalBtn.style.setProperty( 'display', 'none', 'important' );
 
 			} else {
-				// ── Tarjeta (Stripe/WooPayments) / stripe_klarna / BACS / COD ──
-				const cardPaymentMethodVal = ( isKlarna && mid.includes( 'stripe_klarna' ) )
-					? 'stripe_klarna'
-					: this._step4PaymentMethod;
+				// ── Tarjeta / stripe_klarna / klarna_payments / BACS / COD ──
+				// Para klarna_payments: toma el payment_box del plugin (widget Klarna) y lo muestra en paso 4
+				const cardPaymentMethodVal = this._step4PaymentMethod;
 				const cardMethodLi = cardPaymentMethodVal
 					? document.querySelector( `input[name="payment_method"][value="${ cardPaymentMethodVal }"]` )?.closest( '.wc_payment_method' )
 					: null;
 				const cardPaymentBox = cardMethodLi?.querySelector( '.payment_box' );
+
+				// Para klarna_payments: asegurar que el radio esté seleccionado para que el plugin inicialice el widget
+				if ( mid.includes( 'klarna_payments' ) && cardMethodLi ) {
+					const kpRadio = cardMethodLi.querySelector( 'input[name="payment_method"]' );
+					if ( kpRadio && ! kpRadio.checked ) {
+						kpRadio.checked = true;
+						$( kpRadio ).trigger( 'click' );
+					}
+				}
 
 				if ( cardPaymentBox && cardPaymentBox.children.length ) {
 					const cardWrap = document.createElement( 'div' );
