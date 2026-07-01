@@ -6,6 +6,14 @@
 ( function ( $ ) {
 	'use strict';
 
+	// ── Métodos de pago activos (cambiar a true para activar) ──────────────────
+	const MM_PAYMENTS = {
+		applePay:  false,
+		googlePay: false,
+		klarna:    false,
+	};
+	// ──────────────────────────────────────────────────────────────────────────
+
 	class MMCheckout {
 		constructor() {
 			this.currentStep  = 1;
@@ -1128,6 +1136,13 @@
 		   Inyectar Klarna como opción separada (se procesa via Stripe UPE)
 		   ------------------------------------------------------------------ */
 		injectKlarnaOption() {
+			if ( ! MM_PAYMENTS.klarna ) {
+				// Ocultar todos los gateways Klarna que WC haya renderizado
+				document.querySelectorAll(
+					'.mm-payment-wrapper .payment_method_stripe_klarna, .mm-payment-wrapper [class*="payment_method_klarna_payments"], .mm-payment-wrapper .mm-klarna-option'
+				).forEach( el => el.style.setProperty( 'display', 'none', 'important' ) );
+				return;
+			}
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
 			if ( ! ul || ul.querySelector( '.mm-klarna-option' ) ) return;
 
@@ -1264,11 +1279,17 @@
 		   Apple Pay y Google Pay — solo en dispositivos que los soportan
 		   ------------------------------------------------------------------ */
 		injectApplePayOption() {
+			// Si ambos están desactivados, limpiar opciones inyectadas previamente y salir
+			if ( ! MM_PAYMENTS.applePay && ! MM_PAYMENTS.googlePay ) {
+				document.querySelectorAll( '.mm-payment-wrapper .mm-applepay-option' ).forEach( el => el.remove() );
+				return;
+			}
+
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
 			if ( ! ul ) return;
 
-			const hasApplePay  = typeof ApplePaySession !== 'undefined';
-			const hasGooglePay = ! hasApplePay && typeof PaymentRequest !== 'undefined';
+			const hasApplePay  = MM_PAYMENTS.applePay  && typeof ApplePaySession !== 'undefined';
+			const hasGooglePay = MM_PAYMENTS.googlePay && ! hasApplePay && typeof PaymentRequest !== 'undefined';
 
 			// Garantizar exclusión mutua: eliminar la opción contraria si ya existe
 			if ( hasApplePay ) {
