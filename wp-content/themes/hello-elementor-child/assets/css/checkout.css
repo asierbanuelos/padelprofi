@@ -1246,27 +1246,29 @@ body.mm-pay-open { overflow: hidden; }
 		flex-wrap: nowrap;
 		gap: 10px;
 	}
-	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] { margin-top: 2px; flex-shrink: 0; }
+	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
+	/* Label como bloque para que el HTML complejo del plugin fluya normalmente */
 	.mm-wc-shipping-wrapper ul#shipping_method li label {
 		flex: 1; min-width: 0;
-		flex-direction: column; align-items: flex-start; gap: 4px;
+		display: block !important;
+		overflow: hidden;
+		font-size: 13px !important;
+		line-height: 1.5;
 	}
-	/* Nombre + precio: wrappable, precio siempre a la derecha */
+	/* Contenido principal: también bloque, precio inline */
 	.mm-shipping-label__main {
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: flex-start;
-		gap: 2px;
+		display: block !important;
+		width: 100%;
 	}
 	.mm-shipping-label__main .woocommerce-Price-amount,
 	.mm-shipping-label__main bdi {
-		margin-left: auto;
-		white-space: nowrap;
 		font-weight: 700;
-		font-size: 15px;
+		white-space: nowrap;
+		margin-left: 0;
 	}
 	/* Fecha de entrega */
 	.mm-delivery-date-label {
+		margin-top: 6px;
 		font-size: 12px !important; font-weight: 500 !important;
 		color: var(--pp-green) !important;
 		display: flex !important; align-items: center; gap: 4px;
@@ -1275,7 +1277,7 @@ body.mm-pay-open { overflow: hidden; }
 	.mm-wc-shipping-wrapper ul#shipping_method li label a,
 	.mm-wc-shipping-wrapper ul#shipping_method li > a {
 		font-size: 12px !important; color: var(--pp-gray) !important;
-		display: block; margin-top: 2px; line-height: 1.4;
+		display: inline; line-height: 1.5;
 	}
 	/* Estado seleccionado — left border más visible en móvil */
 	.mm-shipping-option--selected { border-left-width: 4px !important; }
