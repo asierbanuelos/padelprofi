@@ -1231,6 +1231,10 @@ body.mm-pay-open { overflow: hidden; }
 	.mm-payment-wrapper .wc_payment_methods { gap: 4px; }
 	.mm-payment-wrapper .wc_payment_method label { padding: 12px 14px !important; flex-wrap: nowrap; overflow: hidden; }
 	.mm-payment-wrapper .wc_payment_method label img { max-width: 60px; height: 20px !important; object-fit: contain; flex-shrink: 0; }
+	.mm-payment-wrapper .mm-card-icons svg { height: 20px !important; }
+	.mm-payment-wrapper .mm-card-icons { gap: 3px; }
+	.mm-payment-wrapper .mm-klarna-logo,
+	.mm-payment-wrapper .mm-applepay-logo { height: 22px !important; }
 	.mm-payment-wrapper .payment_box { padding: 10px 14px !important; }
 
 	/* Envío — rediseño mobile */

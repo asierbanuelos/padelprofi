@@ -1050,13 +1050,16 @@
 		}
 
 		/* ------------------------------------------------------------------
-		   Renombrar label de Stripe: "Zahlungsoptionen" → "Kredit- / Debitkarte"
-		   Stripe puede actualizar el texto del label vía JS después del renderizado,
-		   así que usamos un MutationObserver para capturarlo siempre.
+		   Renombrar label de Stripe y añadir iconos de métodos de pago
 		   ------------------------------------------------------------------ */
 		_watchStripeLabel() {
 			const LABEL_TARGET = 'Kredit- / Debitkarte';
 			const PATTERN      = /zahlungsoptionen/i;
+
+			// Badge Visa
+			const visaSvg = `<svg viewBox="0 0 50 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="height:26px;width:auto;flex-shrink:0;border-radius:5px;border:1px solid #e5e5e5;background:#fff"><text x="25" y="22" text-anchor="middle" font-size="15" fill="#1A1F71" font-family="Arial,Helvetica,sans-serif" font-weight="900" letter-spacing="1">VISA</text></svg>`;
+			// Badge Mastercard
+			const mcSvg   = `<svg viewBox="0 0 50 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="height:26px;width:auto;flex-shrink:0;border-radius:5px;border:1px solid #e5e5e5;background:#fff"><circle cx="19" cy="16" r="10" fill="#EB001B"/><circle cx="31" cy="16" r="10" fill="#F79E1B"/><path d="M25 7.5a10 10 0 0 1 0 17A10 10 0 0 1 25 7.5z" fill="#FF5F00"/></svg>`;
 
 			const rename = () => {
 				const wrapper = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
@@ -1070,7 +1073,7 @@
 				const lbl = stripeLi.querySelector( 'label' );
 				if ( ! lbl ) return;
 
-				// 1. Nodos de texto directos y en cualquier profundidad
+				// 1. Renombrar texto: todos los text nodes en profundidad
 				const walker = document.createTreeWalker( lbl, NodeFilter.SHOW_TEXT );
 				let node;
 				while ( ( node = walker.nextNode() ) ) {
@@ -1078,19 +1081,24 @@
 						node.textContent = node.textContent.replace( PATTERN, LABEL_TARGET );
 					}
 				}
-
-				// 2. Elementos hoja con el texto completo (por si acaso)
 				lbl.querySelectorAll( '*' ).forEach( ( el ) => {
 					if ( ! el.children.length && PATTERN.test( el.textContent ) ) {
 						el.textContent = el.textContent.replace( PATTERN, LABEL_TARGET );
 					}
 				} );
+
+				// 2. Añadir badges Visa + Mastercard si no están ya
+				if ( ! lbl.querySelector( '.mm-card-icons' ) ) {
+					const wrap = document.createElement( 'span' );
+					wrap.className = 'mm-card-icons';
+					wrap.style.cssText = 'margin-left:auto;display:flex;gap:4px;flex-shrink:0;align-items:center';
+					wrap.innerHTML = visaSvg + mcSvg;
+					lbl.appendChild( wrap );
+				}
 			};
 
-			// Ejecutar inmediatamente
 			rename();
 
-			// Observar cambios en el wrapper de pago (Stripe puede actualizar el DOM tras su init)
 			const paymentWrapper = document.querySelector( '.mm-payment-wrapper' );
 			if ( paymentWrapper ) {
 				let ticking = false;
@@ -1102,7 +1110,6 @@
 				observer.observe( paymentWrapper, { childList: true, subtree: true, characterData: true } );
 			}
 
-			// También renombrar tras cada updated_checkout (WC re-renderiza la lista)
 			$( document.body ).on( 'updated_checkout', () => rename() );
 		}
 
@@ -1121,7 +1128,7 @@
 					const lbl = klarnaGwLi.querySelector( 'label' );
 					if ( lbl && ! lbl.querySelector( '.mm-klarna-logo' ) ) {
 						const logoSpan = document.createElement( 'span' );
-						logoSpan.innerHTML = `<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true" style="width:72px;height:auto"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>`;
+						logoSpan.innerHTML = `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>`;
 						lbl.appendChild( logoSpan );
 					}
 				} );
@@ -1165,7 +1172,7 @@
 				<input type="radio" id="payment_method_mm_klarna" name="mm_virtual_payment" value="mm_klarna">
 				<label for="payment_method_mm_klarna" class="mm-applepay-label">
 					Klarna
-					<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true" style="width:72px;height:auto"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>
+					<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>
 				</label>
 			`;
 
@@ -1232,7 +1239,7 @@
 			const hasGooglePay = ! hasApplePay && typeof PaymentRequest !== 'undefined';
 
 			const appleLogoSvg = `<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="640" height="400" rx="40" fill="#000"/><path d="M227 130c-7 8-18 15-29 14-1-11 4-23 11-30 7-8 19-15 29-14 1 11-4 22-11 30zm11 17c-16-1-30 9-38 9-8 0-20-8-33-8-17 0-33 10-41 25-18 30-5 75 13 100 8 12 19 25 32 25 13 0 18-8 33-8 16 0 20 8 33 8 14 0 25-14 33-26 5-8 8-12 13-21-35-13-40-62-6-81-10-14-27-22-39-23z" fill="#fff"/><path d="M374 116h-10v109h10V116zm-24 88a25 25 0 01-25-25 25 25 0 0125-25 25 25 0 0125 25 25 25 0 01-25 25zm0-60a35 35 0 00-35 35 35 35 0 0035 35 35 35 0 0035-35 35 35 0 00-35-35zM420 139l-2 7h-10l-2-7h-11l13 37h10l13-37h-11zm50 27l-8-27h-11l13 37h10l14-37h-11l-7 27zm60-27l-13 37h11l2-7h13l2 7h11l-13-37h-13zm7 10l4 12h-8l4-12zm50-10v27l-13-27h-11v37h10V149l14 27h10v-37h-10zm53 0v10h-10v27h-10v-27h-10v-10h30z" fill="#fff"/></svg>`;
-			const googleLogoSvg = `<svg viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true" style="width:64px"><text y="18" font-size="16" fill="#1A73E8" font-family="sans-serif" font-weight="700">G Pay</text></svg>`;
+			const googleLogoSvg = `<svg viewBox="0 0 72 32" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="72" height="32" rx="5" fill="#fff" stroke="#e5e5e5"/><text x="11" y="23" font-size="17" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#4285F4">G</text><text x="27" y="23" font-size="13" font-family="Arial,Helvetica,sans-serif" font-weight="500" fill="#3C4043">Pay</text></svg>`;
 
 			const makeExpressLi = ( id, value, label, logoSvg, extraClass ) => {
 				const li = document.createElement( 'li' );
@@ -1348,7 +1355,7 @@
 
 			} else if ( mid.includes( 'mm_klarna' ) ) {
 				// ── Klarna via Stripe UPE: solo botón, UPE off-screen con tab Klarna activa ──
-				const klarnaLogoSvg = `<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" style="height:22px;width:auto;vertical-align:middle;margin-right:6px;border-radius:3px" aria-hidden="true"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>`;
+				const klarnaLogoSvg = `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" style="height:22px;width:auto;vertical-align:middle;margin-right:6px;border-radius:3px" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>`;
 				const tryTab = ( n = 0 ) => {
 					if ( this._activateKlarnaTab() ) return;
 					if ( n < 8 ) setTimeout( () => tryTab( n + 1 ), 300 );
