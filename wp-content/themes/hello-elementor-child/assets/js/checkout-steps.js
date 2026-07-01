@@ -487,7 +487,7 @@
 
 			const mid      = ( this._step4PaymentMethod || '' ).toLowerCase();
 			const isPayPal = /ppcp|paypal/i.test( mid );
-			const isKlarna = /mm_klarna/i.test( mid );
+			const isKlarna = /mm_klarna|stripe_klarna/i.test( mid );
 
 			// Inyectar campos shipping en el formulario antes de enviar.
 			// billing_address_1 ya contiene "Straße Hausnummer" combinados por bindStreetSync.
@@ -542,11 +542,24 @@
 					if ( ! submitted ) { submitted = true; doSubmit(); }
 				}, 4000 );
 			} else if ( isKlarna ) {
-				// Klarna: asegurar que Stripe esté seleccionado, activar pestaña y enviar
-				const stripeRadio = document.querySelector( 'input[name="payment_method"][value="stripe"]' );
-				if ( stripeRadio ) { stripeRadio.checked = true; $( stripeRadio ).trigger( 'change' ); }
-				this._activateKlarnaTab();
-				setTimeout( doSubmit, 600 );
+				if ( mid.includes( 'stripe_klarna' ) ) {
+					// Gateway Klarna separado: seleccionar radio y enviar — Stripe redirige a Klarna
+					const klarnaGwRadio = document.querySelector( 'input[name="payment_method"][value="stripe_klarna"]' );
+					if ( klarnaGwRadio ) { klarnaGwRadio.checked = true; $( klarnaGwRadio ).trigger( 'change' ); }
+					setTimeout( doSubmit, 400 );
+				} else {
+					// Klarna via Stripe UPE: activar pestaña Klarna en el UPE con reintentos
+					const stripeRadio = document.querySelector( 'input[name="payment_method"][value="stripe"]' );
+					if ( stripeRadio ) { stripeRadio.checked = true; $( stripeRadio ).trigger( 'change' ); }
+					let activated = false;
+					const tryActivate = ( attempt = 0 ) => {
+						if ( activated ) return;
+						activated = this._activateKlarnaTab();
+						if ( ! activated && attempt < 5 ) setTimeout( () => tryActivate( attempt + 1 ), 200 );
+					};
+					tryActivate();
+					setTimeout( doSubmit, 1500 );
+				}
 			} else {
 				doSubmit();
 			}
@@ -909,9 +922,10 @@
 			} );
 
 			$( document.body ).on( 'updated_checkout', () => {
-				// Guardar selección virtual antes de que WC re-renderice la lista
-				const savedVirtual = /^mm_(klarna|apple_pay|google_pay)$/.test( this._step4PaymentMethod )
+				// Guardar selección antes de que WC re-renderice la lista
+				const savedVirtual  = /^mm_(klarna|apple_pay|google_pay)$/.test( this._step4PaymentMethod )
 					? this._step4PaymentMethod : null;
+				const savedKlarnaGw = this._step4PaymentMethod === 'stripe_klarna' ? 'stripe_klarna' : null;
 
 				this.rebindShippingOptions();
 				this.updateSidebarBtnText();
@@ -931,7 +945,7 @@
 					if ( $target.length ) {
 						$target.prop( 'checked', true ).trigger( 'click' );
 					}
-					// Restaurar selección virtual si el usuario la tenía activa
+					// Restaurar selección si el usuario la tenía activa
 					if ( savedVirtual ) {
 						this._step4PaymentMethod = savedVirtual;
 						const vRadio = document.querySelector(
@@ -941,6 +955,11 @@
 							vRadio.checked = true;
 							this._selectVirtualPayment( vRadio.closest( '.wc_payment_method' ) );
 						}
+					} else if ( savedKlarnaGw ) {
+						// Restaurar gateway Klarna separado (radio real de WC)
+						this._step4PaymentMethod = savedKlarnaGw;
+						const klarnaGwRadio = document.querySelector( 'input[name="payment_method"][value="stripe_klarna"]' );
+						if ( klarnaGwRadio ) { klarnaGwRadio.checked = true; $( klarnaGwRadio ).trigger( 'change' ); }
 					}
 				}
 
@@ -1012,6 +1031,19 @@
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
 			if ( ! ul || ul.querySelector( '.mm-klarna-option' ) ) return;
 
+			// Si stripe_klarna existe como gateway separado, solo aplicar estilo custom y salir
+			const klarnaGwLi = ul.querySelector( '.payment_method_stripe_klarna' );
+			if ( klarnaGwLi ) {
+				klarnaGwLi.classList.add( 'mm-klarna-option' );
+				const lbl = klarnaGwLi.querySelector( 'label' );
+				if ( lbl && ! lbl.querySelector( '.mm-klarna-logo' ) ) {
+					const logoSpan = document.createElement( 'span' );
+					logoSpan.innerHTML = `<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true" style="width:72px;height:auto"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>`;
+					lbl.appendChild( logoSpan );
+				}
+				return;
+			}
+
 			// Buscar radio de Stripe por varios selectores posibles
 			const stripeRadio = ul.querySelector( 'input[name="payment_method"][value="stripe"]' )
 				|| ul.querySelector( 'input[name="payment_method"][value="stripe_cc"]' )
@@ -1079,12 +1111,13 @@
 		   Intentar activar la pestaña Klarna en el Stripe UPE
 		   ------------------------------------------------------------------ */
 		_activateKlarnaTab() {
-			const selectors = [ '[class*="Tab"]', '[role="tab"]', 'button' ];
+			const selectors = [ '[class*="Tab"]', '[role="tab"]', '[role="radio"]', 'label', 'button' ];
 			for ( const sel of selectors ) {
 				for ( const el of document.querySelectorAll( sel ) ) {
 					const txt = ( el.textContent || '' ).toLowerCase();
 					const lbl = ( el.getAttribute( 'aria-label' ) || '' ).toLowerCase();
-					if ( txt.includes( 'klarna' ) || lbl.includes( 'klarna' ) ) {
+					const ttl = ( el.getAttribute( 'title' ) || '' ).toLowerCase();
+					if ( txt.includes( 'klarna' ) || lbl.includes( 'klarna' ) || ttl.includes( 'klarna' ) ) {
 						el.click();
 						return true;
 					}
@@ -1160,7 +1193,7 @@
 			const isPayPal   = /ppcp|paypal/i.test( mid ) || /paypal/i.test( reviewPaymentText );
 			const isApplePay = /mm_apple_pay|apple.*pay/i.test( mid );
 			const isGooglePay = /mm_google_pay|google.*pay/i.test( mid );
-			const isKlarna   = /mm_klarna/i.test( mid );
+			const isKlarna   = /mm_klarna|stripe_klarna/i.test( mid );
 			const isExpress  = isApplePay || isGooglePay;
 
 			const arrowSvg = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
@@ -1220,8 +1253,10 @@
 
 			} else {
 				// ── Tarjeta (Stripe/WooPayments) / Klarna / BACS / COD ────────
-				// Para Klarna usar el payment_box de Stripe (que contiene el UPE)
-				const cardPaymentMethodVal = isKlarna ? 'stripe' : this._step4PaymentMethod;
+				// Para Klarna: usar payment_box de stripe_klarna (gateway separado) o de Stripe UPE
+				const cardPaymentMethodVal = isKlarna
+					? ( mid.includes( 'stripe_klarna' ) ? 'stripe_klarna' : 'stripe' )
+					: this._step4PaymentMethod;
 				const cardMethodLi = cardPaymentMethodVal
 					? document.querySelector( `input[name="payment_method"][value="${ cardPaymentMethodVal }"]` )?.closest( '.wc_payment_method' )
 					: null;
@@ -1231,14 +1266,22 @@
 					const cardWrap = document.createElement( 'div' );
 					cardWrap.className = 'mm-step4-card-form';
 					cardWrap.appendChild( cardPaymentBox );
+					// Asegurar visibilidad (WC puede haber puesto display:none al cambiar de método)
+					cardPaymentBox.style.display = 'block';
 					this.borrowedPaymentBox       = cardPaymentBox;
 					this.borrowedPaymentBoxParent = cardMethodLi;
 					actionArea.insertBefore( cardWrap, defaultBtn );
 					actionArea.closest( '.mm-step-nav' )?.classList.add( 'mm-step-nav--paypal' );
 					window.dispatchEvent( new Event( 'resize' ) );
 					$( document.body ).trigger( 'payment_method_selected' );
-					// Activar pestaña Klarna dentro del UPE
-					if ( isKlarna ) setTimeout( () => this._activateKlarnaTab(), 400 );
+					// Para Klarna UPE (no gateway separado): intentar activar pestaña Klarna con reintentos
+					if ( isKlarna && ! mid.includes( 'stripe_klarna' ) ) {
+						const tryTab = ( n = 0 ) => {
+							if ( this._activateKlarnaTab() ) return;
+							if ( n < 5 ) setTimeout( () => tryTab( n + 1 ), 300 );
+						};
+						setTimeout( () => tryTab(), 400 );
+					}
 				}
 
 				// Botón: texto diferente según método
