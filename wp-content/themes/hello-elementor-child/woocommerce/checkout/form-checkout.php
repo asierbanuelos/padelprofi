@@ -296,6 +296,9 @@ if ( WC()->cart->is_empty() ) : ?>
 						</div>
 					</div>
 
+					<!-- Formulario de pago con tarjeta (slot en contenido scrollable) -->
+					<div id="mm-step4-card-slot" style="display:none;"></div>
+
 					<!-- AGB + Submit -->
 					<div class="mm-step4-footer">
 						<div class="mm-step-nav">

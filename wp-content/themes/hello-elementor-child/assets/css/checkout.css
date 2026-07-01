@@ -676,8 +676,11 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 
 
 /* ==========================================================================
-   17. Paso 3/4 — Formulario de tarjeta Stripe (movido al paso 4)
+   17. Paso 3/4 — Formulario de tarjeta Stripe (slot en contenido scrollable)
    ========================================================================== */
+#mm-step4-card-slot {
+	margin-bottom: 16px;
+}
 .mm-step4-card-form {
 	border: 1.5px solid var(--pp-gray-border);
 	border-radius: var(--pp-radius-sm);
@@ -1240,10 +1243,7 @@ body.mm-pay-open { overflow: hidden; }
 
 	/* Envío — rediseño mobile */
 	.mm-wc-shipping-wrapper ul#shipping_method { border-radius: var(--pp-radius-sm); }
-	/* Quitar display:flex del li — usar grid: [radio 18px] [contenido 1fr] */
 	.mm-wc-shipping-wrapper ul#shipping_method li {
-		display: grid !important;
-		grid-template-columns: 18px 1fr !important;
 		align-items: start !important;
 		padding: 14px 16px !important;
 		gap: 10px !important;

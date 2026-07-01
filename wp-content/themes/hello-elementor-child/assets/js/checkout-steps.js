@@ -1301,6 +1301,15 @@
 			document.getElementById( 'mm-step4-action-area' )?.style.removeProperty( 'visibility' );
 			document.getElementById( 'mm-ppcp-pool' )?.style.removeProperty( 'visibility' );
 
+			// Siempre sincronizar el método desde el DOM para evitar estado stale
+			const vRadio = document.querySelector( 'input[name="mm_virtual_payment"]:checked' );
+			const rRadio = document.querySelector( 'input[name="payment_method"]:checked' );
+			if ( vRadio ) {
+				this._step4PaymentMethod = vRadio.value;
+			} else if ( rRadio ) {
+				this._step4PaymentMethod = rRadio.value;
+			}
+
 			const mid = ( this._step4PaymentMethod || '' ).toLowerCase();
 			const actionArea = document.getElementById( 'mm-step4-action-area' );
 			const defaultBtn = document.getElementById( 'mm-step4-submit' );
@@ -1308,9 +1317,12 @@
 
 			if ( ! defaultBtn || ! actionArea ) { this._renderingStep4 = false; return; }
 
-			// Limpiar wrapper PayPal previo
-			actionArea.querySelectorAll( '.mm-step4-paypal-box' ).forEach( ( el ) => el.remove() );
+			// Limpiar wrapper PayPal previo y cualquier express-wrap huérfano
+			actionArea.querySelectorAll( '.mm-step4-paypal-box, .mm-step4-express-wrap' ).forEach( ( el ) => el.remove() );
 			this.restoreStep4Borrows();
+			// Vaciar card-slot tras devolver el payment_box (restoreStep4Borrows ya lo desconectó)
+			const cardSlotClean = document.getElementById( 'mm-step4-card-slot' );
+			if ( cardSlotClean ) cardSlotClean.innerHTML = '';
 
 			const reviewPaymentText = ( document.getElementById( 'mm-review-payment' )?.textContent || '' ).toLowerCase();
 			const isPayPal   = /ppcp|paypal/i.test( mid ) || /paypal/i.test( reviewPaymentText );
@@ -1395,14 +1407,15 @@
 
 			} else {
 				// ── Tarjeta / stripe_klarna / klarna_payments / BACS / COD ──
-				// Para klarna_payments: toma el payment_box del plugin (widget Klarna) y lo muestra en paso 4
+				// El formulario va al card-slot (contenido scrollable), NO al footer fijo
 				const cardPaymentMethodVal = this._step4PaymentMethod;
 				const cardMethodLi = cardPaymentMethodVal
 					? document.querySelector( `input[name="payment_method"][value="${ cardPaymentMethodVal }"]` )?.closest( '.wc_payment_method' )
 					: null;
 				const cardPaymentBox = cardMethodLi?.querySelector( '.payment_box' );
+				const cardSlot = document.getElementById( 'mm-step4-card-slot' );
 
-				// Para klarna_payments: asegurar que el radio esté seleccionado para que el plugin inicialice el widget
+				// Para klarna_payments: asegurar que el radio esté seleccionado
 				if ( mid.includes( 'klarna_payments' ) && cardMethodLi ) {
 					const kpRadio = cardMethodLi.querySelector( 'input[name="payment_method"]' );
 					if ( kpRadio && ! kpRadio.checked ) {
@@ -1411,20 +1424,21 @@
 					}
 				}
 
-				if ( cardPaymentBox && cardPaymentBox.children.length ) {
+				if ( cardPaymentBox && cardPaymentBox.children.length && cardSlot ) {
+					cardSlot.innerHTML = '';
 					const cardWrap = document.createElement( 'div' );
 					cardWrap.className = 'mm-step4-card-form';
 					cardWrap.appendChild( cardPaymentBox );
 					cardPaymentBox.style.display = 'block';
 					this.borrowedPaymentBox       = cardPaymentBox;
 					this.borrowedPaymentBoxParent = cardMethodLi;
-					actionArea.insertBefore( cardWrap, defaultBtn );
-					actionArea.closest( '.mm-step-nav' )?.classList.add( 'mm-step-nav--paypal' );
+					cardSlot.appendChild( cardWrap );
+					cardSlot.style.display = 'block';
 					window.dispatchEvent( new Event( 'resize' ) );
 					$( document.body ).trigger( 'payment_method_selected' );
 				}
 
-				// Botón
+				// Botón "Jetzt bestellen" en el footer fijo
 				defaultBtn.style.display = '';
 				defaultBtn.className = 'mm-btn-primary mm-btn-checkout mm-btn-checkout--step4';
 				defaultBtn.innerHTML = isKlarna
@@ -1451,6 +1465,10 @@
 		restoreStep4Borrows() {
 			// Limpiar siempre el layout column (PayPal, Apple Pay, Stripe card)
 			document.querySelector( '.mm-step-nav--paypal' )?.classList.remove( 'mm-step-nav--paypal' );
+
+			// Ocultar el card-slot (el payment_box se devuelve abajo al borrowedPaymentBoxParent)
+			const cardSlot = document.getElementById( 'mm-step4-card-slot' );
+			if ( cardSlot ) cardSlot.style.display = 'none';
 
 			// Devolver payment_box al método de pago de paso 3
 			if ( this.borrowedPaymentBox && this.borrowedPaymentBoxParent ) {
