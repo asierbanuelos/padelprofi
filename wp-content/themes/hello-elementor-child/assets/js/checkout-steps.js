@@ -729,13 +729,35 @@
 				}
 			}
 
-			// Método de pago elegido
-			const paymentChecked = document.querySelector( 'input[name="payment_method"]:checked' );
+			// Método de pago elegido (real o virtual)
+			const paymentChecked = document.querySelector( 'input[name="payment_method"]:checked' )
+				|| document.querySelector( 'input[name="mm_virtual_payment"]:checked' );
 			const reviewPayment  = document.getElementById( 'mm-review-payment' );
-			if ( reviewPayment && paymentChecked ) {
-				const label = document.querySelector( `label[for="${ paymentChecked.id }"]` )?.textContent?.trim()
-					|| paymentChecked.value;
-				reviewPayment.textContent = label;
+			if ( reviewPayment ) {
+				const mid = ( paymentChecked?.value || this._step4PaymentMethod || '' ).toLowerCase();
+				let payLabel = '';
+				if ( paymentChecked ) {
+					const methodEl = paymentChecked.closest( '.wc_payment_method' );
+					const labelEl  = methodEl?.querySelector( 'label' )
+						|| document.querySelector( `label[for="${ paymentChecked.id }"]` );
+					if ( labelEl ) {
+						payLabel = Array.from( labelEl.childNodes )
+							.filter( ( n ) => n.nodeType === Node.TEXT_NODE )
+							.map( ( n ) => n.textContent.trim() )
+							.join( '' )
+							.trim();
+					}
+				}
+				// Normalizar labels conocidos y fallbacks por value
+				if ( ! payLabel || /^zahlungsoptionen$/i.test( payLabel ) ) {
+					payLabel = /mm_klarna|stripe_klarna/.test( mid ) ? 'Klarna'
+						: /mm_apple_pay/.test( mid ) ? 'Apple Pay'
+						: /mm_google_pay/.test( mid ) ? 'Google Pay'
+						: /ppcp|paypal/.test( mid ) ? 'PayPal'
+						: /stripe/.test( mid ) ? 'Kredit- / Debitkarte'
+						: ( paymentChecked?.value || mid || '—' );
+				}
+				if ( payLabel ) reviewPayment.textContent = payLabel;
 			}
 
 			this.updateAddressDisplay();
@@ -1454,6 +1476,19 @@
 						.trim() || radio.value )
 					: radio.value;
 
+				// Normalizar "Zahlungsoptionen" → "Kredit- / Debitkarte" y fallbacks por value
+				const rv = radio.value.toLowerCase();
+				let displayLabel = labelText;
+				if ( ! displayLabel || /^zahlungsoptionen$/i.test( displayLabel ) ) {
+					displayLabel = /stripe_klarna/.test( rv ) ? 'Klarna'
+						: /stripe/.test( rv ) ? 'Kredit- / Debitkarte'
+						: /mm_klarna/.test( rv ) ? 'Klarna'
+						: /mm_apple_pay/.test( rv ) ? 'Apple Pay'
+						: /mm_google_pay/.test( rv ) ? 'Google Pay'
+						: /ppcp|paypal/.test( rv ) ? 'PayPal'
+						: labelText || radio.value;
+				}
+
 				// Logo: imagen (PayPal, Stripe) o SVG clonado (Klarna, ApplePay, GooglePay)
 				let logoHtml = '';
 				if ( imgEl ) {
@@ -1471,7 +1506,7 @@
 				item.dataset.methodValue = radio.value;
 				item.innerHTML = `
 					<div class="mm-pay-popup__item-radio"></div>
-					<span class="mm-pay-popup__item-name">${ labelText }</span>
+					<span class="mm-pay-popup__item-name">${ displayLabel }</span>
 					${ logoHtml }
 				`;
 
