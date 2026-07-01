@@ -1265,10 +1265,21 @@
 		   ------------------------------------------------------------------ */
 		injectApplePayOption() {
 			const ul = document.querySelector( '.mm-payment-wrapper .wc_payment_methods' );
-			if ( ! ul || ul.querySelector( '.mm-applepay-option' ) ) return;
+			if ( ! ul ) return;
 
 			const hasApplePay  = typeof ApplePaySession !== 'undefined';
 			const hasGooglePay = ! hasApplePay && typeof PaymentRequest !== 'undefined';
+
+			// Garantizar exclusión mutua: eliminar la opción contraria si ya existe
+			if ( hasApplePay ) {
+				ul.querySelectorAll( '.mm-googlepay-option' ).forEach( el => el.remove() );
+			} else if ( hasGooglePay ) {
+				ul.querySelectorAll( '.mm-applepay-option:not(.mm-googlepay-option)' ).forEach( el => el.remove() );
+			}
+
+			// Evitar doble inyección de la opción correcta
+			if ( ( hasApplePay && ul.querySelector( '.mm-applepay-option:not(.mm-googlepay-option)' ) )
+			  || ( hasGooglePay && ul.querySelector( '.mm-googlepay-option' ) ) ) return;
 
 			const appleLogoSvg = `<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="640" height="400" rx="40" fill="#000"/><path d="M227 130c-7 8-18 15-29 14-1-11 4-23 11-30 7-8 19-15 29-14 1 11-4 22-11 30zm11 17c-16-1-30 9-38 9-8 0-20-8-33-8-17 0-33 10-41 25-18 30-5 75 13 100 8 12 19 25 32 25 13 0 18-8 33-8 16 0 20 8 33 8 14 0 25-14 33-26 5-8 8-12 13-21-35-13-40-62-6-81-10-14-27-22-39-23z" fill="#fff"/><path d="M374 116h-10v109h10V116zm-24 88a25 25 0 01-25-25 25 25 0 0125-25 25 25 0 0125 25 25 25 0 01-25 25zm0-60a35 35 0 00-35 35 35 35 0 0035 35 35 35 0 0035-35 35 35 0 00-35-35zM420 139l-2 7h-10l-2-7h-11l13 37h10l13-37h-11zm50 27l-8-27h-11l13 37h10l14-37h-11l-7 27zm60-27l-13 37h11l2-7h13l2 7h11l-13-37h-13zm7 10l4 12h-8l4-12zm50-10v27l-13-27h-11v37h10V149l14 27h10v-37h-10zm53 0v10h-10v27h-10v-27h-10v-10h30z" fill="#fff"/></svg>`;
 			const googleLogoSvg = `<svg viewBox="0 0 72 32" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="72" height="32" rx="5" fill="#fff" stroke="#e5e5e5"/><text x="11" y="23" font-size="17" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#4285F4">G</text><text x="27" y="23" font-size="13" font-family="Arial,Helvetica,sans-serif" font-weight="500" fill="#3C4043">Pay</text></svg>`;
@@ -1582,6 +1593,10 @@
 			const pool = document.getElementById( 'mm-ppcp-pool' );
 			if ( pool ) pool.style.display = 'none';
 
+			// Garantizar que las opciones inyectadas (Apple Pay, Klarna) estén en el DOM
+			this.injectKlarnaOption();
+			this.injectApplePayOption();
+
 			const list = document.createElement( 'ul' );
 			list.className = 'mm-pay-popup__list';
 
@@ -1592,8 +1607,10 @@
 
 			// Iterar todos los .wc_payment_method en orden DOM (incluye virtuales inyectados)
 			document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( ( methodEl ) => {
-				// Saltar métodos ocultos (ej. sub-opciones de Klarna ocultadas por JS)
-				if ( getComputedStyle( methodEl ).display === 'none' ) return;
+				// Saltar métodos ocultos por inline style (ej. sub-opciones de Klarna ocultadas por JS)
+				// Usamos inline style en vez de getComputedStyle para no filtrar lis válidos
+				// cuyo ancestro esté off-screen en step 4 (panel step 3 a -9999px)
+				if ( methodEl.style.display === 'none' ) return;
 
 				// Aceptar radio real (WC) o virtual (mm_virtual_payment)
 				const radio = methodEl.querySelector( 'input[name="payment_method"]' )
