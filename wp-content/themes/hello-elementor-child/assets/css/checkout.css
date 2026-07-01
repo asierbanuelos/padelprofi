@@ -1247,37 +1247,37 @@ body.mm-pay-open { overflow: hidden; }
 		gap: 10px;
 	}
 	.mm-wc-shipping-wrapper ul#shipping_method li input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
-	/* Label como bloque para que el HTML complejo del plugin fluya normalmente */
+	/* Label: flex columna con stretch para que los hijos ocupen el ancho completo */
 	.mm-wc-shipping-wrapper ul#shipping_method li label {
 		flex: 1; min-width: 0;
-		display: block !important;
-		overflow: hidden;
-		font-size: 13px !important;
-		line-height: 1.5;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 4px;
 	}
-	/* Contenido principal: también bloque, precio inline */
+	/* mm-shipping-label__main: bloque (no flex) para que <br> y el texto fluyan normal */
 	.mm-shipping-label__main {
 		display: block !important;
 		width: 100%;
+		font-size: 13px;
+		line-height: 1.5;
+		word-break: break-word;
 	}
 	.mm-shipping-label__main .woocommerce-Price-amount,
 	.mm-shipping-label__main bdi {
 		font-weight: 700;
 		white-space: nowrap;
-		margin-left: 0;
 	}
 	/* Fecha de entrega */
 	.mm-delivery-date-label {
-		margin-top: 6px;
 		font-size: 12px !important; font-weight: 500 !important;
 		color: var(--pp-green) !important;
 		display: flex !important; align-items: center; gap: 4px;
 	}
-	/* Extra info del plugin de envío */
+	/* Extra info del plugin de envío: inline para no romper el flujo de texto */
 	.mm-wc-shipping-wrapper ul#shipping_method li label a,
 	.mm-wc-shipping-wrapper ul#shipping_method li > a {
 		font-size: 12px !important; color: var(--pp-gray) !important;
-		display: inline; line-height: 1.5;
+		display: inline !important; line-height: 1.5;
 	}
 	/* Estado seleccionado — left border más visible en móvil */
 	.mm-shipping-option--selected { border-left-width: 4px !important; }
