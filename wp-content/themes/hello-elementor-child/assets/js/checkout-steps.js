@@ -333,8 +333,9 @@
 			}
 
 			if ( step === 3 ) {
-				// Debe haber un método de pago seleccionado
-				const paymentSelected = document.querySelector( 'input[name="payment_method"]:checked' );
+				// Aceptar también opciones virtuales (Klarna, Apple Pay, Google Pay)
+				const paymentSelected = document.querySelector( 'input[name="payment_method"]:checked' )
+					|| document.querySelector( 'input[name="mm_virtual_payment"]:checked' );
 				if ( ! paymentSelected ) {
 					valid = false;
 					this.showStepError( mmCheckoutData.i18n.required, panel );
@@ -902,6 +903,10 @@
 			} );
 
 			$( document.body ).on( 'updated_checkout', () => {
+				// Guardar selección virtual antes de que WC re-renderice la lista
+				const savedVirtual = /^mm_(klarna|apple_pay|google_pay)$/.test( this._step4PaymentMethod )
+					? this._step4PaymentMethod : null;
+
 				this.rebindShippingOptions();
 				this.updateSidebarBtnText();
 				this.updateMobileFooter();
@@ -919,6 +924,17 @@
 					const $target   = $selected.length ? $selected : $methods.first();
 					if ( $target.length ) {
 						$target.prop( 'checked', true ).trigger( 'click' );
+					}
+					// Restaurar selección virtual si el usuario la tenía activa
+					if ( savedVirtual ) {
+						this._step4PaymentMethod = savedVirtual;
+						const vRadio = document.querySelector(
+							`input[name="mm_virtual_payment"][value="${ savedVirtual }"]`
+						);
+						if ( vRadio ) {
+							vRadio.checked = true;
+							this._selectVirtualPayment( vRadio.closest( '.wc_payment_method' ) );
+						}
 					}
 				}
 
@@ -1013,26 +1029,40 @@
 			const li = document.createElement( 'li' );
 			li.className = 'wc_payment_method mm-klarna-option';
 			li.innerHTML = `
-				<input type="radio" id="payment_method_mm_klarna" name="payment_method" value="mm_klarna">
+				<input type="radio" id="payment_method_mm_klarna" name="mm_virtual_payment" value="mm_klarna">
 				<label for="payment_method_mm_klarna" class="mm-applepay-label">
 					Klarna
 					<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo mm-klarna-logo" aria-hidden="true" style="width:72px;height:auto"><rect width="1000" height="660" rx="60" fill="#FFB3C7"/><text x="500" y="430" font-size="360" font-family="Arial,sans-serif" font-weight="900" fill="#000" text-anchor="middle">K</text></svg>
 				</label>
 			`;
 
-			// Insertar después de la opción Stripe
-			const stripeOption = stripeRadio.closest( '.wc_payment_method' );
-			if ( stripeOption?.nextSibling ) {
-				ul.insertBefore( li, stripeOption.nextSibling );
+			if ( stripeLi?.nextSibling ) {
+				ul.insertBefore( li, stripeLi.nextSibling );
 			} else {
 				ul.appendChild( li );
 			}
 
-			li.querySelector( 'input' ).addEventListener( 'change', () => {
-				// Marcar también el radio de Stripe (WC lo necesita para procesar)
-				stripeRadio.checked = true;
-				$( document.body ).trigger( 'payment_method_selected' );
+			const klarnaRadio = li.querySelector( 'input' );
+			klarnaRadio.addEventListener( 'change', () => {
+				this._step4PaymentMethod = 'mm_klarna';
+				this._selectVirtualPayment( li );
 			} );
+			li.addEventListener( 'click', () => {
+				if ( ! klarnaRadio.checked ) {
+					klarnaRadio.checked = true;
+					klarnaRadio.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+				}
+			} );
+		}
+
+		/* ------------------------------------------------------------------
+		   Selección visual de método virtual sin disparar update_checkout de WC
+		   ------------------------------------------------------------------ */
+		_selectVirtualPayment( selectedLi ) {
+			document.querySelectorAll( '.mm-payment-wrapper .wc_payment_method' ).forEach( ( m ) => {
+				m.classList.remove( 'mm-payment--selected' );
+			} );
+			selectedLi?.classList.add( 'mm-payment--selected' );
 		}
 
 		/* ------------------------------------------------------------------
@@ -1066,34 +1096,31 @@
 			const appleLogoSvg = `<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true"><rect width="640" height="400" rx="40" fill="#000"/><path d="M227 130c-7 8-18 15-29 14-1-11 4-23 11-30 7-8 19-15 29-14 1 11-4 22-11 30zm11 17c-16-1-30 9-38 9-8 0-20-8-33-8-17 0-33 10-41 25-18 30-5 75 13 100 8 12 19 25 32 25 13 0 18-8 33-8 16 0 20 8 33 8 14 0 25-14 33-26 5-8 8-12 13-21-35-13-40-62-6-81-10-14-27-22-39-23z" fill="#fff"/><path d="M374 116h-10v109h10V116zm-24 88a25 25 0 01-25-25 25 25 0 0125-25 25 25 0 0125 25 25 25 0 01-25 25zm0-60a35 35 0 00-35 35 35 35 0 0035 35 35 35 0 0035-35 35 35 0 00-35-35zM420 139l-2 7h-10l-2-7h-11l13 37h10l13-37h-11zm50 27l-8-27h-11l13 37h10l14-37h-11l-7 27zm60-27l-13 37h11l2-7h13l2 7h11l-13-37h-13zm7 10l4 12h-8l4-12zm50-10v27l-13-27h-11v37h10V149l14 27h10v-37h-10zm53 0v10h-10v27h-10v-27h-10v-10h30z" fill="#fff"/></svg>`;
 			const googleLogoSvg = `<svg viewBox="0 0 80 24" xmlns="http://www.w3.org/2000/svg" class="mm-applepay-logo" aria-hidden="true" style="width:64px"><text y="18" font-size="16" fill="#1A73E8" font-family="sans-serif" font-weight="700">G Pay</text></svg>`;
 
-			if ( hasApplePay ) {
-				const appleLi = document.createElement( 'li' );
-				appleLi.className = 'wc_payment_method mm-applepay-option';
-				appleLi.innerHTML = `
-					<input type="radio" id="payment_method_mm_apple_pay" name="payment_method" value="mm_apple_pay">
-					<label for="payment_method_mm_apple_pay" class="mm-applepay-label">
-						Apple Pay ${ appleLogoSvg }
+			const makeExpressLi = ( id, value, label, logoSvg, extraClass ) => {
+				const li = document.createElement( 'li' );
+				li.className = 'wc_payment_method mm-applepay-option' + ( extraClass ? ' ' + extraClass : '' );
+				li.innerHTML = `
+					<input type="radio" id="${ id }" name="mm_virtual_payment" value="${ value }">
+					<label for="${ id }" class="mm-applepay-label">
+						${ label } ${ logoSvg }
 					</label>
 				`;
-				ul.appendChild( appleLi );
-				appleLi.querySelector( 'input' ).addEventListener( 'change', () => {
-					$( document.body ).trigger( 'payment_method_selected' );
+				ul.appendChild( li );
+				const radio = li.querySelector( 'input' );
+				radio.addEventListener( 'change', () => {
+					this._step4PaymentMethod = value;
+					this._selectVirtualPayment( li );
 				} );
-			}
+				li.addEventListener( 'click', () => {
+					if ( ! radio.checked ) { radio.checked = true; radio.dispatchEvent( new Event( 'change', { bubbles: true } ) ); }
+				} );
+			};
 
+			if ( hasApplePay ) {
+				makeExpressLi( 'payment_method_mm_apple_pay', 'mm_apple_pay', 'Apple Pay', appleLogoSvg, '' );
+			}
 			if ( hasGooglePay ) {
-				const googleLi = document.createElement( 'li' );
-				googleLi.className = 'wc_payment_method mm-applepay-option mm-googlepay-option';
-				googleLi.innerHTML = `
-					<input type="radio" id="payment_method_mm_google_pay" name="payment_method" value="mm_google_pay">
-					<label for="payment_method_mm_google_pay" class="mm-applepay-label">
-						Google Pay ${ googleLogoSvg }
-					</label>
-				`;
-				ul.appendChild( googleLi );
-				googleLi.querySelector( 'input' ).addEventListener( 'change', () => {
-					$( document.body ).trigger( 'payment_method_selected' );
-				} );
+				makeExpressLi( 'payment_method_mm_google_pay', 'mm_google_pay', 'Google Pay', googleLogoSvg, 'mm-googlepay-option' );
 			}
 		}
 
