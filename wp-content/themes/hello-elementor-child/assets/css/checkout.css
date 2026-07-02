@@ -1277,6 +1277,9 @@ body.mm-pay-open { overflow: hidden; }
 		display: flex !important; align-items: center !important; gap: 4px !important;
 	}
 	/* Links del plugin de envío: inline */
+	.mm-wc-shipping-wrapper ul#shipping_method li a {
+		display: inline !important;
+	}
 	.mm-wc-shipping-wrapper ul#shipping_method li label a,
 	.mm-wc-shipping-wrapper ul#shipping_method li > a {
 		font-size: 12px !important; color: var(--pp-gray) !important;
