@@ -921,32 +921,18 @@ add_filter('action_scheduler_retention_period', function() {
     return DAY_IN_SECONDS * 7; // Mantener registros solo 7 días
 });
 
-// Restaurar address_2 (Hausnummer) como campo obligatorio.
-// PPCP usa woocommerce_default_address_fields para decidir si shipping_preference
-// es SET_PROVIDED_ADDRESS o GET_FROM_FILE. Con address_2 requerido, detecta la
-// dirección como "incompleta" y usa GET_FROM_FILE, evitando el error de PayPal.
-add_filter( 'woocommerce_default_address_fields', function( $fields ) {
-    if ( isset( $fields['address_2'] ) ) {
-        $fields['address_2']['required'] = true;
-    }
-    return $fields;
-} );
-
-// Cuando Google Pay / Apple Pay envía la dirección combinada en address_1
-// (ej. "Musterstraße 5") y address_2 queda vacío, extraer el número de casa
-// antes de que WC valide los campos obligatorios.
+// Google Pay / Apple Pay envían la dirección combinada en billing_address_1
+// (ej. "Musterstraße 5") con billing_address_2 vacío. Extraer el número de casa
+// antes de que WC valide los campos obligatorios, prioridad 5 = antes de WC.
 add_action( 'woocommerce_checkout_process', function() {
-    // Billing
     $addr1 = trim( $_POST['billing_address_1'] ?? '' );
     $addr2 = trim( $_POST['billing_address_2'] ?? '' );
     if ( $addr1 && '' === $addr2 ) {
-        // Coincide con "Straße 5", "Straße 5b", "Straße 12-14", "Straße 5 / 3"
         if ( preg_match( '/^(.+?)\s+(\d+[\w\s\-\/]*)$/u', $addr1, $m ) ) {
             $_POST['billing_address_1'] = trim( $m[1] );
             $_POST['billing_address_2'] = trim( $m[2] );
         }
     }
-    // Shipping (por si acaso se usa dirección de envío distinta)
     $saddr1 = trim( $_POST['shipping_address_1'] ?? '' );
     $saddr2 = trim( $_POST['shipping_address_2'] ?? '' );
     if ( $saddr1 && '' === $saddr2 ) {
@@ -956,6 +942,26 @@ add_action( 'woocommerce_checkout_process', function() {
         }
     }
 }, 5 );
+
+// PayPal PPCP usa SET_PROVIDED_ADDRESS y necesita shipping_address_1 en sesión.
+// Este hook dispara DESPUÉS de que WC ya procesó y guardó los datos del cliente,
+// por lo que no puede ser sobreescrito por set_props(). Si billing está relleno
+// pero shipping está vacío, copiamos billing → shipping y guardamos.
+add_action( 'woocommerce_after_calculate_totals', function() {
+    if ( ! WC()->customer ) return;
+    if ( WC()->customer->get_shipping_address_1() ) return;
+    $addr1 = WC()->customer->get_billing_address_1();
+    if ( ! $addr1 ) return;
+    WC()->customer->set_shipping_first_name( WC()->customer->get_billing_first_name() );
+    WC()->customer->set_shipping_last_name( WC()->customer->get_billing_last_name() );
+    WC()->customer->set_shipping_address_1( $addr1 );
+    WC()->customer->set_shipping_address_2( WC()->customer->get_billing_address_2() );
+    WC()->customer->set_shipping_city( WC()->customer->get_billing_city() );
+    WC()->customer->set_shipping_postcode( WC()->customer->get_billing_postcode() );
+    WC()->customer->set_shipping_country( WC()->customer->get_billing_country() );
+    WC()->customer->set_shipping_state( WC()->customer->get_billing_state() );
+    WC()->customer->save();
+}, 10 );
 
 
 //añade la plantilla slider pods para ubicaciones
