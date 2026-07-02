@@ -106,14 +106,9 @@
 		`;
 		document.body.appendChild( panel );
 
-		// Eventos cerrar
-		overlay.addEventListener( 'click', closePopup );
+		// Eventos cerrar — solo botones explícitos, no overlay ni Escape
 		panel.querySelector( '.pp-cart-popup__close' ).addEventListener( 'click', closePopup );
 		panel.querySelector( '.pp-popup-keep-shopping' ).addEventListener( 'click', closePopup );
-
-		document.addEventListener( 'keydown', function ( e ) {
-			if ( e.key === 'Escape' ) closePopup();
-		} );
 	}
 
 	function openPopup() {
