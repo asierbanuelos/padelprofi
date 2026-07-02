@@ -224,14 +224,18 @@
 
 				// Limpiar error al escribir en cualquier campo del paso 1
 				panel.querySelectorAll( 'input, select, textarea' ).forEach( ( f ) => {
-					f.addEventListener( 'input change', () => {
+					if ( f._mmStep1Bound ) return;
+					f._mmStep1Bound = true;
+					const clearRowError = () => {
 						const r = f.closest( '.form-row' );
 						if ( r && f.value.trim() ) {
 							r.classList.remove( 'woocommerce-invalid', 'woocommerce-invalid--required-field' );
 							r.classList.add( 'woocommerce-validated' );
 							panel.querySelector( '.mm-step-error' )?.remove();
 						}
-					}, { once: false } );
+					};
+					f.addEventListener( 'input', clearRowError );
+					f.addEventListener( 'change', clearRowError );
 				} );
 
 				// Validar inputs con required en pp-field-wrap (campos custom con label flotante).
@@ -253,12 +257,15 @@
 						wrap?.classList.remove( 'pp-field--invalid' );
 						input.classList.remove( 'pp-invalid' );
 					}
-					input.addEventListener( 'input', () => {
-						if ( input.value.trim() ) {
-							wrap?.classList.remove( 'pp-field--invalid' );
-							input.classList.remove( 'pp-invalid' );
-						}
-					}, { once: false } );
+					if ( ! input._mmPpBound ) {
+						input._mmPpBound = true;
+						input.addEventListener( 'input', () => {
+							if ( input.value.trim() ) {
+								wrap?.classList.remove( 'pp-field--invalid' );
+								input.classList.remove( 'pp-invalid' );
+							}
+						} );
+					}
 				} );
 
 				// ── Validar Straße y Hausnummer por separado ──────────────────
@@ -276,12 +283,15 @@
 						wrap?.classList.remove( 'pp-field--invalid' );
 						input.classList.remove( 'pp-invalid' );
 					}
-					input.addEventListener( 'input', () => {
-						if ( input.value.trim() ) {
-							wrap?.classList.remove( 'pp-field--invalid' );
-							input.classList.remove( 'pp-invalid' );
-						}
-					}, { once: false } );
+					if ( ! input._mmAddrBound ) {
+						input._mmAddrBound = true;
+						input.addEventListener( 'input', () => {
+							if ( input.value.trim() ) {
+								wrap?.classList.remove( 'pp-field--invalid' );
+								input.classList.remove( 'pp-invalid' );
+							}
+						} );
+					}
 				} );
 
 				// Firmenname requerido solo cuando el tipo es "Unternehmen"
@@ -306,7 +316,8 @@
 				} else if ( privacyCheck ) {
 					privacyCheck.closest( '.pp-privacy-check' )?.classList.remove( 'pp-privacy--invalid' );
 				}
-				if ( privacyCheck ) {
+				if ( privacyCheck && ! privacyCheck._mmPrivacyBound ) {
+					privacyCheck._mmPrivacyBound = true;
 					privacyCheck.addEventListener( 'change', () => {
 						if ( privacyCheck.checked ) {
 							privacyCheck.closest( '.pp-privacy-check' )?.classList.remove( 'pp-privacy--invalid' );
@@ -479,7 +490,7 @@
 			document.addEventListener( 'mm_step4_rendered', bindPaypalBtn );
 			// MutationObserver como último recurso si el botón aparece tarde en el DOM
 			const obs = new MutationObserver( () => bindPaypalBtn() );
-			obs.observe( actionArea, { childList: true, subtree: true, attributes: true } );
+			obs.observe( actionArea, { childList: true, subtree: true } );
 		}
 
 		handleStep4Submit() {
@@ -1033,14 +1044,17 @@
 				// Re-renderizar botón de paso 4. No re-renderizar si el payment_box de tarjeta
 				// ya está en el paso 4 (evita bucle: renderStep4Action → mm_step_3_visible
 				// → triggerStripeInit → update_checkout → renderStep4Action → ...).
-				if ( this.currentStep === 4 && ! this.borrowedPaymentBox ) {
-					if ( this._step4PaymentMethod ) {
-						const savedRadio = document.querySelector(
-							`input[name="payment_method"][value="${ this._step4PaymentMethod }"]`
-						);
-						if ( savedRadio && ! savedRadio.checked ) savedRadio.checked = true;
+				if ( this.currentStep === 4 ) {
+					this.updateReviewSections();
+					if ( ! this.borrowedPaymentBox ) {
+						if ( this._step4PaymentMethod ) {
+							const savedRadio = document.querySelector(
+								`input[name="payment_method"][value="${ this._step4PaymentMethod }"]`
+							);
+							if ( savedRadio && ! savedRadio.checked ) savedRadio.checked = true;
+						}
+						setTimeout( () => this.renderStep4Action(), 100 );
 					}
-					setTimeout( () => this.renderStep4Action(), 100 );
 				}
 			} );
 
@@ -1363,6 +1377,7 @@
 		renderStep4Action() {
 			if ( this._renderingStep4 ) return;
 			this._renderingStep4 = true;
+			try {
 
 			// Limpiar inline visibility por si quedó atascado de una llamada anterior
 			document.getElementById( 'mm-step4-action-area' )?.style.removeProperty( 'visibility' );
@@ -1391,8 +1406,7 @@
 			const cardSlotClean = document.getElementById( 'mm-step4-card-slot' );
 			if ( cardSlotClean ) cardSlotClean.innerHTML = '';
 
-			const reviewPaymentText = ( document.getElementById( 'mm-review-payment' )?.textContent || '' ).toLowerCase();
-			const isPayPal        = /ppcp|paypal/i.test( mid ) || /paypal/i.test( reviewPaymentText );
+			const isPayPal        = /ppcp|paypal/i.test( mid );
 			const isApplePay      = /mm_apple_pay|apple.*pay/i.test( mid );
 			const isGooglePay     = /mm_google_pay|google.*pay/i.test( mid );
 			const isKlarnaExpress = mid === 'mm_klarna'; // Klarna via Stripe Express Checkout Element
@@ -1460,25 +1474,6 @@
 					actionArea.closest( '.mm-step-nav' )?.classList.add( 'mm-step-nav--paypal' );
 				}
 
-			} else if ( mid.includes( 'mm_klarna' ) ) {
-				// ── Klarna via Stripe UPE: solo botón, UPE off-screen con tab Klarna activa ──
-				const klarnaLogoSvg = `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" style="height:22px;width:auto;vertical-align:middle;margin-right:6px;border-radius:3px" aria-hidden="true"><rect width="120" height="40" rx="6" fill="#FFB3C7"/><text x="60" y="28" text-anchor="middle" font-size="20" font-family="Arial,Helvetica,sans-serif" font-weight="700" fill="#000">klarna</text></svg>`;
-				const tryTab = ( n = 0 ) => {
-					if ( this._activateKlarnaTab() ) return;
-					if ( n < 8 ) setTimeout( () => tryTab( n + 1 ), 300 );
-				};
-				const stripeMethodLi = document.querySelector( 'input[name="payment_method"][value="stripe"]' )?.closest( '.wc_payment_method' );
-				if ( stripeMethodLi ) {
-					const pb = stripeMethodLi.querySelector( '.payment_box' );
-					if ( pb ) pb.style.display = 'block';
-				}
-				setTimeout( () => tryTab(), 300 );
-				defaultBtn.style.display = '';
-				defaultBtn.className = 'mm-btn-primary mm-btn-checkout mm-btn-checkout--step4';
-				defaultBtn.innerHTML = `${ klarnaLogoSvg } Mit Klarna bezahlen ${ arrowSvg }`;
-				defaultBtn.removeAttribute( 'aria-label' );
-				if ( paypalBtn ) paypalBtn.style.setProperty( 'display', 'none', 'important' );
-
 			} else {
 				// ── Tarjeta / stripe_klarna / klarna_payments / BACS / COD ──
 				// El formulario va al card-slot (contenido scrollable), NO al footer fijo
@@ -1524,7 +1519,9 @@
 				}
 			}
 
-			this._renderingStep4 = false;
+			} finally {
+				this._renderingStep4 = false;
+			}
 		}
 
 		_buildSubmitBtn( text, extraClass = '' ) {
@@ -1546,8 +1543,9 @@
 
 			// Devolver payment_box al método de pago de paso 3
 			if ( this.borrowedPaymentBox && this.borrowedPaymentBoxParent ) {
-				this.borrowedPaymentBox.closest( '.mm-step4-card-form' )?.remove();
+				const cardFormWrapper = this.borrowedPaymentBox.closest( '.mm-step4-card-form' );
 				this.borrowedPaymentBoxParent.appendChild( this.borrowedPaymentBox );
+				cardFormWrapper?.remove();
 			}
 			this.borrowedPaymentBox       = null;
 			this.borrowedPaymentBoxParent = null;
