@@ -4794,6 +4794,18 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     return $data;
 }, 99, 2 );
 
+// Traducir mensajes de stock de WooCommerce que aparecen en inglés
+add_filter( 'gettext', function( $translated, $original, $domain ) {
+    if ( 'woocommerce' !== $domain ) return $translated;
+    $map = [
+        'You cannot add that amount to the cart — we have %1$s in stock and you already have %2$s in your cart.'
+            => 'Sie können diese Menge nicht in den Warenkorb legen – wir haben %1$s auf Lager und Sie haben bereits %2$s in Ihrem Warenkorb.',
+        'You cannot add that amount to the cart — we have %1$s in stock and you already have %2$s of this item in your cart.'
+            => 'Sie können diese Menge nicht in den Warenkorb legen – wir haben %1$s auf Lager und Sie haben bereits %2$s dieses Artikels in Ihrem Warenkorb.',
+    ];
+    return $map[ $original ] ?? $translated;
+}, 10, 3 );
+
 
 
 
