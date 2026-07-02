@@ -351,6 +351,38 @@
 	} );
 
 	// -------------------------------------------------------------------------
+	// Handler: botones [pp_add_to_cart] shortcode (.pp-add-btn)
+	// -------------------------------------------------------------------------
+	$( document ).on( 'click', '.pp-add-btn', function ( e ) {
+		e.preventDefault();
+
+		const $btn    = $( this );
+		const pid     = $btn.data( 'product_id' );
+		const qty     = $btn.data( 'quantity' ) || 1;
+		const origTxt = $btn.html();
+
+		if ( ! pid ) return;
+
+		$btn.prop( 'disabled', true ).text( ppCartPopup.i18n.loading );
+
+		buildPopup();
+		openPopup();
+
+		const ajaxCart = addToCartAjax( pid, qty, $btn );
+		ajaxCart.done( function () {
+			refreshCartFragments();
+		} );
+		const ajaxData = new Promise( function ( resolve ) {
+			fetchPopupData( pid, resolve );
+		} );
+
+		Promise.all( [ ajaxData ] ).then( function ( [ data ] ) {
+			renderPopup( data );
+			$btn.prop( 'disabled', false ).html( origTxt );
+		} );
+	} );
+
+	// -------------------------------------------------------------------------
 	// Handler: otros botones AJAX de WooCommerce (fuera del carousel)
 	// -------------------------------------------------------------------------
 	$( document.body ).on( 'added_to_cart', function ( event, fragments, cart_hash, $button ) {
@@ -359,6 +391,7 @@
 
 		if ( ! $button || ! $button.length ) return;
 		if ( $button.hasClass( 'mi-btn-add-to-cart-carousel' ) ) return;
+		if ( $button.hasClass( 'pp-add-btn' ) ) return;
 
 		const pid = $button.data( 'product_id' ) || $button.data( 'product-id' );
 		if ( ! pid ) return;
