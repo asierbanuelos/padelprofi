@@ -495,9 +495,10 @@
 			// El panel de pago (paso 3) ya está accesible off-screen con dimensiones
 			// reales gracias a renderStep — no se necesita ningún hack adicional.
 
-			const mid      = ( this._step4PaymentMethod || '' ).toLowerCase();
-			const isPayPal = /ppcp|paypal/i.test( mid );
-			const isKlarna = /mm_klarna|stripe_klarna|klarna_payments/i.test( mid );
+			const mid             = ( this._step4PaymentMethod || '' ).toLowerCase();
+			const isPayPal        = /ppcp|paypal/i.test( mid );
+			const isKlarnaExpress = mid === 'mm_klarna'; // pago gestionado por el ECE, no por nosotros
+			const isKlarna        = ! isKlarnaExpress && /stripe_klarna|klarna_payments/i.test( mid );
 
 			// Inyectar campos shipping en el formulario antes de enviar.
 			// billing_address_1 ya contiene "Straße Hausnummer" combinados por bindStreetSync.
@@ -1368,11 +1369,12 @@
 			if ( cardSlotClean ) cardSlotClean.innerHTML = '';
 
 			const reviewPaymentText = ( document.getElementById( 'mm-review-payment' )?.textContent || '' ).toLowerCase();
-			const isPayPal   = /ppcp|paypal/i.test( mid ) || /paypal/i.test( reviewPaymentText );
-			const isApplePay = /mm_apple_pay|apple.*pay/i.test( mid );
-			const isGooglePay = /mm_google_pay|google.*pay/i.test( mid );
-			const isKlarna   = /mm_klarna|stripe_klarna|klarna_payments/i.test( mid );
-			const isExpress  = isApplePay || isGooglePay;
+			const isPayPal        = /ppcp|paypal/i.test( mid ) || /paypal/i.test( reviewPaymentText );
+			const isApplePay      = /mm_apple_pay|apple.*pay/i.test( mid );
+			const isGooglePay     = /mm_google_pay|google.*pay/i.test( mid );
+			const isKlarnaExpress = mid === 'mm_klarna'; // Klarna via Stripe Express Checkout Element
+			const isKlarna        = /stripe_klarna|klarna_payments/i.test( mid ); // gateways Klarna nativos
+			const isExpress       = isApplePay || isGooglePay || isKlarnaExpress;
 
 			const arrowSvg = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
 
@@ -1404,7 +1406,7 @@
 					// Stripe aún no ha renderizado → botón de texto como fallback
 					defaultBtn.style.display = '';
 					defaultBtn.className     = 'mm-btn-primary mm-btn-checkout mm-btn-checkout--step4';
-					defaultBtn.innerHTML     = `${ isApplePay ? 'Mit Apple Pay bezahlen' : 'Mit Google Pay bezahlen' } ${ arrowSvgExpress }`;
+					defaultBtn.innerHTML     = `${ isApplePay ? 'Mit Apple Pay bezahlen' : isGooglePay ? 'Mit Google Pay bezahlen' : 'Mit Klarna bezahlen' } ${ arrowSvgExpress }`;
 					defaultBtn.removeAttribute( 'aria-label' );
 					if ( paypalBtn ) paypalBtn.style.setProperty( 'display', 'none', 'important' );
 					// Reintentar cuando Stripe termine de renderizar
