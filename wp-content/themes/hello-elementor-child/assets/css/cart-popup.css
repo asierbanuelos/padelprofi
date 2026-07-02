@@ -27,13 +27,15 @@
 	z-index: 99998;
 	opacity: 0;
 	visibility: hidden;
+	pointer-events: none;
 	transition: opacity .3s ease, visibility .3s ease;
-	cursor: pointer;
+	cursor: default;
 }
 
 .pp-cart-overlay--active {
 	opacity: 1;
 	visibility: visible;
+	pointer-events: auto;
 }
 
 /* --------------------------------------------------------------------------
