@@ -1,20 +1,44 @@
 /* ==========================================================================
    CART PAGE — PadelProfi
+   Paleta y tokens identicos al resto del sitio (checkout, product-detail).
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Layout raiz: dos columnas
+   1. Variables CSS (espejo de checkout.css para uso autonomo en esta pagina)
    -------------------------------------------------------------------------- */
-/* Wrapper cuando se usa template-cart.php */
+:root {
+	--pp-orange:       #FE6100;
+	--pp-orange-hover: #e55a00;
+	--pp-orange-light: #fff4ee;
+	--pp-orange-grad:  linear-gradient(135deg, #FF6000 0%, #FE6100 100%);
+	--pp-price:        #BF0019;
+	--pp-black:        #333333;
+	--pp-gray-dark:    #555555;
+	--pp-gray:         #888888;
+	--pp-gray-light:   #f7f7f7;
+	--pp-gray-border:  #e5e5e5;
+	--pp-white:        #ffffff;
+	--pp-green:        #2e7d32;
+	--pp-radius:       12px;
+	--pp-radius-sm:    8px;
+	--pp-shadow:       0 2px 16px rgba(0,0,0,.07);
+	--pp-shadow-md:    0 4px 24px rgba(254,97,0,.18);
+	--pp-transition:   0.2s ease;
+	--pp-font:         'Open Sans', sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   2. Layout raiz: dos columnas
+   -------------------------------------------------------------------------- */
 .pp-cart-page-wrap {
 	padding: 0;
 }
 
 /*
- * .pp-cart-page: rompe el contenedor de Elementor/WC para usar el ancho
+ * Rompe el contenedor de Elementor/WC para usar el ancho
  * completo del viewport, con max-width propio.
- * Técnica: width:100vw + margin-left negativo compensa el offset del padre.
- * Requiere que ningún ancestro tenga overflow:hidden.
+ * Tecnica: width:100vw + margin-left negativo compensa el offset del padre.
+ * Requiere que ningun ancestro tenga overflow:hidden.
  */
 .pp-cart-page {
 	width: 100vw;
@@ -26,11 +50,11 @@
 	grid-template-columns: minmax(0, 1fr) 320px;
 	gap: 32px;
 	align-items: start;
-	font-family: var(--pp-font, 'Open Sans', sans-serif);
+	font-family: var(--pp-font);
 }
 
 /* --------------------------------------------------------------------------
-   Header del carrito
+   3. Header del carrito
    -------------------------------------------------------------------------- */
 .pp-cart-header {
 	display: flex;
@@ -42,7 +66,7 @@
 .pp-cart-title {
 	font-size: 26px;
 	font-weight: 800;
-	color: #111;
+	color: var(--pp-black);
 	margin: 0;
 	line-height: 1.1;
 }
@@ -50,12 +74,12 @@
 .pp-cart-count,
 #pp-cart-count {
 	font-size: 14px;
-	color: #888;
+	color: var(--pp-gray);
 	font-weight: 500;
 }
 
 /* --------------------------------------------------------------------------
-   Carrito vacio
+   4. Carrito vacio
    -------------------------------------------------------------------------- */
 .pp-cart-empty {
 	grid-column: 1 / -1;
@@ -63,28 +87,41 @@
 	padding: 80px 20px;
 }
 
-.pp-cart-empty p { color: #888; margin: 0 0 24px; }
+.pp-cart-empty p { color: var(--pp-gray); margin: 0 0 24px; }
 
 .pp-cart-empty .button,
 .pp-cart-empty a.button {
 	display: inline-block;
 	padding: 13px 32px;
-	background: #FE6100;
-	color: #fff !important;
-	border-radius: 4px;
+	background: var(--pp-orange-grad);
+	color: var(--pp-white) !important;
+	border-radius: var(--pp-radius-sm);
 	font-weight: 700;
 	text-decoration: none;
 	font-size: 15px;
+	box-shadow: var(--pp-shadow-md);
+	transition: all var(--pp-transition);
+}
+
+.pp-cart-empty .button:hover,
+.pp-cart-empty a.button:hover {
+	background: linear-gradient(135deg, #e55a00 0%, #d95300 100%);
 }
 
 /* --------------------------------------------------------------------------
-   Items del carrito
+   5. Items del carrito
    -------------------------------------------------------------------------- */
 .pp-cart-item {
-	background: #fff;
-	border: 1px solid #e5e5e5;
-	border-radius: 6px;
+	background: var(--pp-white);
+	border: 1px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius);
 	margin-bottom: 12px;
+	box-shadow: var(--pp-shadow);
+	transition: box-shadow var(--pp-transition);
+}
+
+.pp-cart-item:hover {
+	box-shadow: 0 4px 20px rgba(0,0,0,.10);
 }
 
 .pp-cart-item__main {
@@ -101,9 +138,9 @@
 	width: 100px;
 	height: 100px;
 	object-fit: contain;
-	border: 1px solid #ebebeb;
-	border-radius: 4px;
-	background: #f9f9f9;
+	border: 1px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius-sm);
+	background: var(--pp-gray-light);
 	padding: 6px;
 	display: block;
 }
@@ -120,28 +157,29 @@
 .pp-cart-item__name {
 	font-size: 14px;
 	font-weight: 600;
-	color: #222;
+	color: var(--pp-black);
 	text-decoration: none;
 	line-height: 1.4;
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
+	transition: color var(--pp-transition);
 }
 
-.pp-cart-item__name:hover { color: #FE6100; }
+.pp-cart-item__name:hover { color: var(--pp-orange); }
 
 /* Meta: atributos de variacion o descripcion corta */
 .pp-cart-item__meta {
 	font-size: 12px;
-	color: #777;
+	color: var(--pp-gray);
 	line-height: 1.5;
 	margin: 0;
 }
 
-.pp-cart-item__meta .pp-meta-label { color: #999; }
-.pp-cart-item__meta .pp-meta-val   { color: #444; font-weight: 600; }
-.pp-cart-item__meta .pp-meta-desc  { color: #888; }
+.pp-cart-item__meta .pp-meta-label { color: var(--pp-gray); }
+.pp-cart-item__meta .pp-meta-val   { color: var(--pp-gray-dark); font-weight: 600; }
+.pp-cart-item__meta .pp-meta-desc  { color: var(--pp-gray); }
 
 /* Precio */
 .pp-cart-item__price-row { display: flex; align-items: center; gap: 8px; }
@@ -149,26 +187,27 @@
 .pp-cart-item__price {
 	font-size: 18px;
 	font-weight: 700;
-	color: #BF0019;
+	color: var(--pp-price);
 }
 
 .pp-cart-item__price del {
 	font-size: 13px;
-	color: #aaa;
+	color: var(--pp-gray);
 	font-weight: 400;
 }
 
 .pp-cart-item__price.pp-sale del { margin-right: 4px; }
 
-/* Qty stepper */
+/* Qty stepper — pill, igual que checkout */
 .pp-cqty {
 	display: inline-flex;
 	align-items: center;
-	border: 1.5px solid #ddd;
-	border-radius: 4px;
+	border: 1.5px solid var(--pp-gray-border);
+	border-radius: 50px;
 	overflow: hidden;
 	align-self: flex-start;
 	margin-top: 4px;
+	background: var(--pp-white);
 }
 
 .pp-cqty-btn {
@@ -179,25 +218,25 @@
 	font-size: 18px;
 	font-weight: 400;
 	cursor: pointer;
-	color: #444;
+	color: var(--pp-black);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: background .12s;
+	transition: background var(--pp-transition), color var(--pp-transition);
 	line-height: 1;
 }
 
-.pp-cqty-btn:hover:not(:disabled) { background: #f0f0f0; }
-.pp-cqty-btn:disabled { opacity: .3; cursor: default; }
+.pp-cqty-btn:hover:not(:disabled) { background: var(--pp-orange-light); color: var(--pp-orange); }
+.pp-cqty-btn:disabled { opacity: .35; cursor: default; }
 
 .pp-cqty-val {
 	min-width: 30px;
 	text-align: center;
 	font-size: 14px;
 	font-weight: 700;
-	color: #222;
-	border-left: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	color: var(--pp-black);
+	border-left: 1.5px solid var(--pp-gray-border);
+	border-right: 1.5px solid var(--pp-gray-border);
 	height: 32px;
 	line-height: 32px;
 }
@@ -216,33 +255,36 @@
 	background: none;
 	border: none;
 	cursor: pointer;
-	color: #bbb;
+	color: var(--pp-gray-border);
 	padding: 4px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	transition: color .15s, background .15s;
+	width: 26px;
+	height: 26px;
+	transition: color var(--pp-transition), background var(--pp-transition);
 }
 
-.pp-cart-item__remove:hover { color: #e53935; background: #fdecea; }
+.pp-cart-item__remove:hover { color: var(--pp-price); background: #fff0f0; }
 
 .pp-cart-item__line-price {
 	font-size: 16px;
 	font-weight: 700;
-	color: #222;
+	color: var(--pp-black);
 	white-space: nowrap;
 }
 
 /* --------------------------------------------------------------------------
-   Cross-sells genericos — estilo MediaMarkt
+   6. Cross-sells genericos — estilo MediaMarkt
    -------------------------------------------------------------------------- */
 .pp-cart-cs {
 	margin-top: 10px;
 	padding: 20px 20px 16px;
-	background: #fff;
-	border: 1px solid #e5e5e5;
-	border-radius: 6px;
+	background: var(--pp-white);
+	border: 1px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius);
+	box-shadow: var(--pp-shadow);
 }
 
 .pp-cart-cs__header {
@@ -251,14 +293,16 @@
 	justify-content: space-between;
 	margin-bottom: 16px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid #f0f0f0;
+	border-bottom: 1px solid var(--pp-gray-border);
 }
 
 .pp-cart-cs__title {
-	font-size: 15px;
+	font-size: 14px;
 	font-weight: 700;
-	color: #222;
+	color: var(--pp-black);
 	margin: 0;
+	text-transform: uppercase;
+	letter-spacing: .04em;
 }
 
 /* Flechas de navegacion */
@@ -270,19 +314,19 @@
 .pp-cs-arrow {
 	width: 32px;
 	height: 32px;
-	border: 1.5px solid #ddd;
-	border-radius: 4px;
-	background: #fff;
+	border: 1.5px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius-sm);
+	background: var(--pp-white);
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #444;
-	transition: border-color .15s, background .15s, color .15s;
+	color: var(--pp-gray-dark);
+	transition: border-color var(--pp-transition), background var(--pp-transition), color var(--pp-transition);
 	flex-shrink: 0;
 }
 
-.pp-cs-arrow:hover { border-color: #222; background: #222; color: #fff; }
+.pp-cs-arrow:hover { border-color: var(--pp-black); background: var(--pp-black); color: var(--pp-white); }
 .pp-cs-arrow:disabled { opacity: .3; cursor: default; }
 
 /* Lista scrollable */
@@ -292,34 +336,34 @@
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
 	scroll-behavior: smooth;
-	scrollbar-width: none; /* ocultar scrollbar */
+	scrollbar-width: none;
 	padding-bottom: 2px;
 }
 
 .pp-cart-cs__list::-webkit-scrollbar { display: none; }
 
-/* ── Tarjeta ── */
+/* Tarjeta */
 .pp-cs-card {
 	flex: 0 0 185px;
-	background: #fff;
-	border: 1px solid #e5e5e5;
-	border-radius: 4px;
+	background: var(--pp-white);
+	border: 1px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius-sm);
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	transition: box-shadow .18s, border-color .18s;
+	transition: box-shadow var(--pp-transition), border-color var(--pp-transition);
 	cursor: default;
 }
 
 .pp-cs-card:hover {
 	border-color: #bbb;
-	box-shadow: 0 4px 16px rgba(0,0,0,.1);
+	box-shadow: 0 4px 16px rgba(0,0,0,.10);
 }
 
 /* Zona imagen */
 .pp-cs-card__img-wrap {
 	position: relative;
-	background: #f7f7f7;
+	background: var(--pp-gray-light);
 	padding: 14px;
 	display: flex;
 	align-items: center;
@@ -339,8 +383,8 @@
 	position: absolute;
 	top: 8px;
 	left: 8px;
-	background: #BF0019;
-	color: #fff;
+	background: var(--pp-price);
+	color: var(--pp-white);
 	font-size: 11px;
 	font-weight: 800;
 	padding: 3px 7px;
@@ -364,7 +408,7 @@
 	gap: 5px;
 }
 
-/* Estrellas via clip-path */
+/* Estrellas */
 .pp-cs-stars {
 	display: inline-block;
 	position: relative;
@@ -375,6 +419,7 @@
 
 .pp-cs-stars::before,
 .pp-cs-stars::after {
+	content: '&#9733;&#9733;&#9733;&#9733;&#9733;';
 	content: '★★★★★';
 	position: absolute;
 	top: 0;
@@ -384,7 +429,7 @@
 	letter-spacing: 1px;
 }
 
-.pp-cs-stars::before { color: #ddd; }
+.pp-cs-stars::before { color: var(--pp-gray-border); }
 
 .pp-cs-stars::after {
 	color: #FFA700;
@@ -395,14 +440,14 @@
 
 .pp-cs-card__rcount {
 	font-size: 11px;
-	color: #888;
+	color: var(--pp-gray);
 }
 
 /* Nombre */
 .pp-cs-card__name {
 	font-size: 12px;
 	font-weight: 600;
-	color: #222;
+	color: var(--pp-black);
 	line-height: 1.4;
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
@@ -420,7 +465,7 @@
 
 .pp-cs-card__reg {
 	font-size: 11px;
-	color: #999;
+	color: var(--pp-gray);
 	font-weight: 400;
 	text-decoration: line-through;
 }
@@ -428,11 +473,11 @@
 .pp-cs-card__price {
 	font-size: 17px;
 	font-weight: 800;
-	color: #BF0019;
+	color: var(--pp-price);
 	display: block;
 }
 
-.pp-cs-card__price--sale { color: #BF0019; }
+.pp-cs-card__price--sale { color: var(--pp-price); }
 
 /* Boton "In den Warenkorb" */
 .pp-cs-card__btn {
@@ -442,24 +487,24 @@
 	gap: 6px;
 	width: 100%;
 	padding: 10px 8px;
-	background: #222;
-	color: #fff;
+	background: var(--pp-black);
+	color: var(--pp-white);
 	border: none;
 	font-size: 11px;
 	font-weight: 700;
 	cursor: pointer;
-	font-family: inherit;
-	transition: background .15s;
+	font-family: var(--pp-font);
+	transition: background var(--pp-transition);
 	margin-top: auto;
 	flex-shrink: 0;
 }
 
-.pp-cs-card__btn:hover    { background: #FE6100; }
-.pp-cs-card__btn.pp-added { background: #2e7d32; }
+.pp-cs-card__btn:hover    { background: var(--pp-orange); }
+.pp-cs-card__btn.pp-added { background: var(--pp-green); }
 .pp-cs-card__btn:disabled { opacity: .5; cursor: wait; }
 
 /* --------------------------------------------------------------------------
-   Sidebar / Resumen
+   7. Sidebar / Resumen
    -------------------------------------------------------------------------- */
 .pp-cart-sidebar {
 	position: sticky;
@@ -467,19 +512,22 @@
 }
 
 .pp-cart-summary {
-	background: #fff;
-	border: 1px solid #e5e5e5;
-	border-radius: 6px;
+	background: var(--pp-white);
+	border: 1px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius);
 	padding: 22px;
+	box-shadow: 0 4px 20px rgba(0,0,0,.07);
 }
 
 .pp-summary-title {
-	font-size: 16px;
-	font-weight: 800;
-	color: #222;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--pp-black);
 	margin: 0 0 18px;
 	padding-bottom: 14px;
-	border-bottom: 2px solid #f0f0f0;
+	border-bottom: 2px solid var(--pp-gray-border);
+	text-transform: uppercase;
+	letter-spacing: .04em;
 }
 
 /* Filas del resumen */
@@ -489,8 +537,8 @@
 	align-items: center;
 	padding: 7px 0;
 	font-size: 14px;
-	color: #444;
-	border-bottom: 1px solid #f5f5f5;
+	color: var(--pp-black);
+	border-bottom: 1px solid var(--pp-gray-border);
 }
 
 .pp-summary-row:last-of-type { border-bottom: none; }
@@ -498,18 +546,18 @@
 .pp-summary-total {
 	font-size: 20px;
 	font-weight: 800;
-	color: #222;
+	color: var(--pp-black);
 	padding: 14px 0 8px;
-	border-top: 2px solid #f0f0f0 !important;
+	border-top: 2px solid var(--pp-gray-border) !important;
 	border-bottom: none !important;
 	margin-top: 4px;
 }
 
-.pp-summary-total span:last-child { color: #BF0019; }
+.pp-summary-total span:last-child { color: var(--pp-price); }
 
 .pp-summary-tax {
 	font-size: 11px;
-	color: #aaa;
+	color: var(--pp-gray);
 	margin: 0 0 4px;
 	text-align: right;
 }
@@ -517,11 +565,11 @@
 /* Cupon aplicado */
 .pp-summary-coupon {
 	background: #eaf6ed;
-	border-radius: 4px;
+	border-radius: var(--pp-radius-sm);
 	padding: 5px 10px;
 	font-size: 12px;
 	font-weight: 600;
-	color: #2e7d32;
+	color: var(--pp-green);
 	gap: 6px;
 	flex-wrap: wrap;
 }
@@ -529,17 +577,18 @@
 .pp-remove-coupon {
 	background: none;
 	border: none;
-	color: #999;
+	color: var(--pp-gray);
 	cursor: pointer;
 	font-size: 15px;
 	padding: 0 2px;
 	line-height: 1;
 	margin-left: auto;
+	transition: color var(--pp-transition);
 }
 
-.pp-remove-coupon:hover { color: #e53935; }
+.pp-remove-coupon:hover { color: var(--pp-price); }
 
-.pp-free-shipping { color: #2e7d32; font-weight: 600; }
+.pp-free-shipping { color: var(--pp-green); font-weight: 600; }
 
 /* Boton Zur Kasse */
 .pp-checkout-btn {
@@ -550,21 +599,27 @@
 	width: 100%;
 	box-sizing: border-box;
 	padding: 15px 20px;
-	background: #FE6100;
-	color: #fff !important;
+	background: var(--pp-orange-grad);
+	color: var(--pp-white) !important;
 	border: none;
-	border-radius: 4px;
+	border-radius: 10px;
 	font-size: 16px;
-	font-weight: 800;
+	font-weight: 700;
 	cursor: pointer;
-	font-family: inherit;
+	font-family: var(--pp-font);
 	text-decoration: none !important;
 	margin: 18px 0 10px;
-	transition: background .15s;
-	letter-spacing: .3px;
+	transition: all var(--pp-transition);
+	letter-spacing: .01em;
+	box-shadow: var(--pp-shadow-md);
 }
 
-.pp-checkout-btn:hover { background: #e05500; color: #fff !important; }
+.pp-checkout-btn:hover {
+	background: linear-gradient(135deg, #e55a00 0%, #d95300 100%);
+	box-shadow: 0 6px 28px rgba(254,97,0,.35);
+	transform: translateY(-1px);
+	color: var(--pp-white) !important;
+}
 
 /* Texto seguro */
 .pp-summary-secure {
@@ -573,7 +628,7 @@
 	justify-content: center;
 	gap: 5px;
 	font-size: 11px;
-	color: #aaa;
+	color: var(--pp-gray);
 	margin: 0 0 18px;
 }
 
@@ -582,40 +637,46 @@
 	display: flex;
 	gap: 8px;
 	margin-top: 16px;
-	border-top: 1px solid #f0f0f0;
+	border-top: 1px solid var(--pp-gray-border);
 	padding-top: 16px;
 }
 
 #pp-coupon-input {
 	flex: 1;
 	padding: 9px 12px;
-	border: 1.5px solid #ddd;
-	border-radius: 4px;
+	border: 1.5px solid var(--pp-gray-border);
+	border-radius: var(--pp-radius-sm);
 	font-size: 13px;
-	font-family: inherit;
+	font-family: var(--pp-font);
+	color: var(--pp-black);
 	outline: none;
-	transition: border-color .15s;
+	transition: border-color var(--pp-transition), box-shadow var(--pp-transition);
 	min-width: 0;
+	background: var(--pp-white);
 }
 
-#pp-coupon-input:focus { border-color: #FE6100; }
+#pp-coupon-input:focus {
+	border-color: var(--pp-orange);
+	box-shadow: 0 0 0 3px rgba(254,97,0,.10);
+}
 
 #pp-coupon-apply {
 	padding: 9px 14px;
-	background: #222;
-	color: #fff;
-	border: none;
-	border-radius: 4px;
+	background: var(--pp-white);
+	color: var(--pp-orange);
+	border: 1.5px solid var(--pp-orange);
+	border-radius: var(--pp-radius-sm);
 	font-size: 13px;
 	font-weight: 700;
 	cursor: pointer;
-	font-family: inherit;
-	transition: background .15s;
+	font-family: var(--pp-font);
+	transition: all var(--pp-transition);
 	white-space: nowrap;
 	flex-shrink: 0;
 }
 
-#pp-coupon-apply:hover { background: #FE6100; }
+#pp-coupon-apply:hover { background: var(--pp-orange); color: var(--pp-white); }
+#pp-coupon-apply:disabled { opacity: .6; cursor: default; }
 
 #pp-coupon-msg {
 	font-size: 12px;
@@ -623,11 +684,11 @@
 	min-height: 16px;
 }
 
-.pp-coupon-msg--ok  { color: #2e7d32; }
-.pp-coupon-msg--err { color: #e53935; }
+.pp-coupon-msg--ok  { color: var(--pp-green); }
+.pp-coupon-msg--err { color: var(--pp-price); }
 
 /* --------------------------------------------------------------------------
-   Loading state
+   8. Loading state
    -------------------------------------------------------------------------- */
 .pp-cart-loading { opacity: .5; pointer-events: none; }
 
@@ -635,7 +696,7 @@
    RESPONSIVE
    ========================================================================== */
 
-/* ── Tablet ancha (< 1100px) ─────────────────────────────────────────────── */
+/* Tablet ancha (< 1100px) */
 @media (max-width: 1100px) {
 	.pp-cart-page {
 		grid-template-columns: minmax(0, 1fr) 280px;
@@ -644,18 +705,17 @@
 	}
 }
 
-/* ── Tablet (< 900px): columna única, resumen arriba ─────────────────────── */
+/* Tablet (< 900px): columna unica, resumen arriba */
 @media (max-width: 900px) {
 	.pp-cart-page {
 		grid-template-columns: 1fr;
 		gap: 16px;
 		padding: 20px 16px 48px;
-		/* padding lateral fijo en tablet — el breakout sigue activo */
 	}
 
 	.pp-cart-sidebar {
 		position: static;
-		order: -1; /* resumen + botón pago visibles arriba */
+		order: -1;
 	}
 
 	/* Resumen horizontal en tablet */
@@ -677,7 +737,6 @@
 		grid-column: 1;
 	}
 
-	/* Checkout btn + cupón en columna derecha */
 	.pp-checkout-btn,
 	.pp-summary-secure,
 	.pp-coupon-wrap,
@@ -702,14 +761,14 @@
 	}
 }
 
-/* ── Móvil ancho (< 680px): items más compactos ──────────────────────────── */
+/* Movil ancho (< 680px): items mas compactos */
 @media (max-width: 680px) {
 	.pp-cart-page {
 		padding: 14px 12px 40px;
 		gap: 12px;
 	}
 
-	/* Resumen vuelve a columna única */
+	/* Resumen vuelve a columna unica */
 	.pp-cart-summary {
 		display: block;
 		padding: 16px;
@@ -721,7 +780,7 @@
 		font-size: 15px;
 	}
 
-	/* Item: imagen más pequeña */
+	/* Item: imagen mas pequena */
 	.pp-cart-item__main {
 		padding: 14px 12px;
 		gap: 12px;
@@ -745,12 +804,12 @@
 	.pp-cs-card__img { width: 100px; height: 100px; }
 }
 
-/* ── Móvil (< 480px): layout grid para items ────────────────────────────── */
+/* Movil (< 480px): layout grid para items */
 @media (max-width: 480px) {
 	.pp-cart-page { padding: 10px 10px 36px; }
 
 	/* Item: grid 2 columnas — imagen | (info + controles) */
-	.pp-cart-item { border-radius: 4px; margin-bottom: 10px; }
+	.pp-cart-item { border-radius: var(--pp-radius-sm); margin-bottom: 10px; }
 
 	.pp-cart-item__main {
 		display: grid;
@@ -774,7 +833,7 @@
 		padding: 4px;
 	}
 
-	/* Info: nombre + meta + precio + qty en columna derecha fila 1 */
+	/* Info: columna derecha fila 1 */
 	.pp-cart-item__info {
 		grid-column: 2;
 		grid-row: 1;
@@ -814,21 +873,21 @@
 		justify-content: space-between;
 		align-items: center;
 		padding-top: 4px;
-		border-top: 1px solid #f5f5f5;
+		border-top: 1px solid var(--pp-gray-border);
 		margin-top: 4px;
 	}
 
 	.pp-cart-item__remove {
 		width: 30px;
 		height: 30px;
-		border-radius: 4px;
-		background: #f5f5f5;
-		color: #999;
+		border-radius: var(--pp-radius-sm);
+		background: var(--pp-gray-light);
+		color: var(--pp-gray);
 	}
 
 	.pp-cart-item__remove:hover {
-		background: #fdecea;
-		color: #e53935;
+		background: #fff0f0;
+		color: var(--pp-price);
 	}
 
 	.pp-cart-item__line-price {
@@ -837,8 +896,8 @@
 	}
 
 	/* Resumen: compacto */
-	.pp-cart-summary { padding: 14px 12px; border-radius: 4px; }
-	.pp-summary-title { font-size: 14px; margin-bottom: 12px; padding-bottom: 10px; }
+	.pp-cart-summary { padding: 14px 12px; border-radius: var(--pp-radius-sm); }
+	.pp-summary-title { font-size: 13px; margin-bottom: 12px; padding-bottom: 10px; }
 	.pp-summary-row   { font-size: 13px; padding: 6px 0; }
 	.pp-summary-total { font-size: 18px; }
 
@@ -846,7 +905,7 @@
 		font-size: 15px;
 		padding: 14px 12px;
 		margin: 12px 0 8px;
-		min-height: 50px; /* tappable */
+		min-height: 50px;
 	}
 
 	.pp-coupon-wrap {
@@ -858,8 +917,8 @@
 	#pp-coupon-apply  { width: 100%; padding: 10px; }
 
 	/* Cross-sells 480px */
-	.pp-cart-cs { padding: 12px 10px; border-radius: 4px; }
-	.pp-cart-cs__title { font-size: 13px; }
+	.pp-cart-cs { padding: 12px 10px; border-radius: var(--pp-radius-sm); }
+	.pp-cart-cs__title { font-size: 12px; }
 	.pp-cart-cs__arrows { display: none; }
 	.pp-cs-card { flex: 0 0 150px; }
 	.pp-cs-card__img-wrap { height: 120px; }
@@ -868,7 +927,7 @@
 	.pp-cs-card__price { font-size: 14px; }
 }
 
-/* ── Muy pequeño (< 360px) ───────────────────────────────────────────────── */
+/* Muy pequeno (< 360px) */
 @media (max-width: 360px) {
 	.pp-cart-item__main { grid-template-columns: 60px 1fr; }
 	.pp-cart-item__imglink { grid-row: 1 / 3; }
