@@ -760,12 +760,12 @@
 
 	.pp-cart-item__remove {
 		position: absolute;
-		top: 10px;
-		right: 10px;
-		width: 22px;
-		height: 22px;
+		top: 8px;
+		right: 8px;
+		width: 16px;
+		height: 16px;
 		border-radius: 50%;
-		background: var(--pp-gray-light);
+		background: none;
 		color: var(--pp-gray);
 		padding: 0;
 	}

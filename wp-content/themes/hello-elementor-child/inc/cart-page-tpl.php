@@ -157,7 +157,7 @@ foreach ( $all_cs_ids as $cid ) {
 					<button class="pp-cart-item__remove"
 						data-key="<?php echo esc_attr( $cart_item_key ); ?>"
 						title="<?php esc_attr_e( 'Entfernen', 'hello-elementor-child' ); ?>">
-						<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+						<svg width="10" height="10" viewBox="0 0 14 14" fill="none">
 							<path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 						</svg>
 					</button>
