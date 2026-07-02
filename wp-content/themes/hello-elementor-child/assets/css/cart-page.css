@@ -111,6 +111,10 @@
 /* --------------------------------------------------------------------------
    5. Items del carrito
    -------------------------------------------------------------------------- */
+
+/* min-width:0 es critico: sin el, las columnas del grid no limitan a sus hijos */
+.pp-cart-main { min-width: 0; }
+
 .pp-cart-item {
 	background: var(--pp-white);
 	border: 1px solid var(--pp-gray-border);
@@ -285,6 +289,7 @@
 	border: 1px solid var(--pp-gray-border);
 	border-radius: var(--pp-radius);
 	box-shadow: var(--pp-shadow);
+	overflow: hidden; /* evita que la lista scrollable rompa el ancho */
 }
 
 .pp-cart-cs__header {
@@ -710,71 +715,19 @@
 	}
 }
 
-/* Tablet (< 900px): columna unica, resumen arriba */
-@media (max-width: 900px) {
-	.pp-cart-page {
-		grid-template-columns: 1fr;
-		gap: 16px;
-		padding: 20px 16px 48px;
-	}
+/* Tablet (900-1100px ya cubierta arriba); entre 768px y 900px
+   el sidebar sigue visible en la columna derecha del grid */
 
-	.pp-cart-sidebar {
-		position: static;
-		order: -1;
-	}
-
-	/* Resumen horizontal en tablet */
-	.pp-cart-summary {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: auto;
-		gap: 0 24px;
-		padding: 18px 20px;
-	}
-
-	.pp-summary-title {
-		grid-column: 1 / -1;
-		margin-bottom: 12px;
-		padding-bottom: 10px;
-	}
-
-	#pp-summary-rows {
-		grid-column: 1;
-	}
-
-	.pp-checkout-btn,
-	.pp-summary-secure,
-	.pp-coupon-wrap,
-	#pp-coupon-msg {
-		grid-column: 2;
-	}
-
-	.pp-checkout-btn {
-		margin: 0 0 8px;
-		align-self: start;
-	}
-
-	.pp-summary-secure {
-		margin-bottom: 12px;
-	}
-
-	.pp-coupon-wrap {
-		margin-top: 0;
-		border-top: none;
-		padding-top: 0;
-		align-self: start;
-	}
-}
-
-/* Movil ancho (< 680px): footer fijo, sidebar oculto */
-@media (max-width: 680px) {
+/* Movil (< 768px): sidebar oculto, footer fijo, items compactos */
+@media (max-width: 768px) {
 	/* Ocultar sidebar — reemplazado por footer fijo */
 	.pp-cart-sidebar { display: none !important; }
 
-	/* Espacio para el footer fijo */
+	/* Resetear el order:-1 del breakpoint de 900px */
 	.pp-cart-page {
-		padding: 14px 12px 140px;
+		grid-template-columns: 1fr;
 		gap: 12px;
+		padding: 14px 12px 140px; /* espacio para el footer fijo */
 	}
 
 	/* Item: imagen mas pequena */
@@ -792,13 +745,13 @@
 	.pp-cart-item__price { font-size: 16px; }
 	.pp-cart-item__line-price { font-size: 15px; }
 
-	/* Cross-sells 680px */
+	/* Cross-sells */
 	.pp-cart-cs { padding: 14px 12px; }
 	.pp-cs-card { flex: 0 0 160px; }
 	.pp-cs-card__img-wrap { height: 130px; }
 	.pp-cs-card__img { width: 100px; height: 100px; }
 
-	/* ── Footer movil ── */
+	/* ── Footer movil fijo ── */
 	.pp-mobile-footer {
 		display: flex;
 		flex-direction: column;
@@ -905,7 +858,7 @@
 
 /* Movil (< 480px): layout grid para items */
 @media (max-width: 480px) {
-	.pp-cart-page { padding: 10px 10px 36px; }
+	.pp-cart-page { padding: 10px 10px 140px; } /* mantener espacio para footer fijo */
 
 	/* Item: grid 2 columnas — imagen | (info + controles) */
 	.pp-cart-item { border-radius: var(--pp-radius-sm); margin-bottom: 10px; }
