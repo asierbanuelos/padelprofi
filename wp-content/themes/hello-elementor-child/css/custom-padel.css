@@ -552,7 +552,19 @@ a.checkout-button{
 .cont-breadcrumbs a{
 	font-family: "Open Sans";
 	font-size:14px;
+	color: #333333;
+	text-decoration: none;
 }
+.cont-breadcrumbs a:hover { color: #FE6100; }
+
+/* WooCommerce breadcrumb nativo */
+.woocommerce-breadcrumb a,
+nav.woocommerce-breadcrumb a {
+	color: #333333 !important;
+	text-decoration: none;
+}
+.woocommerce-breadcrumb a:hover,
+nav.woocommerce-breadcrumb a:hover { color: #FE6100 !important; }
 
 /*---Change text in newsletter checkout---*/
 
