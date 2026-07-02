@@ -99,7 +99,7 @@
 				<button type="button" class="pp-popup-btn--secondary pp-popup-keep-shopping">
 					${ ppCartPopup.i18n.keepShopping }
 				</button>
-				<a href="${ ppCartPopup.checkoutUrl }" class="pp-popup-btn--primary">
+				<a href="${ ppCartPopup.cartUrl }" class="pp-popup-btn--primary">
 					${ ppCartPopup.i18n.goToCart }
 				</a>
 			</div>

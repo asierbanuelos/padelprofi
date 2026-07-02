@@ -18,6 +18,9 @@ require_once get_stylesheet_directory() . '/inc/checkout-functions.php';
 // --- Popup carrito + shortcode [fk_cart_menu] ---
 require_once get_stylesheet_directory() . '/inc/cart-popup.php';
 
+// --- Página de carrito personalizada ---
+require_once get_stylesheet_directory() . '/inc/cart-page.php';
+
 
 
 /**
