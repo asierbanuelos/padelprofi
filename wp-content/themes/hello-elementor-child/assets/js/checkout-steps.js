@@ -8,9 +8,9 @@
 
 	// ── Métodos de pago activos (cambiar a true para activar) ──────────────────
 	const MM_PAYMENTS = {
-		applePay:  false,
-		googlePay: false,
-		klarna:    false,
+		applePay:  true,
+		googlePay: true,
+		klarna:    true,
 	};
 	// ──────────────────────────────────────────────────────────────────────────
 
