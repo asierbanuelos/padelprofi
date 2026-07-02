@@ -751,6 +751,36 @@
 	.pp-cs-card__img-wrap { height: 130px; }
 	.pp-cs-card__img { width: 100px; height: 100px; }
 
+	/* Ocultar boton scroll-to-top del tema: solapa con el footer movil */
+	.scroll-top-to,
+	#scrollTopBtn { display: none !important; }
+
+	/* X de eliminar: absolute en esquina superior derecha */
+	.pp-cart-item__main { position: relative; }
+
+	.pp-cart-item__remove {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		width: 22px;
+		height: 22px;
+		border-radius: 50%;
+		background: var(--pp-gray-light);
+		color: var(--pp-gray);
+		padding: 0;
+	}
+
+	/* Info: padding derecho para que el nombre no se solape con la X */
+	.pp-cart-item__info { padding-right: 32px; }
+
+	/* Columna derecha: solo muestra el precio total (la X ya es absolute) */
+	.pp-cart-item__right {
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 4px;
+		padding-top: 0;
+	}
+
 	/* ── Footer movil fijo ── */
 	.pp-mobile-footer {
 		display: flex;
@@ -917,29 +947,16 @@
 		font-size: 13px;
 	}
 
-	/* Fila inferior derecha: eliminar (izq) + precio total (dcha) */
+	/* Fila inferior derecha: solo precio (la X ya es absolute arriba) */
 	.pp-cart-item__right {
 		grid-column: 2;
 		grid-row: 2;
 		flex-direction: row;
-		justify-content: space-between;
+		justify-content: flex-end;
 		align-items: center;
 		padding-top: 4px;
 		border-top: 1px solid var(--pp-gray-border);
 		margin-top: 4px;
-	}
-
-	.pp-cart-item__remove {
-		width: 30px;
-		height: 30px;
-		border-radius: var(--pp-radius-sm);
-		background: var(--pp-gray-light);
-		color: var(--pp-gray);
-	}
-
-	.pp-cart-item__remove:hover {
-		background: #fff0f0;
-		color: var(--pp-price);
 	}
 
 	.pp-cart-item__line-price {
