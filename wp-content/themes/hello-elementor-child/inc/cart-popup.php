@@ -382,14 +382,21 @@ function pp_save_popup_settings() {
 }
 
 function pp_get_managed_categories() {
-	return [
-		'padelschlaeger' => __( 'Palas de pádel', 'hello-elementor-child' ),
-		'padel-set'      => __( 'Padel Sets', 'hello-elementor-child' ),
-		'padelballe'     => __( 'Pelotas de pádel', 'hello-elementor-child' ),
-		'padelschuhe'    => __( 'Zapatillas de pádel', 'hello-elementor-child' ),
-		'padeltaschen'   => __( 'Bolsas de pádel', 'hello-elementor-child' ),
-		'padel-zubehoer' => __( 'Accesorios de pádel', 'hello-elementor-child' ),
-	];
+	$terms = get_terms( [
+		'taxonomy'   => 'product_cat',
+		'hide_empty' => true,
+		'orderby'    => 'name',
+		'order'      => 'ASC',
+		'number'     => 200,
+	] );
+
+	if ( is_wp_error( $terms ) || empty( $terms ) ) return [];
+
+	$cats = [];
+	foreach ( $terms as $term ) {
+		$cats[ $term->slug ] = $term->name;
+	}
+	return $cats;
 }
 
 add_action( 'admin_enqueue_scripts', 'pp_admin_enqueue_scripts' );
