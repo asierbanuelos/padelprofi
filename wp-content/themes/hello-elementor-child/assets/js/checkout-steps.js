@@ -552,6 +552,29 @@
 					$( document.body ).off( 'updated_checkout', onUpdated );
 					if ( ! submitted ) { submitted = true; doSubmit(); }
 				}, 4000 );
+			} else if ( isKlarnaExpress ) {
+				// mm_klarna: intentar hacer click en el botón ECE nativo del plugin Klarna.
+				// Si no está disponible, activar la pestaña Klarna en el Stripe UPE como fallback.
+				const klarnaEceBtn = document.querySelector(
+					'[id*="kec-button"], [class*="kec-button"], ' +
+					'[id*="klarna-express-checkout"], .klarna-express-checkout-button, ' +
+					'klarna-express-checkout-button'
+				);
+				if ( klarnaEceBtn ) {
+					klarnaEceBtn.click();
+				} else {
+					// Fallback: re-seleccionar Stripe con tab Klarna y enviar
+					const stripeRadio = document.querySelector( 'input[name="payment_method"][value="stripe"]' );
+					if ( stripeRadio ) { stripeRadio.checked = true; $( stripeRadio ).trigger( 'change' ); }
+					let activated = false;
+					const tryActivate = ( attempt = 0 ) => {
+						if ( activated ) return;
+						activated = this._activateKlarnaTab();
+						if ( ! activated && attempt < 5 ) setTimeout( () => tryActivate( attempt + 1 ), 200 );
+					};
+					tryActivate();
+					setTimeout( doSubmit, 1500 );
+				}
 			} else if ( isKlarna ) {
 				if ( mid.includes( 'stripe_klarna' ) || mid.includes( 'klarna_payments' ) ) {
 					// Gateway Klarna nativo (stripe_klarna u oficial): seleccionar radio y enviar
@@ -1379,10 +1402,16 @@
 			const arrowSvg = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 			if ( isExpress ) {
-				// ── Apple Pay / Google Pay via Stripe Payment Request Button ──────
-				// Ambos usan el mismo Stripe Express Checkout Element (el PRB legacy es fallback)
+				// ── Apple Pay / Google Pay / Klarna via Express Checkout Element ──
 				const prb = document.getElementById( 'wc-stripe-express-checkout-element' )
-				         || document.getElementById( 'wc-stripe-payment-request-button' );
+				         || document.getElementById( 'wc-stripe-payment-request-button' )
+				         // Klarna ECE del plugin Krokedil (múltiples posibles selectores)
+				         || ( isKlarnaExpress && (
+				              document.querySelector( '[id*="kec-button"]' )
+				           || document.querySelector( '[class*="kec-button"]' )
+				           || document.querySelector( '[id*="klarna-express-checkout"]' )
+				           || document.querySelector( 'klarna-express-checkout-button' )
+				         ) ) || null;
 				const arrowSvgExpress = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 				if ( prb && prb.children.length ) {
