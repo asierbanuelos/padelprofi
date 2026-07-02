@@ -9,30 +9,45 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 $cart_items  = $cart->get_cart();
 $total_count = $cart->get_cart_contents_count();
 
-// ── Recoger todos los IDs de cross-sells de todos los productos del carrito ──
+// ── Cross-sells: recopilar IDs de todos los productos del carrito ──────────
 $all_cart_ids = [];
+$cart_products = []; // guardar los objetos WC_Product para consultas posteriores
 foreach ( $cart_items as $ci ) {
 	if ( ! empty( $ci['data'] ) ) {
-		$all_cart_ids[] = absint( $ci['data']->get_id() );
+		$pid = absint( $ci['data']->get_id() );
+		$all_cart_ids[]      = $pid;
+		$cart_products[$pid] = $ci['data'];
 	}
 }
 
 $all_cs_ids = [];
+
 foreach ( $all_cart_ids as $cpid ) {
+	$cp_obj = isset( $cart_products[ $cpid ] ) ? $cart_products[ $cpid ] : null;
+
+	// Capa 1: reglas personalizadas por categoría (admin popup)
 	if ( function_exists( 'pp_get_crosssell_ids' ) ) {
 		$ids = (array) pp_get_crosssell_ids( $cpid, [] );
 		$all_cs_ids = array_merge( $all_cs_ids, $ids );
 	}
-}
-// Si no hay reglas manuales, usar productos relacionados WC
-if ( empty( $all_cs_ids ) ) {
-	foreach ( $all_cart_ids as $cpid ) {
-		if ( function_exists( 'pp_get_related_product_ids_for_product' ) ) {
-			$ids = (array) pp_get_related_product_ids_for_product( $cpid, [] );
-			$all_cs_ids = array_merge( $all_cs_ids, $ids );
-		}
+
+	// Capa 2: cross-sells nativos de WooCommerce (configurados en el producto)
+	if ( $cp_obj ) {
+		$native = (array) $cp_obj->get_cross_sell_ids();
+		$all_cs_ids = array_merge( $all_cs_ids, $native );
 	}
+
+	// Capa 3: productos relacionados personalizados (admin popup)
+	if ( function_exists( 'pp_get_related_product_ids_for_product' ) ) {
+		$ids = (array) pp_get_related_product_ids_for_product( $cpid, [] );
+		$all_cs_ids = array_merge( $all_cs_ids, $ids );
+	}
+
+	// Capa 4: productos relacionados nativos de WC (misma categoría/tags)
+	$related = (array) wc_get_related_products( $cpid, 12 );
+	$all_cs_ids = array_merge( $all_cs_ids, $related );
 }
+
 // Deduplicar y excluir los que ya están en el carrito
 $all_cs_ids = array_values( array_unique( array_diff( $all_cs_ids, $all_cart_ids ) ) );
 
@@ -60,7 +75,8 @@ foreach ( $all_cs_ids as $cid ) {
 	<div class="pp-cart-main">
 
 		<div class="pp-cart-header">
-			<span id="pp-cart-count"><?php echo esc_html( $total_count . ' ' . _n( 'Artikel', 'Artikel', $total_count, 'hello-elementor-child' ) ); ?></span>
+			<h1 class="pp-cart-title"><?php esc_html_e( 'Warenkorb', 'hello-elementor-child' ); ?></h1>
+			<span id="pp-cart-count" class="pp-cart-count"><?php echo esc_html( $total_count . ' ' . _n( 'Artikel', 'Artikel', $total_count, 'hello-elementor-child' ) ); ?></span>
 		</div>
 
 		<?php foreach ( $cart_items as $cart_item_key => $cart_item ) :

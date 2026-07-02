@@ -20,11 +20,23 @@
    Header del carrito
    -------------------------------------------------------------------------- */
 .pp-cart-header {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
 	margin-bottom: 16px;
 }
 
+.pp-cart-title {
+	font-size: 26px;
+	font-weight: 800;
+	color: #111;
+	margin: 0;
+	line-height: 1.1;
+}
+
+.pp-cart-count,
 #pp-cart-count {
-	font-size: 13px;
+	font-size: 14px;
 	color: #888;
 	font-weight: 500;
 }
