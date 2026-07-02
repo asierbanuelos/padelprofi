@@ -2422,7 +2422,7 @@ add_shortcode( 'pp_add_to_cart', function( $atts ) {
 
 	$pid   = $product->get_id();
 	$type  = $product->get_type();
-	$class = 'pp-add-btn ajax_add_to_cart add_to_cart_button product_type_' . esc_attr( $type );
+	$class = 'pp-add-btn product_type_' . esc_attr( $type );
 	$href  = esc_url( '?add-to-cart=' . $pid );
 	$text  = esc_html( $atts['text'] );
 	$width = esc_attr( $atts['width'] );
