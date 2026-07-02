@@ -13,6 +13,15 @@
 
 	function updateSummary( html ) {
 		$( '#pp-summary-rows' ).html( html );
+		// Sincronizar drawer movil
+		var $drawer = $( '#pp-mobile-summary-rows' );
+		if ( $drawer.length ) {
+			$drawer.html( html );
+			var totalHtml = $drawer.find( '.pp-summary-total span:last-child' ).html();
+			if ( totalHtml ) {
+				$( '#pp-mobile-total' ).html( totalHtml );
+			}
+		}
 	}
 
 	function updateCount( count ) {
@@ -140,6 +149,15 @@
 				$( '#pp-coupon-msg' ).text( '' );
 			}
 		} );
+	} );
+
+	// ── Footer movil — toggle del drawer ──────────────────────────────────────
+
+	$( '#pp-mobile-toggle' ).on( 'click', function () {
+		var $drawer = $( '#pp-mobile-drawer' );
+		var open    = $drawer.hasClass( 'pp-mobile-drawer--open' );
+		$drawer.toggleClass( 'pp-mobile-drawer--open', ! open );
+		$( this ).find( '.pp-footer-toggle-arrow' ).toggleClass( 'pp-toggle--open', ! open );
 	} );
 
 	// ── Flechas del slider de cross-sells ──────────────────────────────────────

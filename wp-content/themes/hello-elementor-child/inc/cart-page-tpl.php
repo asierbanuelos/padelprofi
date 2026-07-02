@@ -278,3 +278,29 @@ foreach ( $all_cs_ids as $cid ) {
 	</div><!-- .pp-cart-sidebar -->
 
 </div><!-- .pp-cart-page -->
+
+<!-- ======================================================
+     Footer móvil fijo (visible solo en < 680px via CSS)
+     ====================================================== -->
+<div id="pp-mobile-footer" class="pp-mobile-footer">
+
+	<button type="button" id="pp-mobile-toggle" class="pp-mobile-footer__toggle">
+		<span class="pp-mobile-footer__toggle-label"><?php esc_html_e( 'Bestellubersicht', 'hello-elementor-child' ); ?></span>
+		<span class="pp-mobile-footer__toggle-price" id="pp-mobile-total"><?php echo wp_kses_post( $cart->get_total() ); ?></span>
+		<svg class="pp-footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+	</button>
+
+	<div id="pp-mobile-drawer" class="pp-mobile-drawer">
+		<div class="pp-mobile-drawer__inner" id="pp-mobile-summary-rows">
+			<?php echo pp_cart_summary_html(); ?>
+		</div>
+	</div>
+
+	<div class="pp-mobile-footer__bottom">
+		<a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="pp-mobile-footer__btn">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			<?php esc_html_e( 'Zur Kasse', 'hello-elementor-child' ); ?>
+		</a>
+	</div>
+
+</div><!-- .pp-mobile-footer -->
