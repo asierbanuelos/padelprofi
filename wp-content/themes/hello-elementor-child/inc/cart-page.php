@@ -1,6 +1,6 @@
 <?php
 /**
- * Cart Page — PadelProfi
+ * Cart Page - PadelProfi
  * AJAX handlers + helpers for the custom cart page template.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action( 'wp_enqueue_scripts', 'pp_enqueue_cart_page_assets' );
 function pp_enqueue_cart_page_assets() {
-	if ( ! is_cart() ) return;
+	if ( ! is_cart() && get_page_template_slug() !== 'template-cart.php' ) return;
 
 	$uri = get_stylesheet_directory_uri();
 	$dir = get_stylesheet_directory();
@@ -38,7 +38,7 @@ function pp_enqueue_cart_page_assets() {
 }
 
 // ============================================================================
-// 2. Helper — resumen del pedido (reutilizable para respuestas AJAX)
+// 2. Helper - resumen del pedido (reutilizable para respuestas AJAX)
 // ============================================================================
 
 function pp_cart_summary_html() {
@@ -48,25 +48,22 @@ function pp_cart_summary_html() {
 	$subtotal = $cart->get_cart_subtotal();
 	$total    = $cart->get_total();
 
-	// Descuentos por cupones
 	$discount_html = '';
 	foreach ( $cart->get_coupons() as $code => $coupon ) {
 		$discount = $cart->get_coupon_discount_amount( $code );
 		$discount_html .= '<div class="pp-summary-row pp-summary-coupon">'
 			. '<span>' . esc_html( strtoupper( $code ) ) . '</span>'
 			. '<span>-' . wc_price( $discount ) . '</span>'
-			. '<button class="pp-remove-coupon" data-coupon="' . esc_attr( $code ) . '">×</button>'
+			. '<button class="pp-remove-coupon" data-coupon="' . esc_attr( $code ) . '">&times;</button>'
 			. '</div>';
 	}
 
-	// Envío
 	$shipping_html = '';
 	if ( $cart->needs_shipping() && $cart->show_shipping() ) {
-		// chosen_shipping_methods puede ser null si la sesión aún no lo tiene
 		$chosen_methods = (array) ( WC()->session ? WC()->session->get( 'chosen_shipping_methods', [] ) : [] );
 		$packages       = WC()->shipping()->get_packages();
 		foreach ( $packages as $i => $package ) {
-			$chosen = $chosen_methods[ $i ] ?? '';
+			$chosen = isset( $chosen_methods[ $i ] ) ? $chosen_methods[ $i ] : '';
 			foreach ( $package['rates'] as $rate ) {
 				if ( $rate->id === $chosen ) {
 					$cost          = (float) $rate->get_cost();
@@ -83,27 +80,26 @@ function pp_cart_summary_html() {
 		$shipping_html = '<span class="pp-free-shipping">' . esc_html__( 'Kostenlos', 'hello-elementor-child' ) . '</span>';
 	}
 
-	ob_start(); ?>
-	<div class="pp-summary-row">
-		<span><?php esc_html_e( 'Zwischensumme', 'hello-elementor-child' ); ?></span>
-		<span><?php echo $subtotal; ?></span>
-	</div>
-	<?php if ( $discount_html ) echo $discount_html; ?>
-	<div class="pp-summary-row">
-		<span><?php esc_html_e( 'Versandkosten', 'hello-elementor-child' ); ?></span>
-		<span><?php echo $shipping_html ?: '–'; ?></span>
-	</div>
-	<div class="pp-summary-row pp-summary-total">
-		<span><?php esc_html_e( 'Gesamt', 'hello-elementor-child' ); ?></span>
-		<span><?php echo $total; ?></span>
-	</div>
-	<p class="pp-summary-tax"><?php esc_html_e( 'inkl. MwSt.', 'hello-elementor-child' ); ?></p>
-	<?php
-	return ob_get_clean();
+	$html  = '<div class="pp-summary-row">';
+	$html .= '<span>' . esc_html__( 'Zwischensumme', 'hello-elementor-child' ) . '</span>';
+	$html .= '<span>' . $subtotal . '</span>';
+	$html .= '</div>';
+	$html .= $discount_html;
+	$html .= '<div class="pp-summary-row">';
+	$html .= '<span>' . esc_html__( 'Versandkosten', 'hello-elementor-child' ) . '</span>';
+	$html .= '<span>' . ( $shipping_html ? $shipping_html : '--' ) . '</span>';
+	$html .= '</div>';
+	$html .= '<div class="pp-summary-row pp-summary-total">';
+	$html .= '<span>' . esc_html__( 'Gesamt', 'hello-elementor-child' ) . '</span>';
+	$html .= '<span>' . $total . '</span>';
+	$html .= '</div>';
+	$html .= '<p class="pp-summary-tax">' . esc_html__( 'inkl. MwSt.', 'hello-elementor-child' ) . '</p>';
+
+	return $html;
 }
 
 // ============================================================================
-// 3. AJAX — Actualizar cantidad
+// 3. AJAX - Actualizar cantidad
 // ============================================================================
 
 add_action( 'wp_ajax_pp_cart_update_qty',        'pp_ajax_cart_update_qty' );
@@ -111,8 +107,8 @@ add_action( 'wp_ajax_nopriv_pp_cart_update_qty', 'pp_ajax_cart_update_qty' );
 function pp_ajax_cart_update_qty() {
 	check_ajax_referer( 'pp_cart_page_nonce', 'nonce' );
 
-	$key   = sanitize_text_field( $_POST['cart_item_key'] ?? '' );
-	$delta = (int) ( $_POST['delta'] ?? 0 );
+	$key   = sanitize_text_field( isset( $_POST['cart_item_key'] ) ? $_POST['cart_item_key'] : '' );
+	$delta = (int) ( isset( $_POST['delta'] ) ? $_POST['delta'] : 0 );
 
 	if ( ! $key || ! $delta || ! WC()->cart ) {
 		wp_send_json_error( [ 'msg' => 'invalid' ] );
@@ -152,7 +148,7 @@ function pp_ajax_cart_update_qty() {
 }
 
 // ============================================================================
-// 4. AJAX — Eliminar ítem
+// 4. AJAX - Eliminar item
 // ============================================================================
 
 add_action( 'wp_ajax_pp_cart_remove_item',        'pp_ajax_cart_remove_item' );
@@ -160,7 +156,7 @@ add_action( 'wp_ajax_nopriv_pp_cart_remove_item', 'pp_ajax_cart_remove_item' );
 function pp_ajax_cart_remove_item() {
 	check_ajax_referer( 'pp_cart_page_nonce', 'nonce' );
 
-	$key = sanitize_text_field( $_POST['cart_item_key'] ?? '' );
+	$key = sanitize_text_field( isset( $_POST['cart_item_key'] ) ? $_POST['cart_item_key'] : '' );
 	if ( ! $key || ! WC()->cart ) {
 		wp_send_json_error( [ 'msg' => 'invalid' ] );
 	}
@@ -176,7 +172,7 @@ function pp_ajax_cart_remove_item() {
 }
 
 // ============================================================================
-// 5. AJAX — Aplicar / quitar cupón
+// 5. AJAX - Aplicar / quitar cupon
 // ============================================================================
 
 add_action( 'wp_ajax_pp_cart_apply_coupon',        'pp_ajax_cart_apply_coupon' );
@@ -184,25 +180,23 @@ add_action( 'wp_ajax_nopriv_pp_cart_apply_coupon', 'pp_ajax_cart_apply_coupon' )
 function pp_ajax_cart_apply_coupon() {
 	check_ajax_referer( 'pp_cart_page_nonce', 'nonce' );
 
-	$code = sanitize_text_field( wp_unslash( $_POST['coupon_code'] ?? '' ) );
+	$code = sanitize_text_field( wp_unslash( isset( $_POST['coupon_code'] ) ? $_POST['coupon_code'] : '' ) );
 	if ( ! $code ) {
 		wp_send_json_error( [ 'msg' => esc_html__( 'Bitte gib einen Gutscheincode ein.', 'hello-elementor-child' ) ] );
 	}
 
 	wc_clear_notices();
-	$result = WC()->cart->apply_coupon( $code );
+	WC()->cart->apply_coupon( $code );
 
 	$notices = wc_get_notices( 'error' );
 	if ( ! empty( $notices ) ) {
-		$msg = is_array( $notices[0] ) ? ( $notices[0]['notice'] ?? '' ) : $notices[0];
+		$msg = is_array( $notices[0] ) ? ( isset( $notices[0]['notice'] ) ? $notices[0]['notice'] : '' ) : $notices[0];
 		wc_clear_notices();
 		wp_send_json_error( [ 'msg' => wp_strip_all_tags( $msg ) ] );
 	}
 
 	wc_clear_notices();
-	wp_send_json_success( [
-		'summary_html' => pp_cart_summary_html(),
-	] );
+	wp_send_json_success( [ 'summary_html' => pp_cart_summary_html() ] );
 }
 
 add_action( 'wp_ajax_pp_cart_remove_coupon',        'pp_ajax_cart_remove_coupon' );
@@ -210,7 +204,7 @@ add_action( 'wp_ajax_nopriv_pp_cart_remove_coupon', 'pp_ajax_cart_remove_coupon'
 function pp_ajax_cart_remove_coupon() {
 	check_ajax_referer( 'pp_cart_page_nonce', 'nonce' );
 
-	$code = sanitize_text_field( wp_unslash( $_POST['coupon_code'] ?? '' ) );
+	$code = sanitize_text_field( wp_unslash( isset( $_POST['coupon_code'] ) ? $_POST['coupon_code'] : '' ) );
 	if ( ! $code ) wp_send_json_error();
 
 	WC()->cart->remove_coupon( $code );
@@ -220,7 +214,7 @@ function pp_ajax_cart_remove_coupon() {
 }
 
 // ============================================================================
-// 6. AJAX — Añadir cross-sell al carrito desde la página de carrito
+// 6. AJAX - Aniadir cross-sell al carrito
 // ============================================================================
 
 add_action( 'wp_ajax_pp_cart_add_crosssell',        'pp_ajax_cart_add_crosssell' );
@@ -228,17 +222,17 @@ add_action( 'wp_ajax_nopriv_pp_cart_add_crosssell', 'pp_ajax_cart_add_crosssell'
 function pp_ajax_cart_add_crosssell() {
 	check_ajax_referer( 'pp_cart_page_nonce', 'nonce' );
 
-	$product_id = absint( $_POST['product_id'] ?? 0 );
+	$product_id = absint( isset( $_POST['product_id'] ) ? $_POST['product_id'] : 0 );
 	if ( ! $product_id ) wp_send_json_error();
 
 	$product = wc_get_product( $product_id );
 	if ( ! $product || ! $product->is_purchasable() || ! $product->is_in_stock() ) {
-		wp_send_json_error( [ 'msg' => esc_html__( 'Nicht verfügbar', 'hello-elementor-child' ) ] );
+		wp_send_json_error( [ 'msg' => esc_html__( 'Nicht verfuegbar', 'hello-elementor-child' ) ] );
 	}
 
 	$added = WC()->cart->add_to_cart( $product_id, 1 );
 	if ( ! $added ) {
-		wp_send_json_error( [ 'msg' => esc_html__( 'Konnte nicht hinzugefügt werden', 'hello-elementor-child' ) ] );
+		wp_send_json_error( [ 'msg' => esc_html__( 'Konnte nicht hinzugefuegt werden', 'hello-elementor-child' ) ] );
 	}
 
 	WC()->cart->calculate_totals();
@@ -246,4 +240,26 @@ function pp_ajax_cart_add_crosssell() {
 		'summary_html' => pp_cart_summary_html(),
 		'count'        => WC()->cart->get_cart_contents_count(),
 	] );
+}
+
+// ============================================================================
+// 7. Render - pagina completa del carrito
+//    El template HTML esta en inc/cart-page-tpl.php (se carga solo al renderizar)
+// ============================================================================
+
+function pp_render_cart_page() {
+	$cart = WC()->cart;
+	if ( ! $cart ) return '';
+
+	if ( $cart->is_empty() ) {
+		return '<div class="pp-cart-empty">'
+			. '<p>' . esc_html__( 'Dein Warenkorb ist leer.', 'hello-elementor-child' ) . '</p>'
+			. '<a href="' . esc_url( wc_get_page_permalink( 'shop' ) ) . '" class="button">'
+			. esc_html__( 'Zurueck zum Shop', 'hello-elementor-child' )
+			. '</a></div>';
+	}
+
+	ob_start();
+	include get_stylesheet_directory() . '/inc/cart-page-tpl.php';
+	return ob_get_clean();
 }
