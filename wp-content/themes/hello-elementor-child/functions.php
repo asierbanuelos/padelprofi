@@ -520,8 +520,6 @@ function category_video_custom_styles() {
     <?php
 }
 
-add_filter('woocommerce_default_address_fields', 'make_shipping_address_2_required');
-
 function padelprofi_custom_styles() {
     wp_enqueue_style(
         'padelprofi-custom-css',
@@ -923,13 +921,6 @@ add_filter('action_scheduler_retention_period', function() {
     return DAY_IN_SECONDS * 7; // Mantener registros solo 7 días
 });
 
-
-function make_shipping_address_2_required( $fields ) {
-    if ( isset( $fields['address_2'] ) ) {
-        $fields['address_2']['required'] = true; // Cambiar a obligatorio
-    }
-    return $fields;
-}
 
 //añade la plantilla slider pods para ubicaciones
 function render_pods_carousel() {
