@@ -302,8 +302,8 @@
 	border: 1px solid var(--pp-gray-border);
 	border-radius: var(--pp-radius);
 	box-shadow: var(--pp-shadow);
-	overflow: hidden; /* evita que la lista scrollable rompa el ancho */
 }
+
 
 .pp-cart-cs__header {
 	display: flex;
@@ -1004,7 +1004,7 @@
 	.pp-cart-cs__arrows { display: none; }
 	.pp-cs-card { flex: 0 0 150px; }
 	.pp-cs-card__img-wrap { height: 120px; }
-	.pp-cs-card__img { width: 0; height: 0; }
+	.pp-cs-card__img { width: 90px; height: 90px; }
 	.pp-cs-card__name { font-size: 11px; }
 	.pp-cs-card__price { font-size: 14px; }
 }
