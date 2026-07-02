@@ -123,8 +123,8 @@
 	gap: 5px;
 	font-size: 13px;
 	font-weight: 600;
-	color: var(--pp-gray-dark);
-	text-decoration: none;
+	color: var(--pp-gray-dark) !important;
+	text-decoration: none !important;
 	transition: color var(--pp-transition);
 }
 .mm-back-to-cart__link:hover { color: var(--pp-orange); }
