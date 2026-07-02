@@ -921,28 +921,41 @@ add_filter('action_scheduler_retention_period', function() {
     return DAY_IN_SECONDS * 7; // Mantener registros solo 7 días
 });
 
-// Garantizar que la sesión WC siempre tiene shipping_address_1 antes de que
-// PayPal PPCP cree la orden. PPCP llama get_shipping_address_1() durante
-// update_order_review y necesita un valor no vacío para SET_PROVIDED_ADDRESS.
-add_action( 'woocommerce_checkout_update_order_review', function( $posted_data ) {
-    if ( ! WC()->customer ) return;
-    parse_str( $posted_data, $data );
-    // Solo si no se ha especificado dirección de envío distinta
-    if ( ! empty( $data['ship_to_different_address'] ) ) return;
-    // Copiar billing → shipping si shipping_address_1 aún está vacío en la sesión
-    if ( WC()->customer->get_shipping_address_1() ) return;
-    $addr1 = sanitize_text_field( $data['billing_address_1'] ?? '' );
-    if ( ! $addr1 ) return;
-    WC()->customer->set_shipping_first_name( sanitize_text_field( $data['billing_first_name'] ?? '' ) );
-    WC()->customer->set_shipping_last_name( sanitize_text_field( $data['billing_last_name'] ?? '' ) );
-    WC()->customer->set_shipping_address_1( $addr1 );
-    WC()->customer->set_shipping_address_2( sanitize_text_field( $data['billing_address_2'] ?? '' ) );
-    WC()->customer->set_shipping_city( sanitize_text_field( $data['billing_city'] ?? '' ) );
-    WC()->customer->set_shipping_postcode( sanitize_text_field( $data['billing_postcode'] ?? '' ) );
-    WC()->customer->set_shipping_country( sanitize_text_field( $data['billing_country'] ?? 'DE' ) );
-    WC()->customer->set_shipping_state( sanitize_text_field( $data['billing_state'] ?? '' ) );
-    WC()->customer->save();
-}, 20 );
+// Restaurar address_2 (Hausnummer) como campo obligatorio.
+// PPCP usa woocommerce_default_address_fields para decidir si shipping_preference
+// es SET_PROVIDED_ADDRESS o GET_FROM_FILE. Con address_2 requerido, detecta la
+// dirección como "incompleta" y usa GET_FROM_FILE, evitando el error de PayPal.
+add_filter( 'woocommerce_default_address_fields', function( $fields ) {
+    if ( isset( $fields['address_2'] ) ) {
+        $fields['address_2']['required'] = true;
+    }
+    return $fields;
+} );
+
+// Cuando Google Pay / Apple Pay envía la dirección combinada en address_1
+// (ej. "Musterstraße 5") y address_2 queda vacío, extraer el número de casa
+// antes de que WC valide los campos obligatorios.
+add_action( 'woocommerce_checkout_process', function() {
+    // Billing
+    $addr1 = trim( $_POST['billing_address_1'] ?? '' );
+    $addr2 = trim( $_POST['billing_address_2'] ?? '' );
+    if ( $addr1 && '' === $addr2 ) {
+        // Coincide con "Straße 5", "Straße 5b", "Straße 12-14", "Straße 5 / 3"
+        if ( preg_match( '/^(.+?)\s+(\d+[\w\s\-\/]*)$/u', $addr1, $m ) ) {
+            $_POST['billing_address_1'] = trim( $m[1] );
+            $_POST['billing_address_2'] = trim( $m[2] );
+        }
+    }
+    // Shipping (por si acaso se usa dirección de envío distinta)
+    $saddr1 = trim( $_POST['shipping_address_1'] ?? '' );
+    $saddr2 = trim( $_POST['shipping_address_2'] ?? '' );
+    if ( $saddr1 && '' === $saddr2 ) {
+        if ( preg_match( '/^(.+?)\s+(\d+[\w\s\-\/]*)$/u', $saddr1, $m ) ) {
+            $_POST['shipping_address_1'] = trim( $m[1] );
+            $_POST['shipping_address_2'] = trim( $m[2] );
+        }
+    }
+}, 5 );
 
 
 //añade la plantilla slider pods para ubicaciones
