@@ -156,6 +156,8 @@
 			</div>`;
 		}
 
+		const initQty = product.cart_qty || 1;
+
 		let html = `
 			<div class="pp-cart-popup__product">
 				<a href="${ product.url }" class="pp-popup-product__img-wrap">
@@ -164,6 +166,11 @@
 				<div class="pp-popup-product__info">
 					<a href="${ product.url }" class="pp-popup-product__name">${ product.name }</a>
 					${ mainPrice }
+					<div class="pp-popup-qty">
+						<button class="pp-qty-btn pp-qty-minus" aria-label="Weniger"${ initQty <= 1 ? ' disabled' : '' }>−</button>
+						<span class="pp-qty-display">${ initQty }</span>
+						<button class="pp-qty-btn pp-qty-plus" aria-label="Mehr">+</button>
+					</div>
 				</div>
 			</div>`;
 
@@ -231,6 +238,51 @@
 		}
 
 		body.innerHTML = html;
+
+		// Bind selector de cantidad del producto añadido
+		const qtyDisplay = body.querySelector( '.pp-qty-display' );
+		const minusBtn   = body.querySelector( '.pp-qty-minus' );
+		const plusBtn    = body.querySelector( '.pp-qty-plus' );
+		let currentQty   = initQty;
+
+		function setQtyBusy( busy ) {
+			minusBtn.disabled = busy || currentQty <= 1;
+			plusBtn.disabled  = busy;
+		}
+
+		if ( plusBtn ) {
+			plusBtn.addEventListener( 'click', function () {
+				setQtyBusy( true );
+				addToCartAjax( product.id, 1, $() ).done( function () {
+					currentQty++;
+					qtyDisplay.textContent = currentQty;
+					refreshCartFragments();
+				} ).always( function () {
+					setQtyBusy( false );
+				} );
+			} );
+		}
+
+		if ( minusBtn ) {
+			minusBtn.addEventListener( 'click', function () {
+				if ( currentQty <= 1 ) return;
+				setQtyBusy( true );
+				$.post( ppCartPopup.ajaxUrl, {
+					action:     'pp_update_cart_qty',
+					product_id: product.id,
+					delta:      -1,
+					nonce:      ppCartPopup.nonce,
+				} ).done( function ( response ) {
+					if ( response.success ) {
+						currentQty = response.data.qty;
+						qtyDisplay.textContent = currentQty;
+						refreshCartFragments();
+					}
+				} ).always( function () {
+					setQtyBusy( false );
+				} );
+			} );
+		}
 
 		// Bind botones añadir relacionados
 		body.querySelectorAll( '.pp-related-add-btn[data-product-id]' ).forEach( function ( btn ) {

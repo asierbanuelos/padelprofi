@@ -78,6 +78,19 @@ function pp_ajax_get_cart_popup() {
 		$discount_main = (int) round( 100 - ( $sale_raw_main / $regular_raw_main * 100 ) );
 	}
 
+	// Cantidad actual en el carrito para este producto
+	$cart_item_key = '';
+	$cart_qty      = 1;
+	if ( WC()->cart ) {
+		foreach ( WC()->cart->get_cart() as $key => $ci ) {
+			if ( absint( $ci['product_id'] ) === $product_id ) {
+				$cart_item_key = $key;
+				$cart_qty      = (int) $ci['quantity'];
+				break;
+			}
+		}
+	}
+
 	$product_data = [
 		'id'            => $product_id,
 		'name'          => $product->get_name(),
@@ -88,6 +101,7 @@ function pp_ajax_get_cart_popup() {
 		'sale_price'    => $sale_raw_main    ? wc_price( $sale_raw_main )    : '',
 		'on_sale'       => $product->is_on_sale(),
 		'discount_pct'  => $discount_main,
+		'cart_qty'      => $cart_qty,
 	];
 
 	// ── Contexto del carrito actual ─────────────────────────────────────────
@@ -197,6 +211,47 @@ function pp_ajax_get_cart_popup() {
 		'product' => $product_data,
 		'related' => $related_data,
 	] );
+}
+
+// ============================================================================
+// 2b. AJAX — Actualizar cantidad de un producto en el carrito
+// ============================================================================
+
+add_action( 'wp_ajax_pp_update_cart_qty',        'pp_ajax_update_cart_qty' );
+add_action( 'wp_ajax_nopriv_pp_update_cart_qty', 'pp_ajax_update_cart_qty' );
+function pp_ajax_update_cart_qty() {
+	check_ajax_referer( 'pp_cart_popup_nonce', 'nonce' );
+
+	$product_id = absint( $_POST['product_id'] ?? 0 );
+	$delta      = (int) ( $_POST['delta'] ?? 0 );
+
+	if ( ! $product_id || ! $delta || ! WC()->cart ) {
+		wp_send_json_error( [ 'msg' => 'invalid params' ] );
+	}
+
+	$cart_item_key = '';
+	$current_qty   = 0;
+	foreach ( WC()->cart->get_cart() as $key => $ci ) {
+		if ( absint( $ci['product_id'] ) === $product_id ) {
+			$cart_item_key = $key;
+			$current_qty   = (int) $ci['quantity'];
+			break;
+		}
+	}
+
+	if ( ! $cart_item_key ) {
+		wp_send_json_error( [ 'msg' => 'item not in cart' ] );
+	}
+
+	$new_qty = max( 0, $current_qty + $delta );
+
+	if ( $new_qty === 0 ) {
+		WC()->cart->remove_cart_item( $cart_item_key );
+	} else {
+		WC()->cart->set_quantity( $cart_item_key, $new_qty, true );
+	}
+
+	wp_send_json_success( [ 'qty' => $new_qty ] );
 }
 
 /**
