@@ -727,7 +727,7 @@
 	.pp-cart-page {
 		grid-template-columns: 1fr;
 		gap: 12px;
-		padding: 14px 12px 140px; /* espacio para el footer fijo */
+		padding: 14px 12px 90px; /* espacio para el footer fijo */
 	}
 
 	/* Item: imagen mas pequena */
@@ -888,7 +888,7 @@
 
 /* Movil (< 480px): layout grid para items */
 @media (max-width: 480px) {
-	.pp-cart-page { padding: 10px 10px 140px; } /* mantener espacio para footer fijo */
+	.pp-cart-page { padding: 10px 10px 90px; } /* mantener espacio para footer fijo */
 
 	/* Item: grid 2 columnas — imagen | (info + controles) */
 	.pp-cart-item { border-radius: var(--pp-radius-sm); margin-bottom: 10px; }
