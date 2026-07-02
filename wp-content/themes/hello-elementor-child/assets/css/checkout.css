@@ -113,6 +113,22 @@
 .mm-checkout-page .mm-progress-bar { top: 112px; /* 32px admin bar + 80px header */ }
 .mm-checkout-page .mm-checkout-wrapper { padding-top: 10px; }
 
+/* Enlace volver al carrito */
+.mm-back-to-cart {
+	padding: 8px 0 0;
+}
+.mm-back-to-cart__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--pp-gray-dark);
+	text-decoration: none;
+	transition: color var(--pp-transition);
+}
+.mm-back-to-cart__link:hover { color: var(--pp-orange); }
+
 /* Sin admin bar (usuarios no logueados) */
 body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 

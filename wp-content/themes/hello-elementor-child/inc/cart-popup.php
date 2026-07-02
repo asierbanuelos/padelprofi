@@ -582,11 +582,11 @@ function pp_cart_menu_shortcode( $atts ) {
 	if ( ! function_exists( 'WC' ) ) return '';
 
 	$count    = WC()->cart ? WC()->cart->get_cart_contents_count() : 0;
-	$checkout = wc_get_checkout_url();
+	$cart_url = wc_get_cart_url();
 
 	ob_start();
 	?>
-	<a href="<?php echo esc_url( $checkout ); ?>"
+	<a href="<?php echo esc_url( $cart_url ); ?>"
 	   class="pp-cart-menu"
 	   aria-label="<?php esc_attr_e( 'Carrito de compra', 'hello-elementor-child' ); ?>">
 		<span class="pp-cart-menu__icon">
@@ -613,9 +613,9 @@ add_filter( 'woocommerce_add_to_cart_fragments', 'pp_cart_menu_fragment' );
 function pp_cart_menu_fragment( $fragments ) {
 	ob_start();
 	$count    = WC()->cart->get_cart_contents_count();
-	$checkout = wc_get_checkout_url();
+	$cart_url = wc_get_cart_url();
 	?>
-	<a href="<?php echo esc_url( $checkout ); ?>" class="pp-cart-menu">
+	<a href="<?php echo esc_url( $cart_url ); ?>" class="pp-cart-menu">
 		<span class="pp-cart-menu__icon">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
 			     stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -692,9 +692,9 @@ function pp_force_cart_check_before_checkout() {
 add_filter( 'woocommerce_add_to_cart_fragments', function( $fragments ) {
 	ob_start();
 	$count    = WC()->cart->get_cart_contents_count();
-	$checkout = wc_get_checkout_url();
+	$cart_url = wc_get_cart_url();
 	?>
-	<a href="<?php echo esc_url( $checkout ); ?>" class="pp-cart-menu">
+	<a href="<?php echo esc_url( $cart_url ); ?>" class="pp-cart-menu">
 		<span class="pp-cart-menu__icon">
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
 			     stroke="currentColor" stroke-width="2" stroke-linecap="round"

@@ -37,6 +37,14 @@ if ( WC()->cart->is_empty() ) : ?>
 
 <div class="mm-checkout-wrapper" style="width:min(1180px, calc(100vw - 40px))!important;max-width:min(1180px, calc(100vw - 40px))!important;margin-left:auto!important;margin-right:auto!important;">
 
+	<!-- ENLACE VOLVER AL CARRITO -->
+	<div class="mm-back-to-cart">
+		<a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="mm-back-to-cart__link">
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+			<?php esc_html_e( 'Warenkorb', 'hello-elementor-child' ); ?>
+		</a>
+	</div>
+
 	<!-- BARRA DE PROGRESO -->
 	<nav class="mm-progress-bar" aria-label="Checkout-Schritte">
 		<?php
