@@ -548,8 +548,11 @@
 
 			if ( isPayPal ) {
 				// PayPal PPCP crea la orden leyendo la dirección de la sesión de WC.
-				// Esperar a que update_checkout (async) complete antes de proceder,
-				// de lo contrario la sesión aún no tiene la dirección y PayPal falla.
+				// injectShipping() ANTES de update_checkout para que el AJAX de
+				// update_order_review incluya shipping_address_1 y actualice la sesión.
+				// Sin esto, WC()->customer->get_shipping_address_1() devuelve vacío y
+				// PayPal rechaza con shipping_preference=SET_PROVIDED_ADDRESS.
+				injectShipping();
 				let submitted = false;
 				const onUpdated = () => {
 					if ( submitted ) return;

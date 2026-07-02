@@ -921,6 +921,29 @@ add_filter('action_scheduler_retention_period', function() {
     return DAY_IN_SECONDS * 7; // Mantener registros solo 7 días
 });
 
+// Garantizar que la sesión WC siempre tiene shipping_address_1 antes de que
+// PayPal PPCP cree la orden. PPCP llama get_shipping_address_1() durante
+// update_order_review y necesita un valor no vacío para SET_PROVIDED_ADDRESS.
+add_action( 'woocommerce_checkout_update_order_review', function( $posted_data ) {
+    if ( ! WC()->customer ) return;
+    parse_str( $posted_data, $data );
+    // Solo si no se ha especificado dirección de envío distinta
+    if ( ! empty( $data['ship_to_different_address'] ) ) return;
+    // Copiar billing → shipping si shipping_address_1 aún está vacío en la sesión
+    if ( WC()->customer->get_shipping_address_1() ) return;
+    $addr1 = sanitize_text_field( $data['billing_address_1'] ?? '' );
+    if ( ! $addr1 ) return;
+    WC()->customer->set_shipping_first_name( sanitize_text_field( $data['billing_first_name'] ?? '' ) );
+    WC()->customer->set_shipping_last_name( sanitize_text_field( $data['billing_last_name'] ?? '' ) );
+    WC()->customer->set_shipping_address_1( $addr1 );
+    WC()->customer->set_shipping_address_2( sanitize_text_field( $data['billing_address_2'] ?? '' ) );
+    WC()->customer->set_shipping_city( sanitize_text_field( $data['billing_city'] ?? '' ) );
+    WC()->customer->set_shipping_postcode( sanitize_text_field( $data['billing_postcode'] ?? '' ) );
+    WC()->customer->set_shipping_country( sanitize_text_field( $data['billing_country'] ?? 'DE' ) );
+    WC()->customer->set_shipping_state( sanitize_text_field( $data['billing_state'] ?? '' ) );
+    WC()->customer->save();
+}, 20 );
+
 
 //añade la plantilla slider pods para ubicaciones
 function render_pods_carousel() {
