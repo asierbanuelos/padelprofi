@@ -30,6 +30,19 @@
 /* --------------------------------------------------------------------------
    2. Layout raiz: dos columnas
    -------------------------------------------------------------------------- */
+
+/* Eliminar el espacio superior que añade el tema / Elementor al wrapper de pagina */
+.pp-cart-page-wrap,
+.page-template-template-cart .site-content,
+.page-template-template-cart #content,
+.page-template-template-cart .content-area,
+.page-template-template-cart article.page,
+.page-template-template-cart .entry-content,
+.woocommerce-cart .woocommerce {
+	padding-top: 0 !important;
+	margin-top: 0 !important;
+}
+
 .pp-cart-page-wrap {
 	padding: 0;
 }
