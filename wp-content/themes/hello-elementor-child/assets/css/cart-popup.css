@@ -223,47 +223,40 @@ body.pp-popup-open {
    -------------------------------------------------------------------------- */
 .pp-popup-qty {
 	display: inline-flex;
-	align-items: stretch;
-	margin-top: 12px;
-	border: 1.5px solid var(--pp-gray-border);
-	border-radius: 6px;
-	overflow: hidden;
-	height: 36px;
+	align-items: center;
+	gap: 10px;
+	margin-top: 14px;
 }
 
 .pp-qty-btn {
-	width: 36px;
-	height: 100%;
-	background: var(--pp-gray-light);
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: var(--pp-black);
+	color: #fff;
 	border: none;
-	font-size: 20px;
-	font-weight: 400;
-	color: var(--pp-black);
+	font-size: 22px;
+	font-weight: 300;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: background .15s;
+	transition: background .15s, opacity .15s;
 	padding: 0;
 	line-height: 1;
 	flex-shrink: 0;
 }
 
-.pp-qty-btn:hover:not(:disabled) { background: var(--pp-gray-border); }
-.pp-qty-btn:disabled              { opacity: .35; cursor: default; }
+.pp-qty-btn:hover:not(:disabled) { background: #444; }
+.pp-qty-btn:disabled              { opacity: .3; cursor: default; }
 
 .pp-qty-display {
-	min-width: 38px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 15px;
+	min-width: 28px;
+	text-align: center;
+	font-size: 18px;
 	font-weight: 700;
 	color: var(--pp-black);
 	font-family: var(--pp-font);
-	border-left: 1.5px solid var(--pp-gray-border);
-	border-right: 1.5px solid var(--pp-gray-border);
-	padding: 0 6px;
 }
 
 /* --------------------------------------------------------------------------

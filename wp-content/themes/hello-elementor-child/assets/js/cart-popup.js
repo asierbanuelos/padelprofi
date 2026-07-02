@@ -245,44 +245,29 @@
 		const plusBtn    = body.querySelector( '.pp-qty-plus' );
 		let currentQty   = initQty;
 
-		function setQtyBusy( busy ) {
-			minusBtn.disabled = busy || currentQty <= 1;
-			plusBtn.disabled  = busy;
-		}
-
-		if ( plusBtn ) {
-			plusBtn.addEventListener( 'click', function () {
-				setQtyBusy( true );
-				addToCartAjax( product.id, 1, $() ).done( function () {
-					currentQty++;
+		function updateQty( delta ) {
+			if ( delta < 0 && currentQty <= 1 ) return;
+			minusBtn.disabled = true;
+			plusBtn.disabled  = true;
+			$.post( ppCartPopup.ajaxUrl, {
+				action:     'pp_update_cart_qty',
+				product_id: product.id,
+				delta:      delta,
+				nonce:      ppCartPopup.nonce,
+			} ).done( function ( response ) {
+				if ( response.success ) {
+					currentQty = response.data.qty;
 					qtyDisplay.textContent = currentQty;
 					refreshCartFragments();
-				} ).always( function () {
-					setQtyBusy( false );
-				} );
+				}
+			} ).always( function () {
+				minusBtn.disabled = currentQty <= 1;
+				plusBtn.disabled  = false;
 			} );
 		}
 
-		if ( minusBtn ) {
-			minusBtn.addEventListener( 'click', function () {
-				if ( currentQty <= 1 ) return;
-				setQtyBusy( true );
-				$.post( ppCartPopup.ajaxUrl, {
-					action:     'pp_update_cart_qty',
-					product_id: product.id,
-					delta:      -1,
-					nonce:      ppCartPopup.nonce,
-				} ).done( function ( response ) {
-					if ( response.success ) {
-						currentQty = response.data.qty;
-						qtyDisplay.textContent = currentQty;
-						refreshCartFragments();
-					}
-				} ).always( function () {
-					setQtyBusy( false );
-				} );
-			} );
-		}
+		if ( plusBtn )  plusBtn.addEventListener(  'click', function () { updateQty(  1 ); } );
+		if ( minusBtn ) minusBtn.addEventListener( 'click', function () { updateQty( -1 ); } );
 
 		// Bind botones añadir relacionados
 		body.querySelectorAll( '.pp-related-add-btn[data-product-id]' ).forEach( function ( btn ) {
