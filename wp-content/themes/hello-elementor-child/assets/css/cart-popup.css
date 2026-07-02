@@ -653,6 +653,7 @@ body.pp-popup-open {
 		width: 100%;
 		max-width: 100%;
 		border-radius: 20px 20px 0 0;
+		height: 92vh;
 		max-height: 92vh;
 		transform: translateY(100%);
 	}
