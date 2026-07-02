@@ -210,108 +210,228 @@
 }
 
 /* --------------------------------------------------------------------------
-   Cross-sells genericos (seccion debajo de todos los items)
+   Cross-sells genericos — estilo MediaMarkt
    -------------------------------------------------------------------------- */
 .pp-cart-cs {
-	margin-top: 8px;
-	padding: 20px;
-	background: #fafafa;
-	border: 1px solid #ebebeb;
+	margin-top: 10px;
+	padding: 20px 20px 16px;
+	background: #fff;
+	border: 1px solid #e5e5e5;
 	border-radius: 6px;
 }
 
-.pp-cart-cs__title {
-	font-size: 14px;
-	font-weight: 700;
-	color: #333;
-	margin: 0 0 16px;
+.pp-cart-cs__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
 	padding-bottom: 12px;
-	border-bottom: 1px solid #e8e8e8;
+	border-bottom: 1px solid #f0f0f0;
 }
 
+.pp-cart-cs__title {
+	font-size: 15px;
+	font-weight: 700;
+	color: #222;
+	margin: 0;
+}
+
+/* Flechas de navegacion */
+.pp-cart-cs__arrows {
+	display: flex;
+	gap: 6px;
+}
+
+.pp-cs-arrow {
+	width: 32px;
+	height: 32px;
+	border: 1.5px solid #ddd;
+	border-radius: 4px;
+	background: #fff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #444;
+	transition: border-color .15s, background .15s, color .15s;
+	flex-shrink: 0;
+}
+
+.pp-cs-arrow:hover { border-color: #222; background: #222; color: #fff; }
+.pp-cs-arrow:disabled { opacity: .3; cursor: default; }
+
+/* Lista scrollable */
 .pp-cart-cs__list {
 	display: flex;
 	gap: 12px;
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
-	scrollbar-width: thin;
-	padding-bottom: 6px;
+	scroll-behavior: smooth;
+	scrollbar-width: none; /* ocultar scrollbar */
+	padding-bottom: 2px;
 }
 
-.pp-cart-cs__list::-webkit-scrollbar { height: 4px; }
-.pp-cart-cs__list::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+.pp-cart-cs__list::-webkit-scrollbar { display: none; }
 
+/* ── Tarjeta ── */
 .pp-cs-card {
-	flex: 0 0 150px;
+	flex: 0 0 185px;
 	background: #fff;
 	border: 1px solid #e5e5e5;
 	border-radius: 4px;
-	padding: 12px 10px;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	gap: 6px;
-	transition: border-color .15s, box-shadow .15s;
+	overflow: hidden;
+	transition: box-shadow .18s, border-color .18s;
+	cursor: default;
 }
 
 .pp-cs-card:hover {
-	border-color: #FE6100;
-	box-shadow: 0 2px 8px rgba(254,97,0,.1);
+	border-color: #bbb;
+	box-shadow: 0 4px 16px rgba(0,0,0,.1);
+}
+
+/* Zona imagen */
+.pp-cs-card__img-wrap {
+	position: relative;
+	background: #f7f7f7;
+	padding: 14px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 150px;
+	flex-shrink: 0;
 }
 
 .pp-cs-card__img {
-	width: 80px;
-	height: 80px;
+	width: 120px;
+	height: 120px;
 	object-fit: contain;
-	border-radius: 2px;
 }
 
+/* Badge de descuento */
+.pp-cs-card__badge {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	background: #BF0019;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 800;
+	padding: 3px 7px;
+	border-radius: 3px;
+	line-height: 1.3;
+}
+
+/* Cuerpo de la tarjeta */
 .pp-cs-card__body {
+	padding: 10px 12px;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	width: 100%;
+	gap: 5px;
+	flex: 1;
 }
 
-.pp-cs-card__name {
+/* Rating */
+.pp-cs-card__rating {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+/* Estrellas via clip-path */
+.pp-cs-stars {
+	display: inline-block;
+	position: relative;
+	width: 70px;
+	height: 12px;
+	flex-shrink: 0;
+}
+
+.pp-cs-stars::before,
+.pp-cs-stars::after {
+	content: '★★★★★';
+	position: absolute;
+	top: 0;
+	left: 0;
+	font-size: 12px;
+	line-height: 1;
+	letter-spacing: 1px;
+}
+
+.pp-cs-stars::before { color: #ddd; }
+
+.pp-cs-stars::after {
+	color: #FFA700;
+	width: var(--r, 0%);
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.pp-cs-card__rcount {
 	font-size: 11px;
+	color: #888;
+}
+
+/* Nombre */
+.pp-cs-card__name {
+	font-size: 12px;
 	font-weight: 600;
-	color: #333;
-	line-height: 1.3;
+	color: #222;
+	line-height: 1.4;
 	display: -webkit-box;
-	-webkit-line-clamp: 2;
+	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
 
-.pp-cs-card__price {
-	font-size: 13px;
-	font-weight: 700;
-	color: #BF0019;
+/* Precios */
+.pp-cs-card__pricing {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-top: 2px;
 }
 
-.pp-cs-card__price del { font-size: 11px; color: #aaa; font-weight: 400; }
-.pp-cs-card__price ins { text-decoration: none; }
+.pp-cs-card__reg {
+	font-size: 11px;
+	color: #999;
+	font-weight: 400;
+	text-decoration: line-through;
+}
 
+.pp-cs-card__price {
+	font-size: 17px;
+	font-weight: 800;
+	color: #BF0019;
+	display: block;
+}
+
+.pp-cs-card__price--sale { color: #BF0019; }
+
+/* Boton "In den Warenkorb" */
 .pp-cs-card__btn {
-	margin-top: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
 	width: 100%;
-	padding: 7px 8px;
+	padding: 10px 8px;
 	background: #222;
 	color: #fff;
 	border: none;
-	border-radius: 3px;
 	font-size: 11px;
 	font-weight: 700;
 	cursor: pointer;
 	font-family: inherit;
 	transition: background .15s;
+	margin-top: auto;
+	flex-shrink: 0;
 }
 
-.pp-cs-card__btn:hover         { background: #FE6100; }
-.pp-cs-card__btn.pp-added      { background: #2e7d32; }
-.pp-cs-card__btn:disabled      { opacity: .5; cursor: wait; }
+.pp-cs-card__btn:hover    { background: #FE6100; }
+.pp-cs-card__btn.pp-added { background: #2e7d32; }
+.pp-cs-card__btn:disabled { opacity: .5; cursor: wait; }
 
 /* --------------------------------------------------------------------------
    Sidebar / Resumen
@@ -592,10 +712,11 @@
 
 	.pp-cart-item__line-price { font-size: 15px; }
 
-	/* Cross-sells */
+	/* Cross-sells 680px */
 	.pp-cart-cs { padding: 14px 12px; }
-	.pp-cs-card { flex: 0 0 135px; padding: 10px 8px; }
-	.pp-cs-card__img { width: 70px; height: 70px; }
+	.pp-cs-card { flex: 0 0 160px; }
+	.pp-cs-card__img-wrap { height: 130px; }
+	.pp-cs-card__img { width: 100px; height: 100px; }
 }
 
 /* ── Móvil (< 480px): layout grid para items ────────────────────────────── */
@@ -710,24 +831,21 @@
 	#pp-coupon-input  { width: 100%; }
 	#pp-coupon-apply  { width: 100%; padding: 10px; }
 
-	/* Cross-sells */
+	/* Cross-sells 480px */
 	.pp-cart-cs { padding: 12px 10px; border-radius: 4px; }
-	.pp-cart-cs__title { font-size: 13px; margin-bottom: 12px; }
-	.pp-cs-card { flex: 0 0 120px; padding: 8px 6px; }
-	.pp-cs-card__img { width: 60px; height: 60px; }
-	.pp-cs-card__name { font-size: 10px; }
-	.pp-cs-card__price { font-size: 12px; }
-	.pp-cs-card__btn { font-size: 10px; padding: 6px 4px; min-height: 32px; }
+	.pp-cart-cs__title { font-size: 13px; }
+	.pp-cart-cs__arrows { display: none; }
+	.pp-cs-card { flex: 0 0 150px; }
+	.pp-cs-card__img-wrap { height: 120px; }
+	.pp-cs-card__img { width: 90px; height: 90px; }
+	.pp-cs-card__name { font-size: 11px; }
+	.pp-cs-card__price { font-size: 14px; }
 }
 
 /* ── Muy pequeño (< 360px) ───────────────────────────────────────────────── */
 @media (max-width: 360px) {
-	.pp-cart-item__main {
-		grid-template-columns: 60px 1fr;
-	}
-
+	.pp-cart-item__main { grid-template-columns: 60px 1fr; }
 	.pp-cart-item__imglink { grid-row: 1 / 3; }
 	.pp-cart-item__img { width: 60px; height: 60px; }
-
-	.pp-cs-card { flex: 0 0 110px; }
+	.pp-cs-card { flex: 0 0 135px; }
 }

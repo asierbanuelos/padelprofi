@@ -157,25 +157,68 @@ foreach ( $all_cs_ids as $cid ) {
 		<?php if ( ! empty( $generic_cs ) ) : ?>
 		<!-- ── Cross-sells genéricos ── -->
 		<div class="pp-cart-cs">
-			<h3 class="pp-cart-cs__title"><?php esc_html_e( 'Das konnte dich auch interessieren', 'hello-elementor-child' ); ?></h3>
+			<div class="pp-cart-cs__header">
+				<h3 class="pp-cart-cs__title"><?php esc_html_e( 'Das konnte dich auch interessieren', 'hello-elementor-child' ); ?></h3>
+				<div class="pp-cart-cs__arrows">
+					<button class="pp-cs-arrow pp-cs-arrow--prev" aria-label="Zuruck">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</button>
+					<button class="pp-cs-arrow pp-cs-arrow--next" aria-label="Weiter">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+					</button>
+				</div>
+			</div>
 			<div class="pp-cart-cs__list">
 				<?php foreach ( $generic_cs as $cs ) :
-					$cp     = $cs['cp'];
-					$cid    = $cs['cid'];
-					$cp_img = $cs['cp_img'];
+					$cp       = $cs['cp'];
+					$cid      = $cs['cid'];
+					$cp_img   = $cs['cp_img'];
+					$on_sale  = $cp->is_on_sale();
+					$reg_price = (float) $cp->get_regular_price();
+					$sale_price = (float) $cp->get_price();
+					$discount = ( $on_sale && $reg_price > 0 )
+						? round( ( $reg_price - $sale_price ) / $reg_price * 100 )
+						: 0;
+					$rating      = (float) $cp->get_average_rating();
+					$review_count = (int) $cp->get_review_count();
 				?>
 				<div class="pp-cs-card">
-					<img class="pp-cs-card__img"
-						src="<?php echo esc_url( $cp_img ); ?>"
-						alt="<?php echo esc_attr( $cp->get_name() ); ?>"
-						width="80" height="80">
-					<div class="pp-cs-card__body">
-						<span class="pp-cs-card__name"><?php echo esc_html( $cp->get_name() ); ?></span>
-						<span class="pp-cs-card__price"><?php echo wp_kses_post( $cp->get_price_html() ); ?></span>
+
+					<div class="pp-cs-card__img-wrap">
+						<?php if ( $discount > 0 ) : ?>
+						<span class="pp-cs-card__badge">-<?php echo $discount; ?>%</span>
+						<?php endif; ?>
+						<img class="pp-cs-card__img"
+							src="<?php echo esc_url( $cp_img ); ?>"
+							alt="<?php echo esc_attr( $cp->get_name() ); ?>"
+							width="120" height="120" loading="lazy">
 					</div>
+
+					<div class="pp-cs-card__body">
+						<?php if ( $rating > 0 ) : ?>
+						<div class="pp-cs-card__rating">
+							<span class="pp-cs-stars" style="--r:<?php echo esc_attr( $rating / 5 * 100 ); ?>%"></span>
+							<span class="pp-cs-card__rcount"><?php echo esc_html( $review_count ); ?></span>
+						</div>
+						<?php endif; ?>
+
+						<span class="pp-cs-card__name"><?php echo esc_html( $cp->get_name() ); ?></span>
+
+						<div class="pp-cs-card__pricing">
+							<?php if ( $on_sale && $reg_price > 0 ) : ?>
+							<del class="pp-cs-card__reg"><?php echo wp_kses_post( wc_price( $reg_price ) ); ?></del>
+							<strong class="pp-cs-card__price pp-cs-card__price--sale"><?php echo wp_kses_post( wc_price( $sale_price ) ); ?></strong>
+							<?php else : ?>
+							<strong class="pp-cs-card__price"><?php echo wp_kses_post( $cp->get_price_html() ); ?></strong>
+							<?php endif; ?>
+						</div>
+					</div>
+
 					<button class="pp-cs-card__btn" data-product-id="<?php echo esc_attr( $cid ); ?>">
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2"/><path d="M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
 						<?php esc_html_e( 'In den Warenkorb', 'hello-elementor-child' ); ?>
 					</button>
+
 				</div>
 				<?php endforeach; ?>
 			</div>

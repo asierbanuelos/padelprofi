@@ -142,6 +142,18 @@
 		} );
 	} );
 
+	// ── Flechas del slider de cross-sells ──────────────────────────────────────
+
+	$( document ).on( 'click', '.pp-cs-arrow', function () {
+		var $list = $( this ).closest( '.pp-cart-cs' ).find( '.pp-cart-cs__list' );
+		var list  = $list[0];
+		if ( ! list ) return;
+		var card     = list.querySelector( '.pp-cs-card' );
+		var cardStep = card ? ( card.offsetWidth + 12 ) * 2 : 400;
+		var dir      = $( this ).hasClass( 'pp-cs-arrow--prev' ) ? -1 : 1;
+		list.scrollBy( { left: dir * cardStep, behavior: 'smooth' } );
+	} );
+
 	// ── Añadir cross-sell al carrito ────────────────────────────────────────
 
 	$( document ).on( 'click', '.pp-cs-card__btn[data-product-id]', function () {
