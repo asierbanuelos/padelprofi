@@ -43,7 +43,7 @@ function pp_enqueue_cart_page_assets() {
 
 function pp_cart_summary_html() {
 	$cart = WC()->cart;
-	$cart->calculate_totals();
+	if ( ! $cart ) return '';
 
 	$subtotal = $cart->get_cart_subtotal();
 	$total    = $cart->get_total();
@@ -62,9 +62,11 @@ function pp_cart_summary_html() {
 	// Envío
 	$shipping_html = '';
 	if ( $cart->needs_shipping() && $cart->show_shipping() ) {
-		$packages = WC()->shipping()->get_packages();
+		// chosen_shipping_methods puede ser null si la sesión aún no lo tiene
+		$chosen_methods = (array) ( WC()->session ? WC()->session->get( 'chosen_shipping_methods', [] ) : [] );
+		$packages       = WC()->shipping()->get_packages();
 		foreach ( $packages as $i => $package ) {
-			$chosen = WC()->session->get( 'chosen_shipping_methods' )[ $i ] ?? '';
+			$chosen = $chosen_methods[ $i ] ?? '';
 			foreach ( $package['rates'] as $rate ) {
 				if ( $rate->id === $chosen ) {
 					$cost          = (float) $rate->get_cost();
@@ -73,6 +75,9 @@ function pp_cart_summary_html() {
 						: '<span class="pp-free-shipping">' . esc_html__( 'Kostenlos', 'hello-elementor-child' ) . '</span>';
 				}
 			}
+		}
+		if ( '' === $shipping_html ) {
+			$shipping_html = esc_html__( 'Wird berechnet', 'hello-elementor-child' );
 		}
 	} else {
 		$shipping_html = '<span class="pp-free-shipping">' . esc_html__( 'Kostenlos', 'hello-elementor-child' ) . '</span>';

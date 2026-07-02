@@ -45,13 +45,16 @@ do_action( 'woocommerce_before_cart' );
 			</div>
 
 			<?php foreach ( $cart_items as $cart_item_key => $cart_item ) :
+				if ( empty( $cart_item['data'] ) ) continue;
 				$product    = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 				$product_id = absint( $cart_item['product_id'] );
 
 				if ( ! $product || ! $product->exists() || 0 === $cart_item['quantity'] ) continue;
 
-				$img_src = get_the_post_thumbnail_url( $product_id, 'woocommerce_thumbnail' )
-					?: wc_placeholder_img_src( 'woocommerce_thumbnail' );
+				$img_id  = $product->get_image_id();
+				$img_src = $img_id
+					? ( wp_get_attachment_image_url( $img_id, 'woocommerce_thumbnail' ) ?: wc_placeholder_img_src( 'woocommerce_thumbnail' ) )
+					: wc_placeholder_img_src( 'woocommerce_thumbnail' );
 				$qty = (int) $cart_item['quantity'];
 
 				// ── Cross-sells para este producto ────────────────────────
@@ -72,7 +75,10 @@ do_action( 'woocommerce_before_cart' );
 					$cid = absint( $cid );
 					$cp  = wc_get_product( $cid );
 					if ( ! $cp || ! $cp->is_purchasable() || ! $cp->is_in_stock() ) continue;
-					$cp_img = get_the_post_thumbnail_url( $cid, 'thumbnail' ) ?: wc_placeholder_img_src( 'thumbnail' );
+					$cp_img_id = $cp->get_image_id();
+				$cp_img    = $cp_img_id
+					? ( wp_get_attachment_image_url( $cp_img_id, 'thumbnail' ) ?: wc_placeholder_img_src( 'thumbnail' ) )
+					: wc_placeholder_img_src( 'thumbnail' );
 					$cs_products[] = compact( 'cid', 'cp', 'cp_img' );
 				}
 			?>
