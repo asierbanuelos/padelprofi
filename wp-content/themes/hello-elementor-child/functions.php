@@ -4974,56 +4974,6 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
         $data['WooProduct'] = $schema;
     }
 
-    // ── Breadcrumb completo ───────────────────────────────────────────────────
-    $cats = wc_get_product_terms( $pid, 'product_cat', array( 'orderby' => 'parent', 'order' => 'ASC' ) );
-    if ( ! empty( $cats ) ) {
-        // Categoría primaria: primero la marcada en Rank Math, luego la más profunda
-        $primary_id = (int) get_post_meta( $pid, 'rank_math_primary_product_cat', true );
-        $cat        = null;
-        if ( $primary_id ) {
-            foreach ( $cats as $c ) {
-                if ( (int) $c->term_id === $primary_id ) { $cat = $c; break; }
-            }
-        }
-        if ( ! $cat ) {
-            usort( $cats, fn( $a, $b ) => count( get_ancestors( $a->term_id, 'product_cat' ) ) <=> count( get_ancestors( $b->term_id, 'product_cat' ) ) );
-            $cat = end( $cats );
-        }
-        $pos      = 1;
-        $bc_items = array(
-            array( '@type' => 'ListItem', 'position' => $pos++, 'name' => __( 'Home' ), 'item' => home_url( '/' ) ),
-        );
-
-        // Ancestros de la categoría (de raíz a hoja)
-        $ancestors = array_reverse( get_ancestors( $cat->term_id, 'product_cat' ) );
-        foreach ( $ancestors as $anc_id ) {
-            $anc = get_term( $anc_id, 'product_cat' );
-            if ( $anc && ! is_wp_error( $anc ) ) {
-                $bc_items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'name' => $anc->name, 'item' => get_term_link( $anc ) );
-            }
-        }
-        $bc_items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'name' => $cat->name,           'item' => get_term_link( $cat ) );
-        $bc_items[] = array( '@type' => 'ListItem', 'position' => $pos,   'name' => $product->get_name(), 'item' => $permalink );
-
-        $bc_schema = array(
-            '@context'        => 'https://schema.org',
-            '@type'           => 'BreadcrumbList',
-            'itemListElement' => $bc_items,
-        );
-
-        $bc_replaced = false;
-        foreach ( $data as $key => $item ) {
-            if ( isset( $item['@type'] ) && $item['@type'] === 'BreadcrumbList' ) {
-                $data[ $key ] = $bc_schema;
-                $bc_replaced  = true;
-                break;
-            }
-        }
-        if ( ! $bc_replaced ) {
-            $data['WooBreadcrumb'] = $bc_schema;
-        }
-    }
-
     return $data;
 }, 100, 2 );
 
