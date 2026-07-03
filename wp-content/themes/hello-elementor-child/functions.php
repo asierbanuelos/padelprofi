@@ -4876,11 +4876,17 @@ add_action( 'after_setup_theme', function() {
     remove_action( 'wp_head', 'hello_elementor_add_description_meta_tag' );
 }, 20 );
 
-// ── 2. Eliminar todo el structured data de WooCommerce en páginas de producto ─
-// WooCommerce genera Product + hasta 2 BreadcrumbList por distintos hooks.
-// Rank Math gestiona todo el schema, así que suprimimos el output de WC.
+// ── 2. Eliminar structured data de WooCommerce en páginas WC ─────────────────
+// WooCommerce genera BreadcrumbList + Product + WebSite duplicando Rank Math.
+// Lo suprimimos en producto, categoría, tienda y tag.
 add_action( 'template_redirect', function() {
-    if ( ! function_exists( 'is_product' ) || ! is_product() ) return;
+    $es_wc = ( function_exists( 'is_product' )          && is_product() )
+           || ( function_exists( 'is_product_category' ) && is_product_category() )
+           || ( function_exists( 'is_shop' )             && is_shop() )
+           || ( function_exists( 'is_product_tag' )      && is_product_tag() );
+
+    if ( ! $es_wc ) return;
+
     $sd = WC()->structured_data;
     remove_action( 'woocommerce_before_main_content',   array( $sd, 'generate_website_data' ),   30 );
     remove_action( 'woocommerce_breadcrumb',             array( $sd, 'generate_breadcrumb_data' ), 10 );
