@@ -4861,11 +4861,19 @@ add_action( 'after_setup_theme', function() {
     remove_action( 'wp_head', 'hello_elementor_add_description_meta_tag' );
 }, 20 );
 
-// ── 2. Eliminar schemas de WooCommerce en páginas de producto ────────────────
-// WooCommerce y Rank Math generaban dos schemas Product → precio duplicado.
-// WooCommerce también genera su propio BreadcrumbList → duplicado.
-add_filter( 'woocommerce_structured_data_product',   '__return_empty_array' );
-add_filter( 'woocommerce_structured_data_breadcrumb', '__return_empty_array' );
+// ── 2. Eliminar todo el structured data de WooCommerce en páginas de producto ─
+// WooCommerce genera Product + hasta 2 BreadcrumbList por distintos hooks.
+// Rank Math gestiona todo el schema, así que suprimimos el output de WC.
+add_action( 'template_redirect', function() {
+    if ( ! function_exists( 'is_product' ) || ! is_product() ) return;
+    $sd = WC()->structured_data;
+    remove_action( 'woocommerce_before_main_content',   array( $sd, 'generate_website_data' ),   30 );
+    remove_action( 'woocommerce_breadcrumb',             array( $sd, 'generate_breadcrumb_data' ), 10 );
+    remove_action( 'woocommerce_page_title',             array( $sd, 'generate_breadcrumb_data' ), 10 );
+    remove_action( 'woocommerce_single_product_summary', array( $sd, 'generate_product_data' ),    60 );
+    remove_action( 'woocommerce_review_meta',            array( $sd, 'generate_review_data' ),     10 );
+    remove_action( 'wp_footer',                          array( $sd, 'output_structured_data' ),   10 );
+} );
 
 // ── 3. Schema Product correcto + Breadcrumb completo via Rank Math ────────────
 add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
