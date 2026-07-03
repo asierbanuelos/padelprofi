@@ -4911,6 +4911,51 @@ add_action( 'template_redirect', function() {
     } );
 }, 1 );
 
+// ── 1c. Eliminar microdata Schema.org de shortcodes de breadcrumb ─────────────
+// El shortcode [wc_producto_categoria_breadcrumbs] (y similares) genera HTML visual
+// con atributos itemscope/itemtype/itemprop que crean un segundo BreadcrumbList.
+// Google lo detecta como duplicado aunque Rank Math ya emite el correcto en @graph.
+// Interceptamos los shortcodes para eliminar SOLO la capa de Schema.org microdata,
+// conservando el HTML visual del breadcrumb.
+add_action( 'wp', function() {
+    $es_wc = ( function_exists( 'is_product' )          && is_product() )
+           || ( function_exists( 'is_product_category' ) && is_product_category() )
+           || ( function_exists( 'is_shop' )             && is_shop() )
+           || ( function_exists( 'is_product_tag' )      && is_product_tag() );
+    if ( ! $es_wc ) return;
+
+    $tags = array( 'product_breadcrumb_schema', 'wc_producto_categoria_breadcrumbs' );
+    foreach ( $tags as $tag ) {
+        if ( ! shortcode_exists( $tag ) ) continue;
+        global $shortcode_tags;
+        $original = $shortcode_tags[ $tag ];
+        remove_shortcode( $tag );
+        add_shortcode( $tag, function( $atts, $content = null ) use ( $tag, $original ) {
+            ob_start();
+            $ret    = call_user_func( $original, $atts, $content, $tag );
+            $echoed = ob_get_clean();
+            $html   = ( is_string( $echoed ) ? $echoed : '' )
+                    . ( is_string( $ret )    ? $ret    : '' );
+
+            // 1. Eliminar tags <meta itemprop="..."> (marcadores de posición)
+            $html = preg_replace( '~<meta\b[^>]*\bitemprop\b[^>]*/?>~i', '', $html );
+            // 2. Eliminar atributo itemscope (standalone, sin valor)
+            $html = preg_replace( '~\s+itemscope\b~i', '', $html );
+            // 3. Eliminar atributo itemtype="https://schema.org/..."
+            $html = preg_replace( '~\s+itemtype=(["\'])[^"\']*\1~i', '', $html );
+            // 4. Eliminar atributo itemprop="..."
+            $html = preg_replace( '~\s+itemprop=(["\'])[^"\']*\1~i', '', $html );
+            // 5. Eliminar scripts JSON-LD si el shortcode también los generara
+            $html = preg_replace(
+                '~<script\s[^>]*type=["\']application/ld\+json["\'][^>]*>.*?</script>~si',
+                '',
+                $html
+            );
+            return $html;
+        } );
+    }
+} );
+
 // ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
 // Rank Math ya gestiona la meta description; el tema la duplicaba.
 add_action( 'after_setup_theme', function() {
