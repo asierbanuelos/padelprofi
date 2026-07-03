@@ -4855,20 +4855,31 @@ add_action( 'wp_head', function() {
     echo $html;
 }, 9999 );
 
-// ── 1b. Quitar JSON-LD de shortcodes de breadcrumb ───────────────────────────
-// Los shortcodes generan HTML visual + JSON-LD. Rank Math ya emite el
-// BreadcrumbList en su @graph, así que suprimimos el schema de los shortcodes.
-add_filter( 'do_shortcode_tag', function( $output, $tag ) {
-    $breadcrumb_shortcodes = array( 'product_breadcrumb_schema', 'wc_producto_categoria_breadcrumbs' );
-    if ( in_array( $tag, $breadcrumb_shortcodes, true ) ) {
-        $output = preg_replace(
-            '~<script\s[^>]*type=["\']application/ld\+json["\'][^>]*>.*?</script>~si',
-            '',
-            $output
+// ── 1b. Eliminar BreadcrumbList standalone en páginas WooCommerce ─────────────
+// Rank Math emite BreadcrumbList dentro de su @graph. Cualquier BreadcrumbList
+// standalone (de shortcodes, WooCommerce u otro plugin) es siempre un duplicado.
+// Usamos ob_start en template_redirect para capturar todo el HTML de la página.
+add_action( 'template_redirect', function() {
+    $es_wc = ( function_exists( 'is_product' )          && is_product() )
+           || ( function_exists( 'is_product_category' ) && is_product_category() )
+           || ( function_exists( 'is_shop' )             && is_shop() )
+           || ( function_exists( 'is_product_tag' )      && is_product_tag() );
+    if ( ! $es_wc ) return;
+
+    ob_start( function( $html ) {
+        return preg_replace_callback(
+            '~<script\s[^>]*type=["\']application/ld\+json["\'][^>]*>\s*(.*?)\s*</script>~si',
+            function( $m ) {
+                $data = @json_decode( $m[1], true );
+                if ( ! $data ) return $m[0];
+                // Eliminar cualquier BreadcrumbList standalone
+                if ( ( $data['@type'] ?? '' ) === 'BreadcrumbList' ) return '';
+                return $m[0];
+            },
+            $html
         );
-    }
-    return $output;
-}, 10, 2 );
+    } );
+}, 1 );
 
 // ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
 // Rank Math ya gestiona la meta description; el tema la duplicaba.
