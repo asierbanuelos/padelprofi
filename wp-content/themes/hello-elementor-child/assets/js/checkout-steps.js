@@ -1420,15 +1420,16 @@
 
 			if ( isExpress ) {
 				// ── Apple Pay / Google Pay / Klarna via Express Checkout Element ──
-				const prb = document.getElementById( 'wc-stripe-express-checkout-element' )
-				         || document.getElementById( 'wc-stripe-payment-request-button' )
-				         // Klarna ECE del plugin Krokedil (múltiples posibles selectores)
-				         || ( isKlarnaExpress && (
-				              document.querySelector( '[id*="kec-button"]' )
-				           || document.querySelector( '[class*="kec-button"]' )
-				           || document.querySelector( '[id*="klarna-express-checkout"]' )
-				           || document.querySelector( 'klarna-express-checkout-button' )
-				         ) ) || null;
+				// Para Klarna solo buscamos botones Klarna-específicos (NO el ECE de Stripe,
+			// que contiene Google Pay / Apple Pay y causaría que aparezca el botón incorrecto).
+			const prb = isKlarnaExpress
+				? ( document.querySelector( '[id*="kec-button"]' )
+				 || document.querySelector( '[class*="kec-button"]' )
+				 || document.querySelector( '[id*="klarna-express-checkout"]' )
+				 || document.querySelector( 'klarna-express-checkout-button' ) )
+				: ( document.getElementById( 'wc-stripe-express-checkout-element' )
+				 || document.getElementById( 'wc-stripe-payment-request-button' ) )
+				|| null;
 				const arrowSvgExpress = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 				if ( prb && prb.children.length ) {
