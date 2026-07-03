@@ -4855,6 +4855,50 @@ add_action( 'wp_head', function() {
     echo $html;
 }, 9999 );
 
+// ── 1b. Deduplicar BreadcrumbList en JSON-LD (shortcodes + Rank Math) ────────
+// Los shortcodes [product_breadcrumb_schema] y [wc_producto_categoria_breadcrumbs]
+// generan cada uno su propio BreadcrumbList. Capturamos toda la página y
+// eliminamos los duplicados, conservando solo el primero (Rank Math @graph).
+add_action( 'template_redirect', function() {
+    if ( ! function_exists( 'is_product' ) || ! is_product() ) return;
+    ob_start( function( $html ) {
+        $found = false;
+        return preg_replace_callback(
+            '~<script\s[^>]*type=["\']application/ld\+json["\'][^>]*>\s*(.*?)\s*</script>~si',
+            function( $m ) use ( &$found ) {
+                $data = json_decode( $m[1], true );
+                if ( ! $data ) return $m[0];
+
+                // Schema standalone de tipo BreadcrumbList
+                if ( ( $data['@type'] ?? '' ) === 'BreadcrumbList' ) {
+                    if ( $found ) return '';
+                    $found = true;
+                    return $m[0];
+                }
+
+                // @graph que contiene BreadcrumbList — quitar duplicados dentro
+                if ( isset( $data['@graph'] ) && is_array( $data['@graph'] ) ) {
+                    $clean = array();
+                    foreach ( $data['@graph'] as $item ) {
+                        if ( ( $item['@type'] ?? '' ) === 'BreadcrumbList' ) {
+                            if ( $found ) continue;
+                            $found = true;
+                        }
+                        $clean[] = $item;
+                    }
+                    $data['@graph'] = $clean;
+                    return '<script type="application/ld+json">'
+                        . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+                        . '</script>';
+                }
+
+                return $m[0];
+            },
+            $html
+        );
+    } );
+} );
+
 // ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
 // Rank Math ya gestiona la meta description; el tema la duplicaba.
 add_action( 'after_setup_theme', function() {
