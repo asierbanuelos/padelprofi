@@ -1086,23 +1086,18 @@ body.mm-pay-open .mm-step4-express-wrap {
 
 .mm-pay-popup {
 	position: fixed;
-	top: 50%; left: 50%;
+	top: 16px; right: 16px; bottom: 16px;
 	width: 460px; max-width: calc(100vw - 32px);
-	max-height: calc(100vh - 64px);
 	z-index: 99999;
 	background: var(--pp-white);
 	border-radius: 16px;
-	box-shadow: 0 8px 48px rgba(0,0,0,.22);
+	box-shadow: -4px 0 40px rgba(0,0,0,.18), 0 8px 32px rgba(0,0,0,.10);
 	display: flex; flex-direction: column;
-	transform: translate(-50%, -50%) scale(.96);
-	opacity: 0; visibility: hidden;
-	transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .28s;
+	transform: translateX(calc(100% + 32px));
+	transition: transform .32s cubic-bezier(.4,0,.2,1);
 	font-family: var(--pp-font); overflow: hidden;
 }
-.mm-pay-popup--active {
-	transform: translate(-50%, -50%) scale(1);
-	opacity: 1; visibility: visible;
-}
+.mm-pay-popup--active { transform: translateX(0); }
 body.mm-pay-open { overflow: hidden; }
 
 .mm-pay-popup__header {
@@ -1394,9 +1389,13 @@ body.mm-pay-open { overflow: hidden; }
    ========================================================================== */
 @media (max-width: 480px) {
 	.mm-pay-popup {
-		width: calc(100vw - 24px); max-width: calc(100vw - 24px);
-		max-height: 85vh; border-radius: 16px;
+		top: auto; right: 0; bottom: 0; left: 0;
+		width: 100%; max-width: 100%;
+		border-radius: 20px 20px 0 0;
+		max-height: 85vh;
+		transform: translateY(100%);
 	}
+	.mm-pay-popup--active { transform: translateY(0); }
 	.mm-pay-popup__footer { flex-direction: column; gap: 8px; }
 	.mm-pay-popup__footer .mm-btn-secondary,
 	.mm-pay-popup__footer .mm-btn-primary { width: 100%; justify-content: center; }
