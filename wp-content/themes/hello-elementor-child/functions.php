@@ -4830,11 +4830,17 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     return $data;
 }, 99, 2 );
 
-/**
- * Forzar schema Product correcto en páginas de producto WooCommerce.
- * Rank Math puede generar datos incorrectos si el producto fue clonado
- * o si tiene metadatos de schema heredados de otro producto.
- */
+// ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
+// Rank Math ya gestiona la meta description; el tema la duplicaba.
+add_action( 'after_setup_theme', function() {
+    remove_action( 'wp_head', 'hello_elementor_add_description_meta_tag' );
+}, 20 );
+
+// ── 2. Eliminar schema Product de WooCommerce en páginas de producto ──────────
+// WooCommerce y Rank Math generaban dos schemas Product → precio duplicado.
+add_filter( 'woocommerce_structured_data_product', '__return_empty_array' );
+
+// ── 3. Schema Product correcto + Breadcrumb completo via Rank Math ────────────
 add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     if ( ! function_exists( 'is_product' ) || ! is_product() ) {
         return $data;
@@ -4846,8 +4852,10 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
         return $data;
     }
 
-    $permalink = get_permalink( $product->get_id() );
+    $pid       = $product->get_id();
+    $permalink = get_permalink( $pid );
 
+    // ── Schema Product ────────────────────────────────────────────────────────
     $schema = array(
         '@context'    => 'https://schema.org',
         '@type'       => 'Product',
@@ -4888,26 +4896,88 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
         );
     }
 
-    // Marca (atributo WooCommerce)
-    foreach ( array( 'pa_marca', 'pa_brand', 'pa_fabricante' ) as $attr ) {
-        $terms = wc_get_product_terms( $product->get_id(), $attr, array( 'fields' => 'names' ) );
-        if ( ! empty( $terms ) ) {
-            $schema['brand'] = array( '@type' => 'Brand', 'name' => $terms[0] );
-            break;
+    // Marca — busca en atributos taxonomía, taxonomías custom y meta
+    $brand = '';
+    foreach ( array( 'pa_marca', 'pa_brand', 'pa_fabricante', 'pa_brands', 'pa_marke', 'pa_hersteller' ) as $attr ) {
+        $terms = wc_get_product_terms( $pid, $attr, array( 'fields' => 'names' ) );
+        if ( ! empty( $terms ) ) { $brand = $terms[0]; break; }
+    }
+    if ( ! $brand ) {
+        foreach ( array( 'product_brand', 'pwb-brand', 'yith_product_brand' ) as $tax ) {
+            $terms = get_the_terms( $pid, $tax );
+            if ( $terms && ! is_wp_error( $terms ) ) { $brand = $terms[0]->name; break; }
         }
+    }
+    if ( ! $brand ) {
+        foreach ( $product->get_attributes() as $key => $attr_obj ) {
+            if ( in_array( $key, array( 'marca', 'brand', 'hersteller', 'marke', 'fabricante' ), true ) && ! $attr_obj->is_taxonomy() ) {
+                $opts = $attr_obj->get_options();
+                if ( ! empty( $opts ) ) { $brand = $opts[0]; break; }
+            }
+        }
+    }
+    if ( ! $brand ) {
+        foreach ( array( '_brand', 'brand', '_product_brand', 'wc_brand' ) as $meta_key ) {
+            $val = get_post_meta( $pid, $meta_key, true );
+            if ( $val ) { $brand = $val; break; }
+        }
+    }
+    if ( $brand ) {
+        $schema['brand'] = array( '@type' => 'Brand', 'name' => $brand );
     }
 
-    // Reemplaza cualquier schema de tipo Product que haya puesto Rank Math
-    $reemplazado = false;
+    // Reemplaza el schema Product de Rank Math
+    $replaced = false;
     foreach ( $data as $key => $item ) {
         if ( isset( $item['@type'] ) && $item['@type'] === 'Product' ) {
-            $data[ $key ]  = $schema;
-            $reemplazado   = true;
+            $data[ $key ] = $schema;
+            $replaced = true;
             break;
         }
     }
-    if ( ! $reemplazado ) {
+    if ( ! $replaced ) {
         $data['WooProduct'] = $schema;
+    }
+
+    // ── Breadcrumb completo ───────────────────────────────────────────────────
+    $cats = wc_get_product_terms( $pid, 'product_cat', array( 'orderby' => 'parent', 'order' => 'ASC' ) );
+    if ( ! empty( $cats ) ) {
+        // Categoría principal (la primera con menor profundidad)
+        usort( $cats, fn( $a, $b ) => count( get_ancestors( $a->term_id, 'product_cat' ) ) <=> count( get_ancestors( $b->term_id, 'product_cat' ) ) );
+        $cat      = end( $cats ); // la más profunda como categoría principal
+        $pos      = 1;
+        $bc_items = array(
+            array( '@type' => 'ListItem', 'position' => $pos++, 'name' => __( 'Home' ), 'item' => home_url( '/' ) ),
+        );
+
+        // Ancestros de la categoría (de raíz a hoja)
+        $ancestors = array_reverse( get_ancestors( $cat->term_id, 'product_cat' ) );
+        foreach ( $ancestors as $anc_id ) {
+            $anc = get_term( $anc_id, 'product_cat' );
+            if ( $anc && ! is_wp_error( $anc ) ) {
+                $bc_items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'name' => $anc->name, 'item' => get_term_link( $anc ) );
+            }
+        }
+        $bc_items[] = array( '@type' => 'ListItem', 'position' => $pos++, 'name' => $cat->name,           'item' => get_term_link( $cat ) );
+        $bc_items[] = array( '@type' => 'ListItem', 'position' => $pos,   'name' => $product->get_name(), 'item' => $permalink );
+
+        $bc_schema = array(
+            '@context'        => 'https://schema.org',
+            '@type'           => 'BreadcrumbList',
+            'itemListElement' => $bc_items,
+        );
+
+        $bc_replaced = false;
+        foreach ( $data as $key => $item ) {
+            if ( isset( $item['@type'] ) && $item['@type'] === 'BreadcrumbList' ) {
+                $data[ $key ] = $bc_schema;
+                $bc_replaced  = true;
+                break;
+            }
+        }
+        if ( ! $bc_replaced ) {
+            $data['WooBreadcrumb'] = $bc_schema;
+        }
     }
 
     return $data;
