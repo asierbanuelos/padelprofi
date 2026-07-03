@@ -4861,9 +4861,11 @@ add_action( 'after_setup_theme', function() {
     remove_action( 'wp_head', 'hello_elementor_add_description_meta_tag' );
 }, 20 );
 
-// ── 2. Eliminar schema Product de WooCommerce en páginas de producto ──────────
+// ── 2. Eliminar schemas de WooCommerce en páginas de producto ────────────────
 // WooCommerce y Rank Math generaban dos schemas Product → precio duplicado.
-add_filter( 'woocommerce_structured_data_product', '__return_empty_array' );
+// WooCommerce también genera su propio BreadcrumbList → duplicado.
+add_filter( 'woocommerce_structured_data_product',   '__return_empty_array' );
+add_filter( 'woocommerce_structured_data_breadcrumb', '__return_empty_array' );
 
 // ── 3. Schema Product correcto + Breadcrumb completo via Rank Math ────────────
 add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
@@ -4967,9 +4969,18 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     // ── Breadcrumb completo ───────────────────────────────────────────────────
     $cats = wc_get_product_terms( $pid, 'product_cat', array( 'orderby' => 'parent', 'order' => 'ASC' ) );
     if ( ! empty( $cats ) ) {
-        // Categoría principal (la primera con menor profundidad)
-        usort( $cats, fn( $a, $b ) => count( get_ancestors( $a->term_id, 'product_cat' ) ) <=> count( get_ancestors( $b->term_id, 'product_cat' ) ) );
-        $cat      = end( $cats ); // la más profunda como categoría principal
+        // Categoría primaria: primero la marcada en Rank Math, luego la más profunda
+        $primary_id = (int) get_post_meta( $pid, 'rank_math_primary_product_cat', true );
+        $cat        = null;
+        if ( $primary_id ) {
+            foreach ( $cats as $c ) {
+                if ( (int) $c->term_id === $primary_id ) { $cat = $c; break; }
+            }
+        }
+        if ( ! $cat ) {
+            usort( $cats, fn( $a, $b ) => count( get_ancestors( $a->term_id, 'product_cat' ) ) <=> count( get_ancestors( $b->term_id, 'product_cat' ) ) );
+            $cat = end( $cats );
+        }
         $pos      = 1;
         $bc_items = array(
             array( '@type' => 'ListItem', 'position' => $pos++, 'name' => __( 'Home' ), 'item' => home_url( '/' ) ),
