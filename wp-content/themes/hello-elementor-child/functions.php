@@ -4856,9 +4856,9 @@ add_action( 'wp_head', function() {
 }, 9999 );
 
 // ── 1b. Eliminar BreadcrumbList standalone en páginas WooCommerce ─────────────
-// Rank Math emite BreadcrumbList dentro de su @graph. Cualquier BreadcrumbList
-// standalone (de shortcodes, WooCommerce u otro plugin) es siempre un duplicado.
-// Usamos ob_start en template_redirect para capturar todo el HTML de la página.
+// Rank Math emite BreadcrumbList DENTRO de su @graph (junto con Organization,
+// WebSite, etc.). Cualquier script JSON-LD cuyo único contenido sea un
+// BreadcrumbList (en cualquier formato) es un duplicado y se elimina.
 add_action( 'template_redirect', function() {
     $es_wc = ( function_exists( 'is_product' )          && is_product() )
            || ( function_exists( 'is_product_category' ) && is_product_category() )
@@ -4871,9 +4871,39 @@ add_action( 'template_redirect', function() {
             '~<script\s[^>]*type=["\']application/ld\+json["\'][^>]*>\s*(.*?)\s*</script>~si',
             function( $m ) {
                 $data = @json_decode( $m[1], true );
-                if ( ! $data ) return $m[0];
-                // Eliminar cualquier BreadcrumbList standalone
-                if ( ( $data['@type'] ?? '' ) === 'BreadcrumbList' ) return '';
+                if ( ! is_array( $data ) ) return $m[0];
+
+                // Caso 1: objeto raíz con @type = BreadcrumbList
+                if ( isset( $data['@type'] ) && $data['@type'] === 'BreadcrumbList' ) {
+                    return '';
+                }
+
+                // Caso 2: array donde todos los ítems son BreadcrumbList
+                // ej. [{@type:BreadcrumbList,...}]
+                if ( isset( $data[0] ) && ! isset( $data['@type'] ) && ! isset( $data['@graph'] ) ) {
+                    $solo_bc = true;
+                    foreach ( $data as $item ) {
+                        if ( ! is_array( $item ) || ( $item['@type'] ?? '' ) !== 'BreadcrumbList' ) {
+                            $solo_bc = false;
+                            break;
+                        }
+                    }
+                    if ( $solo_bc ) return '';
+                }
+
+                // Caso 3: @graph con SOLO BreadcrumbList (sin otros tipos significativos)
+                // Rank Math siempre incluye Organization, WebSite, etc. además de BreadcrumbList.
+                if ( isset( $data['@graph'] ) && is_array( $data['@graph'] ) && ! empty( $data['@graph'] ) ) {
+                    $solo_bc = true;
+                    foreach ( $data['@graph'] as $item ) {
+                        if ( ! is_array( $item ) || ( $item['@type'] ?? '' ) !== 'BreadcrumbList' ) {
+                            $solo_bc = false;
+                            break;
+                        }
+                    }
+                    if ( $solo_bc ) return '';
+                }
+
                 return $m[0];
             },
             $html
