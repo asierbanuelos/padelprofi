@@ -4830,6 +4830,89 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     return $data;
 }, 99, 2 );
 
+/**
+ * Forzar schema Product correcto en páginas de producto WooCommerce.
+ * Rank Math puede generar datos incorrectos si el producto fue clonado
+ * o si tiene metadatos de schema heredados de otro producto.
+ */
+add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
+    if ( ! function_exists( 'is_product' ) || ! is_product() ) {
+        return $data;
+    }
+
+    global $post;
+    $product = wc_get_product( $post->ID );
+    if ( ! $product ) {
+        return $data;
+    }
+
+    $permalink = get_permalink( $product->get_id() );
+
+    $schema = array(
+        '@context'    => 'https://schema.org',
+        '@type'       => 'Product',
+        'name'        => $product->get_name(),
+        'url'         => $permalink,
+        'description' => wp_strip_all_tags( $product->get_description() ?: $product->get_short_description() ),
+        'sku'         => $product->get_sku(),
+        'offers'      => array(
+            '@type'         => 'Offer',
+            'url'           => $permalink,
+            'priceCurrency' => get_woocommerce_currency(),
+            'price'         => $product->get_price(),
+            'availability'  => $product->is_in_stock()
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'seller'        => array(
+                '@type' => 'Organization',
+                'name'  => get_bloginfo( 'name' ),
+                'url'   => get_site_url(),
+            ),
+        ),
+    );
+
+    // Imagen
+    $image_id = $product->get_image_id();
+    if ( $image_id ) {
+        $schema['image'] = wp_get_attachment_image_url( $image_id, 'full' );
+    }
+
+    // Rating
+    if ( $product->get_rating_count() > 0 ) {
+        $schema['aggregateRating'] = array(
+            '@type'       => 'AggregateRating',
+            'ratingValue' => round( $product->get_average_rating(), 1 ),
+            'reviewCount' => $product->get_rating_count(),
+            'bestRating'  => '5',
+            'worstRating' => '1',
+        );
+    }
+
+    // Marca (atributo WooCommerce)
+    foreach ( array( 'pa_marca', 'pa_brand', 'pa_fabricante' ) as $attr ) {
+        $terms = wc_get_product_terms( $product->get_id(), $attr, array( 'fields' => 'names' ) );
+        if ( ! empty( $terms ) ) {
+            $schema['brand'] = array( '@type' => 'Brand', 'name' => $terms[0] );
+            break;
+        }
+    }
+
+    // Reemplaza cualquier schema de tipo Product que haya puesto Rank Math
+    $reemplazado = false;
+    foreach ( $data as $key => $item ) {
+        if ( isset( $item['@type'] ) && $item['@type'] === 'Product' ) {
+            $data[ $key ]  = $schema;
+            $reemplazado   = true;
+            break;
+        }
+    }
+    if ( ! $reemplazado ) {
+        $data['WooProduct'] = $schema;
+    }
+
+    return $data;
+}, 100, 2 );
+
 // Traducir mensajes de stock de WooCommerce que aparecen en inglés
 add_filter( 'gettext', function( $translated, $original, $domain ) {
     if ( 'woocommerce' !== $domain ) return $translated;
