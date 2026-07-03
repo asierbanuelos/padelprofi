@@ -1434,6 +1434,7 @@
 
 				if ( prb && prb.children.length ) {
 					// Stripe ya ha montado el botón → moverlo al paso 4
+					const prbOriginalParent = prb.parentElement; // guardar pool antes de mover
 					prb.removeAttribute( 'aria-hidden' );
 					prb.style.cssText = 'position:static!important;top:auto!important;left:auto!important;width:100%!important;height:auto!important;min-height:48px!important;pointer-events:auto!important;z-index:auto!important;overflow:visible!important;';
 					const wrap = document.createElement( 'div' );
@@ -1441,7 +1442,7 @@
 					wrap.appendChild( prb );
 					actionArea.insertBefore( wrap, defaultBtn );
 					this.borrowedExpressEl       = prb;
-					this.borrowedExpressElParent = null;
+					this.borrowedExpressElParent = prbOriginalParent;
 					defaultBtn.style.setProperty( 'display', 'none', 'important' );
 					if ( paypalBtn ) paypalBtn.style.setProperty( 'display', 'none', 'important' );
 					// Layout columna para ancho completo
@@ -1560,7 +1561,11 @@
 				if ( id === 'wc-stripe-payment-request-button' || id === 'wc-stripe-express-checkout-element' ) {
 					this.borrowedExpressEl.style.cssText = '';
 					this.borrowedExpressEl.setAttribute( 'aria-hidden', 'true' );
-					document.querySelector( 'form.checkout' )?.appendChild( this.borrowedExpressEl );
+					// Devolver al pool original para que Stripe siga renderizando
+					const pool = this.borrowedExpressElParent
+						|| document.querySelector( '.mm-stripe-prb-pool' )
+						|| document.querySelector( 'form.checkout' );
+					pool?.appendChild( this.borrowedExpressEl );
 				} else if ( this.borrowedExpressElParent ) {
 					this.borrowedExpressElParent.querySelector( '.payment_box' )
 						?.appendChild( this.borrowedExpressEl )
