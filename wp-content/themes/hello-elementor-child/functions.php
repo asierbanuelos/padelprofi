@@ -4830,6 +4830,31 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     return $data;
 }, 99, 2 );
 
+// ── 0. Deduplicar meta OG product:price en páginas de producto ───────────────
+// Rank Math vuelca el precio WC (correcto) + el del Schema Builder manual
+// (heredado al clonar), resultando en dos product:price:amount en el head.
+// Bufferizamos todo el wp_head y eliminamos el segundo bloque duplicado.
+add_action( 'wp_head', function() {
+    if ( ! function_exists( 'is_product' ) || ! is_product() ) return;
+    ob_start();
+}, 0 );
+add_action( 'wp_head', function() {
+    if ( ! function_exists( 'is_product' ) || ! is_product() ) return;
+    $html = ob_get_clean();
+    if ( false === $html ) return;
+    $seen = array();
+    $html = preg_replace_callback(
+        '~<meta\s[^>]*property="(product:[^"]+)"[^>]*>\s*~i',
+        function ( $m ) use ( &$seen ) {
+            if ( isset( $seen[ $m[1] ] ) ) return '';
+            $seen[ $m[1] ] = true;
+            return $m[0];
+        },
+        $html
+    );
+    echo $html;
+}, 9999 );
+
 // ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
 // Rank Math ya gestiona la meta description; el tema la duplicaba.
 add_action( 'after_setup_theme', function() {
