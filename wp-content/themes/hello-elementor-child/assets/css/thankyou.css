@@ -11,10 +11,14 @@
 	text-align: center;
 }
 .pp-ty-hero-section .pp-ty-check {
-	width: 64px; height: 64px; border-radius: 50%;
-	background: rgba(255,255,255,.15);
-	display: inline-flex; align-items: center; justify-content: center;
-	margin-bottom: 18px;
+	display: block;
+	margin: 0 auto 18px;
+}
+.pp-ty-hero-section .pp-ty-check img {
+	height: 72px;
+	width: auto;
+	display: block;
+	margin: 0 auto;
 }
 .pp-ty-hero-section h1 {
 	font-family: 'Open Sans', sans-serif;

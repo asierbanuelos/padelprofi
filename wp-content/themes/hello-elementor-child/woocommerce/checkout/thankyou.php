@@ -49,10 +49,13 @@ $s_ctry    = $countries[ $order->get_shipping_country() ?: $order->get_billing_c
 
 <!-- ── HERO ── -->
 <div class="pp-ty-hero-section">
-	<div class="pp-ty-check" aria-hidden="true">
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="34" height="34">
-			<polyline points="20 6 9 17 4 12"/>
-		</svg>
+	<div class="pp-ty-check">
+		<?php
+		$logo_id = get_theme_mod( 'custom_logo' );
+		if ( $logo_id ) {
+			echo wp_get_attachment_image( $logo_id, 'medium', false, array( 'alt' => get_bloginfo( 'name' ) ) );
+		}
+		?>
 	</div>
 	<h1>Vielen Dank, <?php echo esc_html( $order->get_billing_first_name() ); ?>!</h1>
 	<p class="pp-ty-subtitle">Deine Bestellung ist bestätigt und wird bearbeitet.</p>
