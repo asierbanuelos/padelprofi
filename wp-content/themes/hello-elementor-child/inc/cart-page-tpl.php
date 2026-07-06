@@ -162,7 +162,7 @@ foreach ( $all_cs_ids as $cid ) {
 						</svg>
 					</button>
 					<span class="pp-cart-item__line-price" id="pp-line-<?php echo esc_attr( $cart_item_key ); ?>">
-						<?php echo wp_kses_post( wc_price( (float) $cart_item['line_subtotal'] ) ); ?>
+						<?php echo wp_kses_post( WC()->cart->get_product_subtotal( $product, $qty ) ); ?>
 					</span>
 				</div>
 
