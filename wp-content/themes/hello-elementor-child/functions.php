@@ -5102,6 +5102,72 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     return $data;
 }, 100, 2 );
 
+// ── 4. Reconstruir BreadcrumbList de Rank Math con jerarquía completa de WC ──
+// Rank Math usa solo la categoría primaria del producto y genera 3 niveles:
+// Start → Padelschläger → Producto. El breadcrumb visual muestra la ruta
+// completa con subcategoría: Startseite → Padelschläger → Padelschläger Head
+// → Producto. Este filtro reconstruye el BreadcrumbList para que coincidan.
+add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
+    if ( ! function_exists( 'is_product' ) || ! is_product() ) return $data;
+
+    global $post;
+    $product = wc_get_product( $post->ID );
+    if ( ! $product ) return $data;
+
+    $cat_ids = $product->get_category_ids();
+    if ( empty( $cat_ids ) ) return $data;
+
+    // Categoría más profunda (mayor número de ancestros = más específica)
+    $deepest_cat = null;
+    $max_depth   = -1;
+    foreach ( $cat_ids as $cat_id ) {
+        $depth = count( get_ancestors( $cat_id, 'product_cat' ) );
+        if ( $depth > $max_depth ) {
+            $max_depth   = $depth;
+            $deepest_cat = $cat_id;
+        }
+    }
+    if ( ! $deepest_cat ) return $data;
+
+    // Ruta completa: ancestros de mayor a menor + categoría más profunda
+    $ancestors = array_reverse( get_ancestors( $deepest_cat, 'product_cat' ) );
+    $cat_path  = array_merge( $ancestors, array( $deepest_cat ) );
+
+    // Construir itemListElement
+    $pos   = 1;
+    $items = array();
+
+    $items[] = array(
+        '@type'    => 'ListItem',
+        'position' => $pos++,
+        'item'     => array( '@id' => home_url( '/' ), 'name' => 'Startseite' ),
+    );
+    foreach ( $cat_path as $cat_id ) {
+        $term = get_term( $cat_id, 'product_cat' );
+        if ( ! $term || is_wp_error( $term ) ) continue;
+        $items[] = array(
+            '@type'    => 'ListItem',
+            'position' => $pos++,
+            'item'     => array( '@id' => get_term_link( $term ), 'name' => $term->name ),
+        );
+    }
+    $items[] = array(
+        '@type'    => 'ListItem',
+        'position' => $pos,
+        'item'     => array( '@id' => get_permalink( $post->ID ), 'name' => $product->get_name() ),
+    );
+
+    // Reemplazar itemListElement en el BreadcrumbList del @graph
+    foreach ( $data as $key => $item ) {
+        if ( isset( $item['@type'] ) && $item['@type'] === 'BreadcrumbList' ) {
+            $data[ $key ]['itemListElement'] = $items;
+            return $data;
+        }
+    }
+
+    return $data;
+}, 200, 2 );
+
 // Traducir mensajes de stock de WooCommerce que aparecen en inglés
 add_filter( 'gettext', function( $translated, $original, $domain ) {
     if ( 'woocommerce' !== $domain ) return $translated;
