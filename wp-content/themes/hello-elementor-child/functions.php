@@ -4966,6 +4966,14 @@ add_filter( 'gettext', function( $translation, $text, $domain ) {
     return $translation;
 }, 10, 3 );
 
+// ── 1e. Forzar alemán en todos los emails de WooCommerce ─────────────────────
+// WooCommerce envía emails con el locale del contexto PHP en ese momento, que
+// puede ser inglés si el proceso cron o el webhook de Stripe lo inicia sin
+// haber cargado el locale del sitio. Este filtro lo fuerza siempre a de_DE.
+add_filter( 'woocommerce_email_locale', function() {
+    return get_locale() ?: 'de_DE';
+} );
+
 // ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
 // Rank Math ya gestiona la meta description; el tema la duplicaba.
 add_action( 'after_setup_theme', function() {
