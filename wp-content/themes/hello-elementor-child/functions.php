@@ -4956,6 +4956,16 @@ add_action( 'wp', function() {
     }
 } );
 
+// ── 1d. Traducir aviso WooCommerce "carrito vacío" al alemán ─────────────────
+// Capa de seguridad: si el aviso inglés escapa al wc_clear_notices() del template,
+// este filtro lo reemplaza directamente en el texto traducido.
+add_filter( 'gettext', function( $translation, $text, $domain ) {
+    if ( 'woocommerce' === $domain && 'Your cart is currently empty.' === $text ) {
+        return 'Dein Warenkorb ist leer.';
+    }
+    return $translation;
+}, 10, 3 );
+
 // ── 1. Eliminar meta description duplicada del tema Hello Elementor ──────────
 // Rank Math ya gestiona la meta description; el tema la duplicaba.
 add_action( 'after_setup_theme', function() {
