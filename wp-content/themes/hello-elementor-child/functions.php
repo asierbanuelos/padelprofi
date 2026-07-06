@@ -5129,9 +5129,12 @@ add_filter( 'rank_math/json_ld', function( $data, $jsonld ) {
     }
     if ( ! $deepest_cat ) return $data;
 
-    // Ruta completa: ancestros de mayor a menor + categoría más profunda
-    $ancestors = array_reverse( get_ancestors( $deepest_cat, 'product_cat' ) );
-    $cat_path  = array_merge( $ancestors, array( $deepest_cat ) );
+    // Ruta completa: ancestros de mayor a menor + categoría más profunda,
+    // limitada a 2 niveles (categoría padre + subcategoría) para coincidir
+    // con el breadcrumb visual que no muestra subcategorías de año/temporada.
+    $ancestors  = array_reverse( get_ancestors( $deepest_cat, 'product_cat' ) );
+    $full_path  = array_merge( $ancestors, array( $deepest_cat ) );
+    $cat_path   = array_slice( $full_path, 0, 2 );
 
     // Construir itemListElement
     $pos   = 1;
