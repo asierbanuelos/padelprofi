@@ -561,7 +561,7 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 	border-radius: var(--pp-radius); overflow: hidden;
 }
 .mm-wc-shipping-wrapper ul#shipping_method li {
-	display: flex; align-items: center; padding: 15px 18px;
+	align-items: center; padding: 15px 18px;
 	border-bottom: 1px solid var(--pp-gray-border);
 	background: var(--pp-white);
 	transition: background var(--pp-transition);
