@@ -124,12 +124,27 @@ function pp_carousel_render_metabox( $post ) {
 	<div style="padding:10px 0;">
 		<input type="hidden" name="pp_carousel_product_ids" id="pp_carousel_product_ids"
 			   value="<?php echo esc_attr( implode( ',', array_column( $products, 'id' ) ) ); ?>" />
+
+		<?php
+		// Categorías de producto para el filtro
+		$product_cats = get_terms( [ 'taxonomy' => 'product_cat', 'hide_empty' => true, 'orderby' => 'name', 'order' => 'ASC' ] );
+		?>
+		<div style="margin-bottom:12px;">
+			<label style="font-weight:600;display:block;margin-bottom:6px;">Nach Kategorie filtern:</label>
+			<select id="pp-category-filter" style="width:100%;max-width:480px;padding:8px 12px;border:1px solid #c3c4c7;border-radius:4px;font-size:13px;background:#fff;">
+				<option value="">— Alle Kategorien —</option>
+				<?php if ( ! is_wp_error( $product_cats ) ) : foreach ( $product_cats as $cat ) : ?>
+				<option value="<?php echo esc_attr( $cat->slug ); ?>"><?php echo esc_html( $cat->name ); ?> (<?php echo intval( $cat->count ); ?>)</option>
+				<?php endforeach; endif; ?>
+			</select>
+		</div>
+
 		<div style="margin-bottom:16px;">
 			<label style="font-weight:600;display:block;margin-bottom:6px;">Produkt suchen:</label>
-			<input type="text" id="pp-product-search" autocomplete="off" placeholder="Name oder ID…"
+			<input type="text" id="pp-product-search" autocomplete="off" placeholder="Name oder ID… (oder Kategorie wählen)"
 				   style="width:100%;max-width:480px;padding:8px 12px;border:1px solid #c3c4c7;border-radius:4px 4px 0 0;font-size:13px;" />
 			<div id="pp-search-results"
-				 style="border:1px solid #c3c4c7;border-top:none;border-radius:0 0 4px 4px;max-width:480px;max-height:220px;overflow-y:auto;display:none;background:#fff;z-index:100;box-shadow:0 4px 8px rgba(0,0,0,.1);position:relative;">
+				 style="border:1px solid #c3c4c7;border-top:none;border-radius:0 0 4px 4px;max-width:480px;max-height:260px;overflow-y:auto;display:none;background:#fff;z-index:100;box-shadow:0 4px 8px rgba(0,0,0,.1);position:relative;">
 			</div>
 		</div>
 		<label style="font-weight:600;display:block;margin-bottom:8px;">Produkte <span style="color:#999;font-weight:400;">(Drag & Drop zum Sortieren)</span>:</label>
@@ -176,23 +191,44 @@ add_action( 'wp_ajax_pp_search_products', function() {
 	if ( ! current_user_can( 'edit_posts' ) ) wp_send_json_error( 'Unauthorized' );
 	if ( ! function_exists( 'wc_get_product' ) ) wp_send_json_error( 'WooCommerce not active' );
 
-	$term    = isset( $_GET['term'] ) ? sanitize_text_field( $_GET['term'] ) : '';
-	$results = [];
+	$term     = isset( $_GET['term'] )     ? sanitize_text_field( $_GET['term'] )     : '';
+	$category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : '';
+	$results  = [];
 
+	// Búsqueda por ID numérico directo
 	if ( is_numeric( $term ) ) {
 		$p = wc_get_product( intval( $term ) );
 		if ( $p ) $results[] = [ 'id' => $p->get_id(), 'name' => $p->get_name() ];
-	} else {
-		$q = new WP_Query( [
-			'post_type'      => 'product',
-			'post_status'    => 'publish',
-			'posts_per_page' => 10,
-			's'              => $term,
-		] );
-		foreach ( $q->posts as $post ) {
-			$p = wc_get_product( $post->ID );
-			if ( $p ) $results[] = [ 'id' => $p->get_id(), 'name' => $p->get_name() ];
-		}
+		wp_send_json_success( $results );
+	}
+
+	$args = [
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => 20,
+	];
+
+	if ( $term !== '' ) {
+		$args['s'] = $term;
+	}
+
+	if ( $category !== '' ) {
+		$args['tax_query'] = [ [
+			'taxonomy' => 'product_cat',
+			'field'    => 'slug',
+			'terms'    => $category,
+		] ];
+	}
+
+	// Si no hay término ni categoría, no devolver nada
+	if ( $term === '' && $category === '' ) {
+		wp_send_json_success( [] );
+	}
+
+	$q = new WP_Query( $args );
+	foreach ( $q->posts as $post ) {
+		$p = wc_get_product( $post->ID );
+		if ( $p ) $results[] = [ 'id' => $p->get_id(), 'name' => $p->get_name() ];
 	}
 	wp_send_json_success( $results );
 } );

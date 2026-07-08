@@ -26,7 +26,8 @@
 		$('#pp-product-search').on('input', function () {
 			clearTimeout(timer);
 			var term = $.trim($(this).val());
-			if (term.length < 1) {
+			var cat  = $('#pp-category-filter').val();
+			if (term.length < 1 && !cat) {
 				$('#pp-search-results').hide().empty();
 				return;
 			}
@@ -34,16 +35,29 @@
 				doSearch(term);
 			}, 320);
 		});
+
+		// Al cambiar categoría, lanza búsqueda automáticamente
+		$('#pp-category-filter').on('change', function () {
+			var term = $.trim($('#pp-product-search').val());
+			var cat  = $(this).val();
+			if (!cat && term.length < 1) {
+				$('#pp-search-results').hide().empty();
+				return;
+			}
+			doSearch(term);
+		});
 	}
 
 	function doSearch(term) {
+		var category = $('#pp-category-filter').val();
 		$.ajax({
 			url: ppCarouselAdmin.ajaxUrl,
 			method: 'GET',
 			data: {
-				action: 'pp_search_products',
-				nonce:  ppCarouselAdmin.nonce,
-				term:   term
+				action:   'pp_search_products',
+				nonce:    ppCarouselAdmin.nonce,
+				term:     term,
+				category: category
 			},
 			success: function (res) {
 				var $results = $('#pp-search-results').empty();
