@@ -71,8 +71,7 @@ if ( WC()->cart->is_empty() ) : ?>
 		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-paypal-bw.svg" alt="PayPal" style="height:22px;width:auto;" loading="lazy">
 		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/apple_pay.svg" alt="Apple Pay" style="height:22px;width:auto;" loading="lazy">
 		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Logo-g-pay.svg" alt="Google Pay" style="height:22px;width:auto;" loading="lazy">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-amex-bw.svg" alt="American Express" style="height:22px;width:auto;" loading="lazy">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" style="height:22px;width:auto;" loading="lazy">
+<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" style="height:22px;width:auto;" loading="lazy">
 	</div>
 
 	<form name="checkout" method="post"
