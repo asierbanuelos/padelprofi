@@ -270,9 +270,15 @@ function pp_carousel_render( $atts ) {
 	ob_start();
 	echo '<div class="pp-carousel-wrapper"><div class="swiper pp-swiper" id="' . esc_attr( $uid ) . '"><div class="swiper-wrapper">';
 
+	// Backup del global $product — los filtros WC lo esperan seteado
+	global $product;
+	$_product_backup = isset( $product ) ? $product : null;
+
 	foreach ( $product_ids as $pid ) {
 		$wcp = wc_get_product( intval( $pid ) );
 		if ( ! $wcp ) continue;
+
+		$product = $wcp; // necesario para filtros como woocommerce_product_add_to_cart_text
 
 		$img_url  = wp_get_attachment_image_url( $wcp->get_image_id(), 'woocommerce_thumbnail' ) ?: wc_placeholder_img_src();
 		$price    = (float) $wcp->get_price();
@@ -310,6 +316,8 @@ function pp_carousel_render( $atts ) {
 
 		echo '</div></div>';
 	}
+
+	$product = $_product_backup; // restaurar global
 
 	echo '</div>';
 	echo '<div class="pp-swiper-prev swiper-button-prev"></div>';
