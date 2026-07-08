@@ -5176,7 +5176,7 @@ add_filter( 'option_elementor_pro_conditions_cache', function ( $cache ) {
     if ( ! is_404() || ! is_array( $cache ) ) return $cache;
     if ( ! isset( $cache['header'] ) ) $cache['header'] = [];
     // Prepend template 35886 with an "include everywhere" rule so it takes priority
-    array_unshift( $cache['header'], [ 35886, 'include', 'general', '' ] );
+    array_unshift( $cache['header'], [ 36591, 'include', 'general', '' ] );
     return $cache;
 } );
 
