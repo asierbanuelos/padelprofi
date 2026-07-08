@@ -267,57 +267,60 @@ function pp_carousel_render( $atts ) {
 	}
 	$GLOBALS['_pp_carousel_inits'][] = $uid;
 
-	ob_start();
-	echo '<div class="pp-carousel-wrapper"><div class="swiper pp-swiper" id="' . esc_attr( $uid ) . '"><div class="swiper-wrapper">';
-
-	// Backup del global $product — los filtros WC lo esperan seteado
+	// El global $product lo necesitan los hooks del tema (custom_add_shipping_text_loop, etc.)
 	global $product;
 	$_product_backup = isset( $product ) ? $product : null;
+
+	ob_start();
+	echo '<div class="pp-carousel-wrapper"><div class="swiper pp-swiper" id="' . esc_attr( $uid ) . '"><div class="swiper-wrapper">';
 
 	foreach ( $product_ids as $pid ) {
 		$wcp = wc_get_product( intval( $pid ) );
 		if ( ! $wcp ) continue;
 
-		$product = $wcp; // necesario para filtros como woocommerce_product_add_to_cart_text
+		// Establecer global $product para todos los hooks y filtros de WC del tema
+		$product = $wcp;
 
-		$img_url  = wp_get_attachment_image_url( $wcp->get_image_id(), 'woocommerce_thumbnail' ) ?: wc_placeholder_img_src();
-		$price    = (float) $wcp->get_price();
-		$regular  = (float) $wcp->get_regular_price();
-		$on_sale  = $wcp->is_on_sale() && $regular > 0 && $price < $regular;
+		$price   = (float) $wcp->get_price();
+		$regular = (float) $wcp->get_regular_price();
+		$on_sale = $wcp->is_on_sale() && $regular > 0 && $price < $regular;
 		$discount = $on_sale ? round( ( 1 - $price / $regular ) * 100 ) : 0;
-
-		$is_simple = $wcp->is_purchasable() && $wcp->is_in_stock() && 'simple' === $wcp->get_type();
-		$btn_url   = esc_url( $wcp->add_to_cart_url() );
-		$btn_cls   = 'button add_to_cart_button product_type_' . esc_attr( $wcp->get_type() ) . ( $is_simple ? ' ajax_add_to_cart' : '' );
-		$btn_data  = $is_simple ? ' data-product_id="' . $wcp->get_id() . '" data-product_sku="' . esc_attr( $wcp->get_sku() ) . '" data-quantity="1" rel="nofollow"' : '';
 
 		echo '<div class="swiper-slide"><div class="product-card2">';
 
+		// Badge de descuento
 		if ( $on_sale && $discount > 0 ) {
 			echo '<div class="discount-label">-' . $discount . '%</div>';
 		}
 
+		// Imagen con hover (usa el hook del tema que incluye imagen principal + gallery hover)
 		echo '<a href="' . esc_url( $wcp->get_permalink() ) . '" class="woocommerce-LoopProduct-link pp-card-link">';
-		echo '<img src="' . esc_url( $img_url ) . '" alt="' . esc_attr( $wcp->get_name() ) . '" loading="lazy" />';
+		do_action( 'woocommerce_before_shop_loop_item_title' ); // → mi_thumbnail_con_overlay()
 		echo '</a>';
 
-		echo '<h3 class="woocommerce-loop-product__title"><a href="' . esc_url( $wcp->get_permalink() ) . '">' . esc_html( $wcp->get_name() ) . '</a></h3>';
+		// Título
+		echo '<h2 class="woocommerce-loop-product__title"><a href="' . esc_url( $wcp->get_permalink() ) . '">' . esc_html( $wcp->get_name() ) . '</a></h2>';
 
+		// Estrellas (woocommerce_template_loop_rating, si el producto tiene reseñas)
+		do_action( 'woocommerce_after_shop_loop_item_title' );
+
+		// Precio: nuevo primero, tachado después — igual que el carrusel original
 		echo '<div class="price-container">';
 		if ( $on_sale ) {
-			echo '<span class="old-price">' . wc_price( $regular ) . '</span>';
 			echo '<span class="new-price">' . wc_price( $price ) . '</span>';
+			echo '<span class="old-price">' . wc_price( $regular ) . '</span>';
 		} else {
 			echo '<span class="new-price">' . $wcp->get_price_html() . '</span>';
 		}
 		echo '</div>';
 
-		echo '<a href="' . $btn_url . '" class="' . esc_attr( $btn_cls ) . '"' . $btn_data . '>' . esc_html( $wcp->add_to_cart_text() ) . '</a>';
+		// Texto de envío + botón (→ custom_add_shipping_text_loop del tema)
+		do_action( 'woocommerce_after_shop_loop_item' );
 
 		echo '</div></div>';
 	}
 
-	$product = $_product_backup; // restaurar global
+	$product = $_product_backup; // restaurar global tras el bucle
 
 	echo '</div>';
 	echo '<div class="pp-swiper-prev swiper-button-prev"></div>';
