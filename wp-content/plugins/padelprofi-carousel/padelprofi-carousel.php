@@ -2,13 +2,13 @@
 /**
  * Plugin Name: PadelProfi Carousel
  * Description: Ligero sistema de carruseles de productos. Sustituto de carousel-slider.
- * Version:     1.2.0
+ * Version:     1.2.1
  * Text Domain: pp-carousel
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! defined( 'PP_CAROUSEL_VER' ) ) define( 'PP_CAROUSEL_VER', '1.2.0' );
+if ( ! defined( 'PP_CAROUSEL_VER' ) ) define( 'PP_CAROUSEL_VER', '1.2.1' );
 if ( ! defined( 'PP_CAROUSEL_URL' ) ) define( 'PP_CAROUSEL_URL', plugin_dir_url( __FILE__ ) );
 
 // ── Activación: SOLO flush rewrite rules + guardar datos legacy en option ──
