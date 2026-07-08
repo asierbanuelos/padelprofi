@@ -232,20 +232,6 @@ if ( WC()->cart->is_empty() ) : ?>
 				<section class="mm-step-panel" data-step-content="3" aria-labelledby="mm-title-3">
 					<h2 class="mm-step-title" id="mm-title-3"><span class="mm-step-title__num">3</span> Zahlungsmethode</h2>
 
-					<!-- Tarjetas aceptadas — visible antes de introducir datos -->
-					<div class="mm-accepted-cards">
-						<span class="mm-accepted-cards__label">Akzeptierte Zahlungsmittel</span>
-						<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:8px;">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-visa-bw.svg" alt="Visa" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-mastercard-bw.svg" alt="Mastercard" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-paypal-bw.svg" alt="PayPal" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/apple_pay.svg" alt="Apple Pay" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Logo-g-pay.svg" alt="Google Pay" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-amex-bw.svg" alt="American Express" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
-						</div>
-					</div>
-
 					<div class="mm-payment-wrapper">
 						<?php
 						$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
