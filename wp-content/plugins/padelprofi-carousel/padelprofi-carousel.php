@@ -2,13 +2,13 @@
 /**
  * Plugin Name: PadelProfi Carousel
  * Description: Ligero sistema de carruseles de productos. Sustituto de carousel-slider.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Text Domain: pp-carousel
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( ! defined( 'PP_CAROUSEL_VER' ) ) define( 'PP_CAROUSEL_VER', '1.1.0' );
+if ( ! defined( 'PP_CAROUSEL_VER' ) ) define( 'PP_CAROUSEL_VER', '1.2.0' );
 if ( ! defined( 'PP_CAROUSEL_URL' ) ) define( 'PP_CAROUSEL_URL', plugin_dir_url( __FILE__ ) );
 
 // ── Activación: SOLO flush rewrite rules + guardar datos legacy en option ──
@@ -293,16 +293,26 @@ function pp_carousel_render( $atts ) {
 			echo '<div class="discount-label">-' . $discount . '%</div>';
 		}
 
-		// Imagen con hover (usa el hook del tema que incluye imagen principal + gallery hover)
+		// Imagen con hover — llamadas directas para evitar que WCBoost Compare (y cualquier otro
+		// plugin) inyecte HTML en woocommerce_before_shop_loop_item_title a prioridad > 10
 		echo '<a href="' . esc_url( $wcp->get_permalink() ) . '" class="woocommerce-LoopProduct-link pp-card-link">';
-		do_action( 'woocommerce_before_shop_loop_item_title' ); // → mi_thumbnail_con_overlay()
+		if ( function_exists( 'mi_thumbnail_con_overlay' ) ) {
+			mi_thumbnail_con_overlay(); // imagen principal + imagen hover de la galería
+		} else {
+			echo woocommerce_get_product_thumbnail();
+		}
 		echo '</a>';
+
+		// Badge "Ausverkauft" si el producto está sin stock
+		if ( function_exists( 'etiqueta_agotado_automatica' ) ) {
+			etiqueta_agotado_automatica();
+		}
 
 		// Título como <p> en lugar de heading para no contaminar la jerarquía H1/H2/H3 de la página
 		echo '<p class="woocommerce-loop-product__title"><a href="' . esc_url( $wcp->get_permalink() ) . '">' . esc_html( $wcp->get_name() ) . '</a></p>';
 
-		// Estrellas — llamada directa para evitar woocommerce_template_loop_price (precio duplicado)
-		// y el botón de comparación WCBoost, que también se enganchan en woocommerce_after_shop_loop_item_title
+		// Estrellas — llamada directa (evita woocommerce_template_loop_price y WCBoost Compare
+		// que también se engancharían en do_action('woocommerce_after_shop_loop_item_title'))
 		if ( function_exists( 'woocommerce_template_loop_rating' ) ) {
 			woocommerce_template_loop_rating();
 		}
@@ -317,8 +327,10 @@ function pp_carousel_render( $atts ) {
 		}
 		echo '</div>';
 
-		// Texto de envío + botón (→ custom_add_shipping_text_loop del tema)
-		do_action( 'woocommerce_after_shop_loop_item' );
+		// Texto de envío + botón — llamada directa para evitar otros hooks de woocommerce_after_shop_loop_item
+		if ( function_exists( 'custom_add_shipping_text_loop' ) ) {
+			custom_add_shipping_text_loop();
+		}
 
 		echo '</div></div>';
 	}
