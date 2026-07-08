@@ -16,11 +16,18 @@
 	height: auto;
 }
 
-/* El .product-card2 hereda su diseño de carousel-product.css del tema */
+/* Anula las reglas de custom-padel.css que sobreescriben .product-card2 globalmente */
 .pp-carousel-wrapper .product-card2 {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	width: 100% !important;     /* anula .product-card2{width:200px!important} de custom-padel.css */
+	font-size: 1rem !important; /* anula .product-card2{font-size:20px} de custom-padel.css */
+}
+
+.pp-carousel-wrapper .price-container {
+	color: #333 !important;     /* anula .price-container{color:#000000} de custom-padel.css */
+	font-weight: normal !important;
 }
 
 /* ── Imagen con hover ────────────────────────────────────────────────────── */
