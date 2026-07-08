@@ -29,7 +29,16 @@
 	text-decoration: none;
 }
 
-/* ── Título ──────────────────────────────────────────────────────────────── */
+/* ── Título (ahora <p> en lugar de <h2/h3> para no contaminar la jerarquía SEO) */
+.pp-carousel-wrapper p.woocommerce-loop-product__title {
+	margin: 0 0 0 6px !important; /* resetear márgenes del <p> por defecto */
+	font-size: 0.875rem !important;
+	font-weight: 600;              /* compensar el bold que tenía el <h2> por defecto */
+	height: 50px;
+	line-height: 1.3;
+	overflow: hidden;
+	color: #333;
+}
 .pp-carousel-wrapper .woocommerce-loop-product__title a {
 	color: inherit;
 	text-decoration: none;

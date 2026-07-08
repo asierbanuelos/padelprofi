@@ -298,8 +298,8 @@ function pp_carousel_render( $atts ) {
 		do_action( 'woocommerce_before_shop_loop_item_title' ); // → mi_thumbnail_con_overlay()
 		echo '</a>';
 
-		// Título
-		echo '<h2 class="woocommerce-loop-product__title"><a href="' . esc_url( $wcp->get_permalink() ) . '">' . esc_html( $wcp->get_name() ) . '</a></h2>';
+		// Título como <p> en lugar de heading para no contaminar la jerarquía H1/H2/H3 de la página
+		echo '<p class="woocommerce-loop-product__title"><a href="' . esc_url( $wcp->get_permalink() ) . '">' . esc_html( $wcp->get_name() ) . '</a></p>';
 
 		// Estrellas (woocommerce_template_loop_rating, si el producto tiene reseñas)
 		do_action( 'woocommerce_after_shop_loop_item_title' );
