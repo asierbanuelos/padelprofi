@@ -235,10 +235,15 @@ if ( WC()->cart->is_empty() ) : ?>
 					<!-- Tarjetas aceptadas — visible antes de introducir datos -->
 					<div class="mm-accepted-cards">
 						<span class="mm-accepted-cards__label">Akzeptierte Zahlungsmittel</span>
-						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Group-750.png"
-						     alt="Visa, Mastercard, PayPal, Klarna und weitere Zahlungsmethoden"
-						     class="mm-accepted-cards__img"
-						     loading="lazy" />
+						<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:8px;">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-visa-bw.svg" alt="Visa" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-mastercard-bw.svg" alt="Mastercard" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-paypal-bw.svg" alt="PayPal" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/apple_pay.svg" alt="Apple Pay" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Logo-g-pay.svg" alt="Google Pay" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-amex-bw.svg" alt="American Express" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+							<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" height="24" style="height:24px;width:auto;opacity:.75;" loading="lazy">
+						</div>
 					</div>
 
 					<div class="mm-payment-wrapper">
@@ -368,6 +373,16 @@ if ( WC()->cart->is_empty() ) : ?>
 						Weiter zur Lieferung
 					</button>
 
+					<!-- Logos métodos de pago -->
+					<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:14px 4px 2px;border-top:1px solid #efefef;margin-top:14px;">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-visa-bw.svg" alt="Visa" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-mastercard-bw.svg" alt="Mastercard" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-paypal-bw.svg" alt="PayPal" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/apple_pay.svg" alt="Apple Pay" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Logo-g-pay.svg" alt="Google Pay" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-amex-bw.svg" alt="American Express" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" height="22" style="height:22px;width:auto;opacity:.7;" loading="lazy">
+					</div>
 
 				</div>
 			</aside>
