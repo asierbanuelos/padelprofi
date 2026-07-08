@@ -1,12 +1,8 @@
 /* Estilos generales para las tarjetas de producto */
 .product-card2 {
-    background-color: #fff;
-    /* border: 1px solid #e0e0e0; */
-    border-radius: 10px;
     padding: 20px 10px !important;
     text-align: left;
     position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease-in-out;
     font-family: Arial, sans-serif;
     margin: 10px;
