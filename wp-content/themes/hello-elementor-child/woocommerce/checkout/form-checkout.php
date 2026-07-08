@@ -28,7 +28,7 @@ if ( WC()->cart->is_empty() ) : ?>
 	<a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ); ?>" class="pp-empty-cart__cta">Weiter einkaufen</a>
 	<div class="pp-empty-cart__slider">
 		<p class="pp-empty-cart__slider-title">Das könnte dich auch interessieren</p>
-		<?php echo do_shortcode( '[carousel_slide id="36695"]' ); ?>
+		<?php echo do_shortcode( '[carousel_slide id="39989"]' ); ?>
 	</div>
 </div>
 <?php return; endif; ?>
