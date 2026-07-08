@@ -117,3 +117,13 @@
 .pp-carousel-wrapper .swiper-pagination-bullet-active {
 	background: #FE6100;
 }
+
+/* Ocultar botón de comparación WCBoost — no pertenece al carrusel */
+.pp-carousel-wrapper .wcboost-products-compare-button {
+	display: none !important;
+}
+
+/* Precio nuevo: rojo igual que en carousel-product.css del tema */
+.pp-carousel-wrapper .new-price {
+	color: #ff3e3e !important;
+}

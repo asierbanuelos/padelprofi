@@ -301,8 +301,11 @@ function pp_carousel_render( $atts ) {
 		// Título como <p> en lugar de heading para no contaminar la jerarquía H1/H2/H3 de la página
 		echo '<p class="woocommerce-loop-product__title"><a href="' . esc_url( $wcp->get_permalink() ) . '">' . esc_html( $wcp->get_name() ) . '</a></p>';
 
-		// Estrellas (woocommerce_template_loop_rating, si el producto tiene reseñas)
-		do_action( 'woocommerce_after_shop_loop_item_title' );
+		// Estrellas — llamada directa para evitar woocommerce_template_loop_price (precio duplicado)
+		// y el botón de comparación WCBoost, que también se enganchan en woocommerce_after_shop_loop_item_title
+		if ( function_exists( 'woocommerce_template_loop_rating' ) ) {
+			woocommerce_template_loop_rating();
+		}
 
 		// Precio: nuevo primero, tachado después — igual que el carrusel original
 		echo '<div class="price-container">';
