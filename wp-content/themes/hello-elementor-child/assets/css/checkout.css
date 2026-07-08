@@ -617,36 +617,29 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 
 
 /* ==========================================================================
-   15b. Paso 3 — Franja de tarjetas aceptadas
+   15b. Paso 3 — Header con título + logos de pago en línea
    ========================================================================== */
-.mm-accepted-cards {
+.mm-step3-header {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: 12px;
-	margin-bottom: 18px;
-	padding: 10px 14px;
-	background: var(--pp-gray-light, #f8f9fa);
-	border: 1px solid var(--pp-gray-border, #e5e7eb);
-	border-radius: var(--pp-radius-sm, 8px);
+	margin-bottom: 4px;
 }
-.mm-accepted-cards__label {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--pp-gray-dark, #6b7280);
-	white-space: nowrap;
-	flex-shrink: 0;
-	text-transform: uppercase;
-	letter-spacing: .04em;
+.mm-step3-header .mm-step-title {
+	margin-bottom: 0;
 }
 .mm-accepted-cards__img {
-	height: 26px;
+	height: 22px;
 	width: auto;
-	max-width: 100%;
+	max-width: 200px;
 	object-fit: contain;
+	flex-shrink: 0;
+	opacity: .85;
 }
 @media (max-width: 480px) {
-	.mm-accepted-cards { flex-direction: column; align-items: flex-start; gap: 8px; }
-	.mm-accepted-cards__img { height: 22px; }
+	.mm-step3-header { flex-wrap: wrap; }
+	.mm-accepted-cards__img { height: 18px; max-width: 160px; }
 }
 
 /* ==========================================================================
