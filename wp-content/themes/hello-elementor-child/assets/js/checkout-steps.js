@@ -451,7 +451,8 @@
 				}
 			}
 			toast.textContent = message;
-			toast.classList.add( 'mm-progress-toast--visible' );
+			// rAF ensures initial state is painted before adding --visible so CSS transition fires
+			requestAnimationFrame( () => toast.classList.add( 'mm-progress-toast--visible' ) );
 			clearTimeout( this._toastTimer );
 			this._toastTimer = setTimeout( () => {
 				toast.classList.remove( 'mm-progress-toast--visible' );
