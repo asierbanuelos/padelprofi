@@ -97,15 +97,14 @@
 	display: none !important;
 }
 
-/* ── Sección envío + botón: siempre al fondo ─────────────────────────────── */
+/* ── Sección envío + botón ───────────────────────────────────────────────── */
 .pp-carousel-wrapper .free-shipping-catalog {
-	margin-top: auto;
 	padding-top: 4px;
 	text-align: center;
 }
 
 .pp-carousel-wrapper .free-shipping-catalog .mi-btn-add-to-cart-container-catalog {
-	margin-top: 10px;
+	padding-top: 4px;
 }
 
 /* ── Swiper navegación ───────────────────────────────────────────────────── */
