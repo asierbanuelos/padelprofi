@@ -11,10 +11,22 @@ defined( 'ABSPATH' ) || exit;
 define( 'PP_CAROUSEL_VER', '1.0.0' );
 define( 'PP_CAROUSEL_URL', plugin_dir_url( __FILE__ ) );
 
-// ── Activación: migrar carruseles existentes ───────────────────────────────
+// ── Activación ─────────────────────────────────────────────────────────────
 register_activation_hook( __FILE__, 'pp_carousel_activate' );
 function pp_carousel_activate() {
 	pp_carousel_register_cpt();
+	flush_rewrite_rules();
+	// Marcar que hay que crear los carruseles iniciales (se hace en admin_init, no aquí)
+	update_option( 'pp_carousel_needs_migration', '1' );
+}
+
+// ── Migración diferida: se ejecuta en el primer admin_init tras la activación ──
+add_action( 'admin_init', 'pp_carousel_maybe_migrate' );
+function pp_carousel_maybe_migrate() {
+	if ( ! get_option( 'pp_carousel_needs_migration' ) ) return;
+	delete_option( 'pp_carousel_needs_migration' );
+
+	if ( ! function_exists( 'wc_get_product' ) ) return; // WooCommerce no está activo
 
 	$migrate = [
 		14249 => [
@@ -41,15 +53,13 @@ function pp_carousel_activate() {
 			'post_type'   => 'pp_carousel',
 			'post_title'  => $data['title'],
 			'post_status' => 'publish',
-		] );
+		], true );
 
 		if ( $post_id && ! is_wp_error( $post_id ) ) {
 			update_post_meta( $post_id, '_pp_carousel_products',  $data['products'] );
 			update_post_meta( $post_id, '_pp_carousel_legacy_id', $legacy_id );
 		}
 	}
-
-	flush_rewrite_rules();
 }
 
 // ── CPT ────────────────────────────────────────────────────────────────────

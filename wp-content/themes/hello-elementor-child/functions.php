@@ -3562,23 +3562,6 @@ function mostrar_h2_categoria_shortcode($atts) {
     
     return ''; // No muestra nada si el campo está vacío o no estamos en una categoría
 }
-// Solución que debería funcionar
-add_filter('do_shortcode_tag', function($output, $tag, $attr) {
-    if ($tag === 'carousel_slide' && isset($attr['id'])) {
-        global $custom_carousel_slider_id;
-        $custom_carousel_slider_id = intval($attr['id']);
-    }
-    return $output;
-}, 10, 3);
-
-// Tu shortcode personalizado
-add_shortcode('custom_carousel_slider', function ($atts) {
-    $atts = shortcode_atts(['id' => ''], $atts);
-    if (!$atts['id']) return '';
-    
-    return do_shortcode('[carousel_slide id="' . intval($atts['id']) . '"]');
-});
-
 // Mostrar etiqueta "Agotado" en productos sin stock (en loop de tienda y archivo)
 add_action('woocommerce_before_shop_loop_item_title', 'etiqueta_agotado_automatica', 10);
 add_action('woocommerce_single_product_summary', 'etiqueta_agotado_automatica', 5);
