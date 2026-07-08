@@ -5166,6 +5166,19 @@ add_filter( 'gettext', function( $translated, $original, $domain ) {
     return $map[ $original ] ?? $translated;
 }, 10, 3 );
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Force Elementor header template 35886 on 404 pages.
+// elementor_theme_do_location('header') reads the conditions cache to decide
+// which template to render. On 404 the template's conditions don't match,
+// so we inject the template ID into the cache for this request only.
+// ──────────────────────────────────────────────────────────────────────────────
+add_filter( 'option_elementor_pro_conditions_cache', function ( $cache ) {
+    if ( ! is_404() || ! is_array( $cache ) ) return $cache;
+    if ( ! isset( $cache['header'] ) ) $cache['header'] = [];
+    // Prepend template 35886 with an "include everywhere" rule so it takes priority
+    array_unshift( $cache['header'], [ 35886, 'include', 'general', '' ] );
+    return $cache;
+} );
 
 
 
