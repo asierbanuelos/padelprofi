@@ -16,10 +16,11 @@
 	height: auto;
 }
 
-/* Anula reglas globales de custom-padel.css / Customizer que afectan al carrusel */
+/* ── Card: anula reglas globales de custom-padel.css / Customizer ─────────── */
 .pp-carousel-wrapper .product-card2 {
 	display: flex;
 	flex-direction: column;
+	gap: 6px;          /* espaciado uniforme entre todos los hijos */
 	height: 100%;
 	width: 100% !important;
 	font-size: 1rem !important;
@@ -29,15 +30,10 @@
 	box-shadow: none !important;
 }
 
-/* Imágenes sin max-height forzado — la fuente puede ser Customizer CSS (BD) */
+/* Imagen: sin max-height forzado (puede venir del Customizer/BD) */
 .pp-carousel-wrapper .product-card2 .woocommerce-LoopProduct-link img,
 .pp-carousel-wrapper .product-card2 img {
 	max-height: none !important;
-}
-
-.pp-carousel-wrapper .price-container {
-	color: #333 !important;     /* anula .price-container{color:#000000} de custom-padel.css */
-	font-weight: normal !important;
 }
 
 /* ── Imagen con hover ────────────────────────────────────────────────────── */
@@ -46,15 +42,17 @@
 	text-decoration: none;
 }
 
-/* ── Título (ahora <p> en lugar de <h2/h3> para no contaminar la jerarquía SEO) */
+/* ── Título ──────────────────────────────────────────────────────────────── */
 .pp-carousel-wrapper p.woocommerce-loop-product__title {
-	margin: 0 0 0 6px !important; /* resetear márgenes del <p> por defecto */
+	margin: 0 !important;
+	padding: 0 4px;
 	font-size: 0.875rem !important;
-	font-weight: 600;              /* compensar el bold que tenía el <h2> por defecto */
+	font-weight: 600;
 	height: 50px;
 	line-height: 1.3;
 	overflow: hidden;
 	color: #333;
+	text-align: center;
 }
 .pp-carousel-wrapper .woocommerce-loop-product__title a {
 	color: inherit;
@@ -64,18 +62,25 @@
 	color: #FE6100;
 }
 
-/* ── Precio: nuevo primero, tachado después (igual que el carrusel original) */
+/* ── Rating ──────────────────────────────────────────────────────────────── */
+.pp-carousel-wrapper .woocommerce-product-rating {
+	text-align: center;
+}
+
+/* ── Precio ──────────────────────────────────────────────────────────────── */
 .pp-carousel-wrapper .price-container {
 	display: flex;
 	align-items: baseline;
-	gap: 6px;
+	justify-content: center;
+	gap: 8px;
 	flex-wrap: wrap;
+	padding: 4px 0;
 }
 
 .pp-carousel-wrapper .new-price {
-	font-size: 20px;
-	font-weight: 700;
-	color: #333;
+	font-size: 24px !important;
+	font-weight: 700 !important;
+	color: #000000 !important;
 }
 
 .pp-carousel-wrapper .old-price {
@@ -89,10 +94,11 @@
 	display: none !important;
 }
 
-/* Push del botón de envío al fondo de la tarjeta */
+/* ── Sección envío + botón: siempre al fondo ─────────────────────────────── */
 .pp-carousel-wrapper .free-shipping-catalog {
 	margin-top: auto;
-	padding-top: 8px;
+	padding-top: 4px;
+	text-align: center;
 }
 
 /* ── Swiper navegación ───────────────────────────────────────────────────── */
@@ -140,7 +146,3 @@
 	display: none !important;
 }
 
-/* Precio nuevo: rojo igual que en carousel-product.css del tema */
-.pp-carousel-wrapper .new-price {
-	color: #ff3e3e !important;
-}
