@@ -65,13 +65,14 @@ if ( WC()->cart->is_empty() ) : ?>
 	</nav>
 
 	<!-- Logos métodos de pago -->
-	<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:10px 0 18px;">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-visa-bw.svg" alt="Visa" style="height:22px;width:auto;" loading="lazy">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-mastercard-bw.svg" alt="Mastercard" style="height:22px;width:auto;" loading="lazy">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-paypal-bw.svg" alt="PayPal" style="height:22px;width:auto;" loading="lazy">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/apple_pay.svg" alt="Apple Pay" style="height:22px;width:auto;" loading="lazy">
-		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Logo-g-pay.svg" alt="Google Pay" style="height:22px;width:auto;" loading="lazy">
-<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" style="height:22px;width:auto;" loading="lazy">
+	<style>.mm-pay-logos img{height:22px;width:auto;}@media(max-width:768px){.mm-pay-logos img{height:15px;}}</style>
+	<div class="mm-pay-logos" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:10px 0 18px;">
+		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-visa-bw.svg" alt="Visa" loading="lazy">
+		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-mastercard-bw.svg" alt="Mastercard" loading="lazy">
+		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/logo-paypal-bw.svg" alt="PayPal" loading="lazy">
+		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/apple_pay.svg" alt="Apple Pay" loading="lazy">
+		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Logo-g-pay.svg" alt="Google Pay" loading="lazy">
+		<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/png-clipart-klarna-logo-tech-companies-removebg-preview.png" alt="Klarna" loading="lazy">
 	</div>
 
 	<form name="checkout" method="post"
