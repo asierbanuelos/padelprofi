@@ -617,6 +617,39 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 
 
 /* ==========================================================================
+   15b. Paso 3 — Franja de tarjetas aceptadas
+   ========================================================================== */
+.mm-accepted-cards {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 18px;
+	padding: 10px 14px;
+	background: var(--pp-gray-light, #f8f9fa);
+	border: 1px solid var(--pp-gray-border, #e5e7eb);
+	border-radius: var(--pp-radius-sm, 8px);
+}
+.mm-accepted-cards__label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--pp-gray-dark, #6b7280);
+	white-space: nowrap;
+	flex-shrink: 0;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+}
+.mm-accepted-cards__img {
+	height: 26px;
+	width: auto;
+	max-width: 100%;
+	object-fit: contain;
+}
+@media (max-width: 480px) {
+	.mm-accepted-cards { flex-direction: column; align-items: flex-start; gap: 8px; }
+	.mm-accepted-cards__img { height: 22px; }
+}
+
+/* ==========================================================================
    16. Paso 3 — Métodos de pago (lista de cards)
    ========================================================================== */
 .mm-payment-wrapper .wc_payment_methods {
