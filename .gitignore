@@ -22,6 +22,7 @@ wp-content/plugins/*
 !wp-content/plugins/woocommerce-featured-padel-updated/
 !wp-content/plugins/sitemap-personalizado-pro/
 !wp-content/plugins/wc-category-groups/
+!wp-content/plugins/padelprofi-carousel/
 
 # Dentro del child theme: excluir archivos innecesarios
 wp-content/themes/hello-elementor-child/assets/plugins/
