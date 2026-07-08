@@ -51,7 +51,7 @@
 	line-height: 1.35 !important;
 	overflow: hidden !important;
 	display: -webkit-box !important;
-	-webkit-line-clamp: 3 !important;
+	-webkit-line-clamp: 1 !important;
 	-webkit-box-orient: vertical !important;
 	text-overflow: ellipsis !important;
 	color: #333;
