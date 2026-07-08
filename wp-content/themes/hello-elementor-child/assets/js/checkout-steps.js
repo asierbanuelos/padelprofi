@@ -422,13 +422,40 @@
 		bindProgressBarClicks() {
 			this.progressSteps.forEach( ( el ) => {
 				el.addEventListener( 'click', () => {
+					const stepNum = parseInt( el.dataset.step );
 					if ( el.classList.contains( 'mm-step--completed' ) ) {
-						const stepNum = parseInt( el.dataset.step );
 						this.currentStep = stepNum;
 						this.renderStep( stepNum );
+					} else if ( stepNum > this.currentStep ) {
+						this.showProgressToast(
+							`Bitte füllen Sie zuerst Schritt ${ this.currentStep } aus, bevor Sie weitergehen.`
+						);
 					}
 				} );
 			} );
+		}
+
+		/* ------------------------------------------------------------------
+		   Toast bajo la barra de progreso (pasos futuros sin completar)
+		   ------------------------------------------------------------------ */
+		showProgressToast( message ) {
+			let toast = document.getElementById( 'mm-progress-toast' );
+			if ( ! toast ) {
+				toast = document.createElement( 'div' );
+				toast.id        = 'mm-progress-toast';
+				toast.className = 'mm-progress-toast';
+				toast.setAttribute( 'role', 'alert' );
+				const nav = document.querySelector( '.mm-progress-bar' );
+				if ( nav && nav.parentNode ) {
+					nav.parentNode.insertBefore( toast, nav.nextSibling );
+				}
+			}
+			toast.textContent = message;
+			toast.classList.add( 'mm-progress-toast--visible' );
+			clearTimeout( this._toastTimer );
+			this._toastTimer = setTimeout( () => {
+				toast.classList.remove( 'mm-progress-toast--visible' );
+			}, 3500 );
 		}
 
 		/* ------------------------------------------------------------------

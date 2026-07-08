@@ -228,6 +228,38 @@ body:not(.admin-bar) .mm-checkout-page .mm-progress-bar { top: 20px; }
 
 
 /* ==========================================================================
+   4b. Toast — aviso al hacer clic en paso futuro sin completar el actual
+   ========================================================================== */
+.mm-progress-toast {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	background: #fff8f3;
+	border-left: 3px solid #FE6100;
+	color: #555;
+	font-size: 14px;
+	padding: 0 16px;
+	border-radius: 4px;
+	margin: 0 0 0;
+	max-height: 0;
+	overflow: hidden;
+	opacity: 0;
+	transition: max-height .25s ease, opacity .2s ease, padding .25s ease, margin .25s ease;
+}
+.mm-progress-toast::before {
+	content: '⚠';
+	font-size: 16px;
+	color: #FE6100;
+	flex-shrink: 0;
+}
+.mm-progress-toast--visible {
+	max-height: 60px;
+	opacity: 1;
+	padding: 10px 16px;
+	margin: 0 0 16px;
+}
+
+/* ==========================================================================
    5. Layout — dos columnas (form | sidebar)
    El JS del PHP aplica los estilos inline con máxima prioridad.
    Aquí solo ponemos el fallback base.
