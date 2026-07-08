@@ -230,8 +230,11 @@ if ( WC()->cart->is_empty() ) : ?>
 
 				<!-- ── SCHRITT 3: ZAHLUNG ── -->
 				<section class="mm-step-panel" data-step-content="3" aria-labelledby="mm-title-3">
-					<div class="mm-step3-header">
-						<h2 class="mm-step-title" id="mm-title-3"><span class="mm-step-title__num">3</span> Zahlungsmethode</h2>
+					<h2 class="mm-step-title" id="mm-title-3"><span class="mm-step-title__num">3</span> Zahlungsmethode</h2>
+
+					<!-- Tarjetas aceptadas — visible antes de introducir datos -->
+					<div class="mm-accepted-cards">
+						<span class="mm-accepted-cards__label">Akzeptierte Zahlungsmittel</span>
 						<img src="https://padelprofideutschland.de/wp-content/uploads/2023/11/Group-750.png"
 						     alt="Visa, Mastercard, PayPal, Klarna und weitere Zahlungsmethoden"
 						     class="mm-accepted-cards__img"
