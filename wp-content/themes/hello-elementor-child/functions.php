@@ -3621,7 +3621,7 @@ function schema_itemlist_catalogo() {
     $args = array(
         'post_type'      => 'product',
         'post_status'    => 'publish',
-        'posts_per_page' => 23,   // Ajusta al máximo de productos que muestra tu catálogo
+        'posts_per_page' => (int) get_option( 'posts_per_page', 24 ),
         'fields'         => 'ids', // Solo necesitamos los IDs para ser eficientes
     );
 
