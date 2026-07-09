@@ -1586,15 +1586,37 @@ function render_product_subcategories_slider() {
     <div class="subcat-slider-wrapper">
         <div class="subcat-slider-container swiper-container js-subcat-swiper">
             <div class="swiper-wrapper">
-                <?php foreach ( $subcategories as $subcategory ) : ?>
+                <?php
+                $subcat_index = 0;
+                foreach ( $subcategories as $subcategory ) :
+                    // Fix URLs with duplicate consecutive path segments (e.g. /padelschlaeger/padelschlaeger/premium/)
+                    $subcat_url = $subcategory['url'];
+                    $parsed     = wp_parse_url( $subcat_url );
+                    if ( ! empty( $parsed['path'] ) ) {
+                        $parts  = array_values( array_filter( explode( '/', $parsed['path'] ) ) );
+                        $fixed  = [];
+                        $prev   = null;
+                        foreach ( $parts as $part ) {
+                            if ( $part !== $prev ) $fixed[] = $part;
+                            $prev = $part;
+                        }
+                        $new_path   = '/' . implode( '/', $fixed ) . '/';
+                        $subcat_url = ( isset( $parsed['scheme'] ) ? $parsed['scheme'] . '://' : '' )
+                                    . ( $parsed['host'] ?? '' )
+                                    . $new_path
+                                    . ( isset( $parsed['query'] ) ? '?' . $parsed['query'] : '' );
+                    }
+                    // Only the first visible image is critical; the rest load lazily
+                    $img_loading  = $subcat_index === 0 ? 'eager' : 'lazy';
+                    $img_priority = $subcat_index === 0 ? ' fetchpriority="high"' : '';
+                    $subcat_index++;
+                ?>
                     <div class="swiper-slide subcat-slide-item">
-                        <a href="<?php echo esc_url( $subcategory['url'] ); ?>" class="subcat-slide-link">
+                        <a href="<?php echo esc_url( $subcat_url ); ?>" class="subcat-slide-link">
                             <div class="subcat-slide-image">
                                 <img src="<?php echo esc_url( $subcategory['image'] ); ?>"
                                      alt="<?php echo esc_attr( $subcategory['title'] ); ?>"
-                                     loading="eager"
-                                     fetchpriority="high"
-                                     data-no-lazy="1">
+                                     loading="<?php echo $img_loading; ?>"<?php echo $img_priority; ?>>
                             </div>
                             <span class="subcat-slide-title">
                                 <?php echo esc_html( $subcategory['title'] ); ?>
