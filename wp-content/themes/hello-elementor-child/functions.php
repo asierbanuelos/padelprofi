@@ -3627,164 +3627,122 @@ add_action( 'wp_enqueue_scripts', 'remove_old_opensans_ttf', 100 );
 
 
 
-add_action('wp_head', 'schema_itemlist_catalogo', 5);
+// Captura cada producto en el momento exacto que WooCommerce lo pinta en la parrilla.
+// Así el schema refleja el mismo orden y los mismos productos que el usuario ve.
+add_action( 'woocommerce_after_shop_loop_item', function () {
+    global $mm_schema_rendered_products;
+    if ( ! isset( $mm_schema_rendered_products ) ) $mm_schema_rendered_products = [];
+    $mm_schema_rendered_products[] = get_the_ID();
+} );
+
+add_action( 'wp_footer', 'schema_itemlist_catalogo', 5 );
 function schema_itemlist_catalogo() {
 
-    // ── Solo actuar en páginas de catálogo WooCommerce ────────────────────────
-    $es_tienda    = function_exists('is_shop') && is_shop();
-    $es_categoria = function_exists('is_product_category') && is_product_category();
-    $es_tag       = function_exists('is_product_tag') && is_product_tag();
+    $es_tienda    = function_exists( 'is_shop' )             && is_shop();
+    $es_categoria = function_exists( 'is_product_category' ) && is_product_category();
+    $es_tag       = function_exists( 'is_product_tag' )      && is_product_tag();
 
-    if (!$es_tienda && !$es_categoria && !$es_tag) {
-        return;
+    if ( ! $es_tienda && ! $es_categoria && ! $es_tag ) return;
+
+    // ── IDs en el orden exacto que WooCommerce los renderizó ─────────────────
+    global $mm_schema_rendered_products;
+    $product_ids = $mm_schema_rendered_products ?? [];
+
+    // Fallback: si el hook no capturó nada (loop no ejecutado), usar $wp_query
+    if ( empty( $product_ids ) ) {
+        global $wp_query;
+        $product_ids = ! empty( $wp_query->posts ) ? wp_list_pluck( $wp_query->posts, 'ID' ) : [];
     }
 
-    // ── Configurar la query igual que WooCommerce / Elementor ─────────────────
-    $args = array(
-        'post_type'      => 'product',
-        'post_status'    => 'publish',
-        'posts_per_page' => 24,
-        'fields'         => 'ids', // Solo necesitamos los IDs para ser eficientes
-    );
-
-    // Filtrar por categoría o tag si estamos en su archivo
-    if ($es_categoria) {
-        $categoria = get_queried_object();
-        $args['tax_query'] = array(
-            array(
-                'taxonomy' => 'product_cat',
-                'field'    => 'term_id',
-                'terms'    => $categoria->term_id,
-            ),
-        );
-    } elseif ($es_tag) {
-        $tag = get_queried_object();
-        $args['tax_query'] = array(
-            array(
-                'taxonomy' => 'product_tag',
-                'field'    => 'term_id',
-                'terms'    => $tag->term_id,
-            ),
-        );
-    }
-
-    $productos = get_posts($args);
-
-    if (empty($productos)) {
-        return;
-    }
+    if ( empty( $product_ids ) ) return;
 
     // ── Nombre y URL de la lista ──────────────────────────────────────────────
-    if ($es_tienda) {
-        $nombre_lista = get_option('blogname') . ' — Tienda';
-        $url_lista    = get_permalink(wc_get_page_id('shop'));
+    if ( $es_tienda ) {
+        $nombre_lista = get_option( 'blogname' ) . ' — Tienda';
+        $url_lista    = get_permalink( wc_get_page_id( 'shop' ) );
     } else {
         $objeto       = get_queried_object();
         $nombre_lista = $objeto->name;
-        $url_lista    = get_term_link($objeto);
+        $url_lista    = get_term_link( $objeto );
     }
 
     // ── Construir los ListItem ────────────────────────────────────────────────
-    $items = array();
+    $items    = [];
     $posicion = 1;
 
-    foreach ($productos as $product_id) {
-        $product = wc_get_product($product_id);
+    foreach ( $product_ids as $product_id ) {
+        $product = wc_get_product( $product_id );
+        if ( ! $product || ! $product->is_visible() ) continue;
 
-        if (!$product || !$product->is_visible()) {
-            continue;
-        }
-
-        // Precio: usar precio normal o de oferta si existe
-        $precio = $product->get_price();
-
-        // Imagen principal
+        $precio     = $product->get_price();
         $imagen_id  = $product->get_image_id();
         $imagen_url = $imagen_id
-            ? wp_get_attachment_image_url($imagen_id, 'woocommerce_single')
-            : wc_placeholder_img_src('woocommerce_single');
-
-        // Disponibilidad
+            ? wp_get_attachment_image_url( $imagen_id, 'woocommerce_single' )
+            : wc_placeholder_img_src( 'woocommerce_single' );
         $disponible = $product->is_in_stock()
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock';
 
-        $item = array(
+        $item = [
             '@type'    => 'ListItem',
             'position' => $posicion,
-            'item'     => array(
+            'item'     => [
                 '@type'       => 'Product',
-                '@id'         => get_permalink($product_id),
+                '@id'         => get_permalink( $product_id ),
                 'name'        => $product->get_name(),
-                'url'         => get_permalink($product_id),
-                'description' => wp_strip_all_tags($product->get_short_description()
-                    ?: $product->get_description()),
+                'url'         => get_permalink( $product_id ),
+                'description' => wp_strip_all_tags( $product->get_short_description() ?: $product->get_description() ),
                 'image'       => $imagen_url,
                 'sku'         => $product->get_sku(),
-                'offers'      => array(
+                'offers'      => [
                     '@type'         => 'Offer',
-                    'url'           => get_permalink($product_id),
+                    'url'           => get_permalink( $product_id ),
                     'priceCurrency' => get_woocommerce_currency(),
                     'price'         => $precio,
                     'availability'  => $disponible,
-                    'seller'        => array(
-                        '@type' => 'Organization',
-                        'name'  => get_bloginfo('name'),
-                    ),
-                ),
-            ),
-        );
+                    'seller'        => [ '@type' => 'Organization', 'name' => get_bloginfo( 'name' ) ],
+                ],
+            ],
+        ];
 
-        // Añadir rating si el producto tiene reseñas
         $rating_count = $product->get_rating_count();
-        if ($rating_count > 0) {
-            $item['item']['aggregateRating'] = array(
+        if ( $rating_count > 0 ) {
+            $item['item']['aggregateRating'] = [
                 '@type'       => 'AggregateRating',
-                'ratingValue' => round($product->get_average_rating(), 1),
+                'ratingValue' => round( $product->get_average_rating(), 1 ),
                 'reviewCount' => $rating_count,
                 'bestRating'  => '5',
                 'worstRating' => '1',
-            );
+            ];
         }
 
-        // Añadir marca si el producto tiene el atributo "marca" o "brand"
-// Añadir marca si el producto tiene el atributo "marca" o "brand"
-$marca = '';
-$product_id = is_object($product_id) ? $product_id->ID : (int) $product_id;
-$atributos_marca = array('pa_marca', 'pa_brand', 'pa_fabricante');
-foreach ($atributos_marca as $attr) {
-    $terminos = wc_get_product_terms($product_id, $attr, array('fields' => 'names'));
-    if (!empty($terminos)) {
-        $marca = $terminos[0];
-        break;
-    }
-}
-if (!empty($marca)) {
-    $item['item']['brand'] = array(
-        '@type' => 'Brand',
-        'name'  => $marca,
-    );
-}
-        $items[]   = $item;
+        $marca           = '';
+        $atributos_marca = [ 'pa_marca', 'pa_brand', 'pa_fabricante' ];
+        foreach ( $atributos_marca as $attr ) {
+            $terminos = wc_get_product_terms( $product_id, $attr, [ 'fields' => 'names' ] );
+            if ( ! empty( $terminos ) ) { $marca = $terminos[0]; break; }
+        }
+        if ( $marca ) {
+            $item['item']['brand'] = [ '@type' => 'Brand', 'name' => $marca ];
+        }
+
+        $items[] = $item;
         $posicion++;
     }
 
-    if (empty($items)) {
-        return;
-    }
+    if ( empty( $items ) ) return;
 
-    // ── Schema final ─────────────────────────────────────────────────────────
-    $schema = array(
+    $schema = [
         '@context'        => 'https://schema.org',
         '@type'           => 'ItemList',
         'name'            => $nombre_lista,
-        'url'             => is_string($url_lista) ? $url_lista : '',
-        'numberOfItems'   => count($items),
+        'url'             => is_string( $url_lista ) ? $url_lista : '',
+        'numberOfItems'   => count( $items ),
         'itemListElement' => $items,
-    );
+    ];
 
     echo '<script type="application/ld+json">'
-        . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+        . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT )
         . '</script>' . "\n";
 }
 
@@ -5197,10 +5155,28 @@ add_filter( 'gettext', function( $translated, $original, $domain ) {
 add_filter( 'option_elementor_pro_conditions_cache', function ( $cache ) {
     if ( ! is_404() || ! is_array( $cache ) ) return $cache;
     if ( ! isset( $cache['header'] ) ) $cache['header'] = [];
-    // Prepend template 35886 with an "include everywhere" rule so it takes priority
     array_unshift( $cache['header'], [ 36591, 'include', 'general', '' ] );
     return $cache;
 } );
+
+// ── Popup 28910: downgrade H2 heading widgets to <p> para SEO ────────────────
+// Elementor renders these as H2 in source, but they are UI labels, not document
+// headings. We intercept at widget render time, checking the active document.
+add_filter( 'elementor/widget/render_content', function ( $content, $widget ) {
+    if ( 'heading' !== $widget->get_name() ) return $content;
+
+    $document = class_exists( '\Elementor\Plugin' )
+        ? \Elementor\Plugin::$instance->documents->get_current()
+        : null;
+
+    if ( ! $document || (int) $document->get_main_id() !== 28910 ) return $content;
+
+    // Replace <h2 …> … </h2> with <p …> … </p> (keeps all attributes/classes)
+    $content = preg_replace( '/<h2(\b[^>]*)>/i', '<p$1>', $content );
+    $content = str_replace( '</h2>', '</p>', $content );
+
+    return $content;
+}, 10, 2 );
 
 
 
