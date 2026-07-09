@@ -1596,9 +1596,9 @@ function render_product_subcategories_slider() {
                                      fetchpriority="high"
                                      data-no-lazy="1">
                             </div>
-                            <h3 class="subcat-slide-title">
+                            <span class="subcat-slide-title">
                                 <?php echo esc_html( $subcategory['title'] ); ?>
-                            </h3>
+                            </span>
                         </a>
                     </div>
                 <?php endforeach; ?>
