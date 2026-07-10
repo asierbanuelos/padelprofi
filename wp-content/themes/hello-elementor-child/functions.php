@@ -4749,19 +4749,53 @@ add_shortcode('foto_producto', function ($atts) {
  * ============================================================
  */
 
-// 1. Forzar canonical a la URL limpia cuando hay parámetros de orderby/filtros
+// ── Helpers internos ──────────────────────────────────────────────────────────
+// Detecta si la request actual tiene parámetros que deben tratarse como noindex.
+function pp_has_dirty_params() {
+    return ! empty( $_GET['orderby'] )
+        || ! empty( $_GET['wpf_min_price'] )
+        || ! empty( $_GET['wpf_max_price'] )
+        || ! empty( $_GET['wpf_fbv'] )
+        || isset( $_GET['srsltid'] );
+}
+// URL limpia: path sin query string.
+function pp_clean_path_url() {
+    return home_url( strtok( $_SERVER['REQUEST_URI'], '?' ) );
+}
+
+// 1. Canonical: URLs con params sucios → URL limpia (sin query string)
 if ( ! function_exists( 'pp_fix_canonical_parametros' ) ) {
     function pp_fix_canonical_parametros( $canonical ) {
-        if ( ! empty( $_GET['orderby'] ) || ! empty( $_GET['wpf_min_price'] ) || ! empty( $_GET['wpf_max_price'] ) || ! empty( $_GET['wpf_fbv'] ) ) {
-            $clean_url = strtok( $_SERVER['REQUEST_URI'], '?' );
-            return home_url( $clean_url );
+        if ( pp_has_dirty_params() ) {
+            return pp_clean_path_url();
         }
         return $canonical;
     }
     add_filter( 'rank_math/frontend/canonical', 'pp_fix_canonical_parametros' );
 }
 
-// 2. Redirigir búsquedas vacías (/?s=) a home, y limpiar el "?" colgante sin parámetros
+// 2. Noindex,follow para todos los casos parametrizados + búsquedas + paginaciones
+add_filter( 'rank_math/frontend/robots', function ( $robots ) {
+    $noindex = false;
+
+    // Parámetros sucios: ?orderby=, ?wpf_*, ?srsltid=
+    if ( pp_has_dirty_params() ) $noindex = true;
+
+    // Búsquedas internas con término (/?s=algo) — vacías ya van por redirect
+    if ( is_search() && ! empty( trim( get_search_query() ) ) ) $noindex = true;
+
+    // Paginaciones (limpias o con params): /page/2/, /page/2/?orderby=…
+    if ( is_paged() ) $noindex = true;
+
+    if ( $noindex ) {
+        $robots['index']  = 'noindex';
+        $robots['follow'] = 'follow';
+    }
+
+    return $robots;
+} );
+
+// 3. Redirect: búsquedas vacías → home | "?" colgante → URL limpia
 if ( ! function_exists( 'pp_redirect_busqueda_vacia_y_query_vacio' ) ) {
     function pp_redirect_busqueda_vacia_y_query_vacio() {
 
@@ -4773,8 +4807,7 @@ if ( ! function_exists( 'pp_redirect_busqueda_vacia_y_query_vacio' ) ) {
 
         // "?" colgando sin parámetros reales (ej: /categoria/page/2/?)
         if ( isset( $_SERVER['QUERY_STRING'] ) && $_SERVER['QUERY_STRING'] === '' && strpos( $_SERVER['REQUEST_URI'], '?' ) !== false ) {
-            $clean_url = strtok( $_SERVER['REQUEST_URI'], '?' );
-            wp_redirect( home_url( $clean_url ), 301 );
+            wp_redirect( pp_clean_path_url(), 301 );
             exit;
         }
     }
